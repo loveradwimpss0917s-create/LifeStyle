@@ -2,11 +2,13 @@
 /**
  * Header — 06章§6.6 / 12章§3
  * 高さ64px(M)/72px(D)。position: sticky。下スクロールで隠し、上スクロールで再表示。
- * ナビ項目: primaryCategoryNav(上位5・暫定 nav.ts参照) + Ranking + About 固定ロジック。
+ * ナビ項目: categories(order昇順)上位5 + Ranking + About 固定ロジック。
  */
 import Icon from '@/components/base/Icon.astro';
 import MobileMenu from '@/components/island/MobileMenu.astro';
-import { primaryCategoryNav } from '@/lib/nav';
+import { getPrimaryCategoryNav } from '@/lib/nav';
+
+const primaryCategoryNav = await getPrimaryCategoryNav();
 ---
 
 <header class="header" id="site-header">

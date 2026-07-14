@@ -3,12 +3,13 @@
  * Footer — 02章§5
  * 構成: ブランドステートメント / カテゴリ全一覧 / About / SNSリンク / Newsletter(V2) / Privacy / Disclosure / © LIFESTACK
  *
- * TODO(commit2/content-schema後): SNSリンクは site.json(sns) 実装後に
- * SocialLinks(variant='footer') を追加する。現時点ではハードコードを避けるため未実装。
+ * TODO(commit4以降): SNSリンクは site.json(sns) が実装済みのため、
+ * SocialLinks(variant='footer') コンポーネント実装時にここへ追加する。
  * Newsletterは12章§6の方針によりV1では実装しない(先回り実装も行わない)。
  */
-import { allCategoryNav } from '@/lib/nav';
+import { getAllCategoryNav } from '@/lib/nav';
 
+const allCategoryNav = await getAllCategoryNav();
 const year = new Date().getFullYear();
 ---
 

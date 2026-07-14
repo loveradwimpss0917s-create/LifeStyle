@@ -6,11 +6,13 @@
  * 「スクリプトはページに1つだけ含まれるが、767px以下でのみボタンが表示され動作する」
  * CSS + matchMediaガードで実装する。
  *
- * TODO(commit2以降): SNSリンクは site.json(sns)が実装され次第、フッターと同じ
- * SocialLinksコンポーネントをオーバーレイ内に追加する。ハードコードは行わない。
+ * TODO(commit4以降): SNSリンクは site.json(sns) が実装済みのため、
+ * SocialLinksコンポーネント実装時にオーバーレイ内へ追加する。
  */
 import Icon from '@/components/base/Icon.astro';
-import { allCategoryNav } from '@/lib/nav';
+import { getAllCategoryNav } from '@/lib/nav';
+
+const allCategoryNav = await getAllCategoryNav();
 ---
 
 <button
