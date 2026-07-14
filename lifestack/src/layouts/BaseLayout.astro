@@ -1,0 +1,80 @@
+---
+/**
+ * BaseLayout — 06章§6.6
+ * Props: title, description, ogImage?, jsonLd?, noindex?
+ */
+import { ClientRouter } from 'astro:transitions';
+import Header from '@/components/layout/Header.astro';
+import Footer from '@/components/layout/Footer.astro';
+import '@/styles/global.css';
+import cormorantLatinWoff2 from '@fontsource-variable/cormorant-garamond/files/cormorant-garamond-latin-wght-normal.woff2?url';
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
+}
+
+const { title, description, ogImage, jsonLd, noindex = false } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const siteName = 'LIFESTACK';
+const pageTitle = title === siteName ? title : `${title} | ${siteName}`;
+const resolvedOgImage = ogImage
+  ? new URL(ogImage, Astro.site)
+  : undefined;
+
+const jsonLdList = jsonLd
+  ? Array.isArray(jsonLd)
+    ? jsonLd
+    : [jsonLd]
+  : [];
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href={canonicalURL} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+
+    <!-- OGP -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    {resolvedOgImage && <meta property="og:image" content={resolvedOgImage} />}
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- フォントpreload(LCP付近で使用される英字フォントのみ。日本語フォントはunicode-range分割済みのため対象外) -->
+    <link
+      rel="preload"
+      href={cormorantLatinWoff2}
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+
+    {jsonLdList.map((entry) => (
+      <script type="application/ld+json" set:html={JSON.stringify(entry)} is:inline />
+    ))}
+
+    <ClientRouter />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">メインコンテンツへスキップ</a>
+    <Header />
+    <main id="main-content">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

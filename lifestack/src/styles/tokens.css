@@ -1,0 +1,86 @@
+/**
+ * Design Tokens — LIFESTACK
+ * 出典: docs/03-design-system.md §2
+ * このファイルがデザインの「正」。値の変更は必ずこのファイルから行う。
+ */
+:root {
+  /* ============ 2.1 カラー ============ */
+  /* Base */
+  --color-bg: #ffffff; /* ページ背景 */
+  --color-bg-secondary: #f7f6f4; /* セクション背景(わずかに温かい白) */
+  --color-bg-tertiary: #efede9; /* タグ・控えめな面 */
+
+  /* Ink(テキスト) */
+  --color-ink: #1a1a18; /* 見出し・本文強調(純黒は使わない) */
+  --color-ink-secondary: #55534e; /* 本文 */
+  --color-ink-tertiary: #8b887f; /* キャプション・メタ情報 */
+
+  /* Accent */
+  --color-accent: #8a6d4b; /* 真鍮/ブロンズ。リンク下線・小さな強調のみ */
+  --color-accent-strong: #6e5539; /* hover */
+
+  /* Functional */
+  --color-line: #e5e2dc; /* 罫線(1pxのみ許可) */
+  --color-cta: #1a1a18; /* CTAボタンは墨色。彩色ボタン禁止 */
+  --color-cta-text: #ffffff;
+  --color-focus: #2f6fed; /* フォーカスリングのみ許可される鮮色 */
+  --color-star: #c9a227; /* おすすめ度の星 */
+
+  /* ============ 2.2 タイポグラフィ ============ */
+  --font-en: 'Cormorant Garamond', serif; /* 英字見出し・ロゴ・誌面ラベル */
+  --font-ja: 'Zen Kaku Gothic New', system-ui, sans-serif; /* 日本語見出し・本文 */
+
+  --text-xs: 0.75rem; /* 12px メタ・キャプション */
+  --text-sm: 0.875rem; /* 14px UIラベル・タグ */
+  --text-base: 1.0625rem; /* 17px 本文(Apple基準) */
+  --text-lg: 1.25rem; /* 20px リード文 */
+  --text-xl: 1.5rem; /* 24px h3 */
+  --text-2xl: 2rem; /* 32px h2 */
+  --text-3xl: 2.75rem; /* 44px h1(モバイル 2rem) */
+  --text-hero: 3.5rem; /* 56px Hero(モバイル 2.25rem) */
+
+  --leading-tight: 1.3; /* 見出し */
+  --leading-body: 1.9; /* 日本語本文 */
+  --tracking-wide: 0.08em; /* 英字ラベル(uppercase時) */
+
+  --measure: 680px; /* 本文行長 */
+
+  /* ============ 2.3 スペーシング ============ */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --space-7: 64px;
+  --space-8: 96px;
+  --space-9: 128px;
+  --section-gap: clamp(80px, 12vw, 128px);
+  --container-max: 1200px; /* 通常コンテナ */
+  --container-wide: 1440px; /* ギャラリー・Hero */
+  --container-text: 680px; /* 記事本文 */
+
+  /* ============ 2.4 レイアウトグリッド ============ */
+  --gutter: 24px;
+  --outer-margin: max(24px, 4vw);
+  --outer-margin-mobile: 20px;
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+
+  /* ============ 2.5 角丸・線・影 ============ */
+  --radius-none: 0;
+  --radius-sm: 2px;
+  --radius-full: 999px;
+  --border-thin: 1px solid var(--color-line);
+
+  /* ============ 2.6 モーション ============ */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 200ms; /* hover */
+  --duration-base: 350ms; /* 出現フェード */
+
+  /* ============ レイアウト(実装用・追加値) ============ */
+  --header-height-mobile: 64px;
+  --header-height-desktop: 72px;
+}

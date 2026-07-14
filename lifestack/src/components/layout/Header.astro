@@ -1,0 +1,146 @@
+---
+/**
+ * Header — 06章§6.6 / 12章§3
+ * 高さ64px(M)/72px(D)。position: sticky。下スクロールで隠し、上スクロールで再表示。
+ * ナビ項目: primaryCategoryNav(上位5・暫定 nav.ts参照) + Ranking + About 固定ロジック。
+ */
+import Icon from '@/components/base/Icon.astro';
+import MobileMenu from '@/components/island/MobileMenu.astro';
+import { primaryCategoryNav } from '@/lib/nav';
+---
+
+<header class="header" id="site-header">
+  <div class="header__inner container-wide">
+    <a href="/" class="header__logo">LIFESTACK</a>
+
+    <nav class="header__nav" aria-label="グローバルナビゲーション">
+      <ul role="list" class="header__nav-list">
+        {primaryCategoryNav.map((item) => (
+          <li>
+            <a href={item.href}>{item.labelJa}</a>
+          </li>
+        ))}
+        <li><a href="/ranking/">Ranking</a></li>
+        <li><a href="/about/">About</a></li>
+      </ul>
+    </nav>
+
+    <div class="header__actions">
+      <a href="/search/" class="header__icon-link" aria-label="検索">
+        <Icon name="search" size={20} />
+      </a>
+      <MobileMenu />
+    </div>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--header-height-mobile);
+    background: var(--color-bg);
+    box-shadow: 0 1px 0 var(--color-line);
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+
+  @media (min-width: 768px) {
+    .header {
+      height: var(--header-height-desktop);
+    }
+  }
+
+  .header.is-hidden {
+    transform: translateY(-100%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .header.is-hidden {
+      transform: none;
+    }
+  }
+
+  .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+  }
+
+  .header__logo {
+    font-family: var(--font-en);
+    font-size: var(--text-xl);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-ink);
+  }
+
+  .header__nav {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .header__nav {
+      display: block;
+    }
+  }
+
+  .header__nav-list {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+  }
+
+  .header__nav-list a:hover {
+    color: var(--color-ink);
+  }
+
+  .header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .header__icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: var(--color-ink);
+  }
+</style>
+
+<script>
+  // Headerスクロール隠し(12章§3)。1KB程度の軽量実装。reduced-motionでは無効化。
+  const header = document.getElementById('site-header');
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  ).matches;
+
+  if (header && !prefersReducedMotion) {
+    let lastY = window.scrollY;
+    let ticking = false;
+
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      if (currentY > lastY && currentY > 80) {
+        header.classList.add('is-hidden');
+      } else {
+        header.classList.remove('is-hidden');
+      }
+      lastY = currentY;
+      ticking = false;
+    };
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(onScroll);
+        ticking = true;
+      }
+    }, { passive: true });
+  }
+</script>

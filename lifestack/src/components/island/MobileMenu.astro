@@ -1,0 +1,187 @@
+---
+/**
+ * MobileMenu — 06章§6.5
+ * 設計上は client:media="(max-width: 767px)" 指定だが、AstroコンポーネントはUIフレームワーク
+ * のようなクライアントhydrationディレクティブを持たないため、同等の効果を
+ * 「スクリプトはページに1つだけ含まれるが、767px以下でのみボタンが表示され動作する」
+ * CSS + matchMediaガードで実装する。
+ *
+ * TODO(commit2以降): SNSリンクは site.json(sns)が実装され次第、フッターと同じ
+ * SocialLinksコンポーネントをオーバーレイ内に追加する。ハードコードは行わない。
+ */
+import Icon from '@/components/base/Icon.astro';
+import { allCategoryNav } from '@/lib/nav';
+---
+
+<button
+  type="button"
+  id="mobile-menu-toggle"
+  class="mobile-menu-toggle"
+  aria-haspopup="dialog"
+  aria-expanded="false"
+  aria-controls="mobile-menu-dialog"
+>
+  <Icon name="menu" size={22} />
+  <span class="visually-hidden">メニューを開く</span>
+</button>
+
+<div
+  id="mobile-menu-dialog"
+  class="mobile-menu"
+  role="dialog"
+  aria-modal="true"
+  aria-label="メインメニュー"
+  hidden
+>
+  <div class="mobile-menu__header">
+    <a href="/" class="mobile-menu__logo">LIFESTACK</a>
+    <button type="button" id="mobile-menu-close" class="mobile-menu__close">
+      <Icon name="close" size={22} />
+      <span class="visually-hidden">メニューを閉じる</span>
+    </button>
+  </div>
+
+  <nav aria-label="カテゴリ">
+    <ul role="list" class="mobile-menu__list">
+      {allCategoryNav.map((item) => (
+        <li>
+          <a href={item.href}>{item.labelJa}</a>
+        </li>
+      ))}
+      <li><a href="/ranking/">Ranking</a></li>
+      <li><a href="/about/">About</a></li>
+      <li><a href="/search/">検索</a></li>
+    </ul>
+  </nav>
+</div>
+
+<style>
+  .mobile-menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: var(--color-ink);
+  }
+
+  @media (min-width: 1024px) {
+    .mobile-menu-toggle {
+      display: none;
+    }
+  }
+
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: var(--color-bg);
+    padding: var(--space-3) var(--outer-margin-mobile);
+    overflow-y: auto;
+  }
+
+  .mobile-menu[hidden] {
+    display: none;
+  }
+
+  .mobile-menu__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-height-mobile);
+  }
+
+  .mobile-menu__logo {
+    font-family: var(--font-en);
+    font-size: var(--text-xl);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-ink);
+  }
+
+  .mobile-menu__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: var(--color-ink);
+  }
+
+  .mobile-menu__list {
+    margin-top: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    font-size: var(--text-xl);
+    font-family: var(--font-en);
+  }
+</style>
+
+<script>
+  // MobileMenu: dialogパターン(focus trap, Esc close, aria-expanded)。
+  // 767px超では起動しない(matchMediaガード)。
+  const mq = window.matchMedia('(max-width: 767px)');
+  const toggle = document.getElementById('mobile-menu-toggle');
+  const dialog = document.getElementById('mobile-menu-dialog');
+  const closeBtn = document.getElementById('mobile-menu-close');
+
+  if (toggle && dialog && closeBtn) {
+    let lastFocused: HTMLElement | null = null;
+
+    const getFocusable = () =>
+      Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled])'
+        )
+      );
+
+    const open = () => {
+      lastFocused = document.activeElement as HTMLElement;
+      dialog.hidden = false;
+      toggle.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+      closeBtn.focus();
+      document.addEventListener('keydown', onKeydown);
+    };
+
+    const close = () => {
+      dialog.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', onKeydown);
+      (lastFocused ?? toggle).focus();
+    };
+
+    const onKeydown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        close();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const focusable = getFocusable();
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    toggle.addEventListener('click', () => {
+      if (!mq.matches) return;
+      dialog.hidden ? open() : close();
+    });
+    closeBtn.addEventListener('click', close);
+
+    // デスクトップ幅へのリサイズ時は強制的に閉じる
+    mq.addEventListener('change', (e) => {
+      if (!e.matches && !dialog.hidden) close();
+    });
+  }
+</script>

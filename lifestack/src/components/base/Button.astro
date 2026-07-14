@@ -1,0 +1,103 @@
+---
+/**
+ * Button — 06章§6.2
+ */
+interface Props {
+  variant?: 'primary' | 'secondary' | 'text';
+  size?: 'md' | 'lg';
+  href?: string;
+  external?: boolean;
+  fullWidth?: boolean;
+  class?: string;
+}
+
+const {
+  variant = 'primary',
+  size = 'md',
+  href,
+  external = false,
+  fullWidth = false,
+  class: className,
+} = Astro.props;
+
+const Tag = href ? 'a' : 'button';
+const externalProps = external
+  ? { target: '_blank', rel: 'noopener noreferrer' }
+  : {};
+---
+
+<Tag
+  class:list={['btn', `btn--${variant}`, `btn--${size}`, { 'btn--full': fullWidth }, className]}
+  href={href}
+  {...externalProps}
+>
+  <slot />
+  <slot name="icon" />
+</Tag>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 44px;
+    padding-inline: var(--space-4);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    transition: background-color var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out),
+      opacity var(--duration-fast) var(--ease-out);
+  }
+
+  .btn--md {
+    min-height: 44px;
+  }
+
+  .btn--lg {
+    min-height: 52px;
+    padding-inline: var(--space-5);
+  }
+
+  .btn--full {
+    width: 100%;
+  }
+
+  .btn--primary {
+    background: var(--color-cta);
+    color: var(--color-cta-text);
+  }
+
+  .btn--primary:hover {
+    background: var(--color-accent-strong);
+  }
+
+  .btn--secondary {
+    background: transparent;
+    color: var(--color-ink);
+    border: var(--border-thin);
+  }
+
+  .btn--secondary:hover {
+    border-color: var(--color-ink);
+  }
+
+  .btn--text {
+    background: transparent;
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+    min-height: auto;
+    padding-inline: 0;
+  }
+
+  .btn--text:hover {
+    color: var(--color-accent-strong);
+  }
+
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+</style>

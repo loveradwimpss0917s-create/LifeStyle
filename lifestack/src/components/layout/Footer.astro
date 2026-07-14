@@ -1,0 +1,100 @@
+---
+/**
+ * Footer — 02章§5
+ * 構成: ブランドステートメント / カテゴリ全一覧 / About / SNSリンク / Newsletter(V2) / Privacy / Disclosure / © LIFESTACK
+ *
+ * TODO(commit2/content-schema後): SNSリンクは site.json(sns) 実装後に
+ * SocialLinks(variant='footer') を追加する。現時点ではハードコードを避けるため未実装。
+ * Newsletterは12章§6の方針によりV1では実装しない(先回り実装も行わない)。
+ */
+import { allCategoryNav } from '@/lib/nav';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="footer__inner container-wide">
+    <div class="footer__brand">
+      <p class="footer__logo">LIFESTACK</p>
+      <p class="footer__tagline">日常を、美しく残す。</p>
+    </div>
+
+    <nav class="footer__nav" aria-label="カテゴリ一覧">
+      <ul role="list" class="footer__nav-list">
+        {allCategoryNav.map((item) => (
+          <li>
+            <a href={item.href}>{item.labelJa}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <nav class="footer__meta" aria-label="サイト情報">
+      <ul role="list" class="footer__meta-list">
+        <li><a href="/about/">About</a></li>
+        <li><a href="/privacy/">プライバシーポリシー</a></li>
+        <li><a href="/disclosure/">アフィリエイト・PR表記について</a></li>
+      </ul>
+    </nav>
+
+    <p class="footer__copyright">&copy; {year} LIFESTACK</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    margin-top: var(--section-gap);
+    padding-block: var(--space-7);
+    border-top: var(--border-thin);
+    background: var(--color-bg-secondary);
+  }
+
+  .footer__inner {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .footer__inner {
+      grid-template-columns: 1.2fr 1fr 1fr;
+      align-items: start;
+    }
+  }
+
+  .footer__logo {
+    font-family: var(--font-en);
+    font-size: var(--text-xl);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-ink);
+  }
+
+  .footer__tagline {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-ink-tertiary);
+  }
+
+  .footer__nav-list,
+  .footer__meta-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+  }
+
+  .footer__nav-list a:hover,
+  .footer__meta-list a:hover {
+    color: var(--color-ink);
+  }
+
+  .footer__copyright {
+    grid-column: 1 / -1;
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
+    border-top: var(--border-thin);
+    font-size: var(--text-xs);
+    color: var(--color-ink-tertiary);
+  }
+</style>

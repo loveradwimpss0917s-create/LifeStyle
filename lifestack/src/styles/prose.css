@@ -1,0 +1,79 @@
+/**
+ * Prose — 記事本文タイポグラフィスコープ
+ * 出典: docs/03-design-system.md §2.2 / docs/06-component-design.md §6.2 Prose
+ * 使用箇所: src/components/base/Prose.astro のスコープ内
+ */
+.prose {
+  max-width: var(--container-text);
+  color: var(--color-ink-secondary);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+}
+
+.prose > * + * {
+  margin-top: var(--space-4);
+}
+
+.prose h2 {
+  margin-top: var(--space-7);
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+}
+
+.prose h3 {
+  margin-top: var(--space-6);
+  font-size: var(--text-xl);
+  line-height: var(--leading-tight);
+}
+
+.prose p {
+  line-height: var(--leading-body);
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.5em;
+}
+
+.prose ul {
+  list-style: disc;
+}
+
+.prose ol {
+  list-style: decimal;
+}
+
+.prose li + li {
+  margin-top: var(--space-2);
+}
+
+.prose figure {
+  margin-top: var(--space-5);
+}
+
+.prose figcaption {
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-ink-tertiary);
+}
+
+.prose blockquote {
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--color-accent);
+  color: var(--color-ink-secondary);
+  font-style: italic;
+}
+
+.prose a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.prose a:hover {
+  color: var(--color-accent-strong);
+}
+
+.prose strong {
+  color: var(--color-ink);
+}
