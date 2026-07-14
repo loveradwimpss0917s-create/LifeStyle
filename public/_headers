@@ -1,0 +1,18 @@
+# Cloudflare Pages 配信ヘッダー設定
+# 参照: docs/08-tech-architecture.md §4(キャッシュ)
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# HTML: 常に再検証(コンテンツ更新を即時反映)
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# ハッシュ付き静的アセット(Astroが生成する /_astro/ 配下)は長期キャッシュ
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Pagefindインデックス(ビルドごとにファイル名が変わらないため中期キャッシュ)
+/pagefind/*
+  Cache-Control: public, max-age=3600, must-revalidate

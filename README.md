@@ -72,16 +72,50 @@ LifeStyle/
 
 ## Cloudflare Pages へのデプロイ
 
-1. Cloudflare Pages で本リポジトリ(`LifeStyle`)を接続
-2. ビルド設定:
-   - **Build command**: `npm run build`
-   - **Build output directory**: `dist`
-   - **Root directory**: 未指定(リポジトリ直下がAstroプロジェクトルートのため設定不要)
-   - **Node version**: 22
-3. プレビューデプロイ: 全ブランチ・PRごとに自動でプレビューURLが発行される
-4. `PREVIEW=true` 環境変数をプレビュー環境に設定すると draft/review コンテンツも出力される([docs/08-tech-architecture.md](docs/08-tech-architecture.md) §4)
+このサイトは**完全静的サイト**(`astro.config.mjs` に `output`/adapter指定なし=デフォルトの `output: 'static'`)としてビルドされ、`dist/` をそのまま配信します。SSR・Cloudflare Functionsは使用しないため、**`@astrojs/cloudflare` アダプターや `wrangler.toml` は不要**です(V3でクリック計測用Workersを導入する際に別途追加。[docs/08-tech-architecture.md](docs/08-tech-architecture.md) §5)。
 
-独自ドメイン取得後は `astro.config.mjs` の `site` を変更すること(現在は仮ドメイン `https://lifestack.pages.dev`)。
+### 初回接続手順(Cloudflare Dashboard)
+
+1. [Cloudflare Dashboard](https://dash.cloudflare.com/) → **Workers & Pages** → **Create application** → **Pages** → **Connect to Git** で本リポジトリ(`LifeStyle`)を接続し、本番運用ブランチを指定
+2. ビルド設定:
+
+   | 項目 | 値 |
+   |---|---|
+   | Framework preset | `Astro` |
+   | Build command | `npm run build` |
+   | Build output directory | `dist` |
+   | Root directory | 未指定(リポジトリ直下がAstroプロジェクトルート) |
+
+3. 環境変数(**Settings → Environment variables**):
+
+   | 変数名 | 値 | 用途 | 設定タイミング |
+   |---|---|---|---|
+   | `NODE_VERSION` | `22` | ビルドNode.jsバージョン固定(`package.json` の `engines` と一致させる) | 初回デプロイ時に設定推奨 |
+   | `PREVIEW` | `true`(Preview環境のみ) | draft/reviewコンテンツもプレビューURLに出力([08章§4](docs/08-tech-architecture.md)) | commit2(Content Collections実装)以降 |
+   | `ANTHROPIC_API_KEY` 等 | — | AIパイプライン用。GitHub Actions側で使用し、Pages自体には不要 | V2以降 |
+
+4. **Save and Deploy** で初回ビルドを実行 → `*.pages.dev` の発行URLで公開される
+5. 以降は対象ブランチへの `git push` で自動的に再ビルド・再デプロイ。他ブランチ・PRは自動でプレビューURLが発行される
+6. 独自ドメイン取得後は Pagesプロジェクトの **Custom domains** で追加し、`astro.config.mjs` の `site` を実ドメインに変更(現在は仮ドメイン `https://lifestack.pages.dev`)
+
+### キャッシュ設定
+
+`public/_headers` に定義済み(ビルド時に `dist/_headers` としてそのまま出力され、Cloudflare Pages標準機能で反映される):
+
+- HTML: `Cache-Control: public, max-age=0, must-revalidate`(コンテンツ更新を即時反映)
+- `/_astro/*`(ハッシュ付きビルド成果物): `Cache-Control: public, max-age=31536000, immutable`
+- `/pagefind/*`(検索インデックス): `Cache-Control: public, max-age=3600, must-revalidate`
+
+### Wrangler CLIでの手動デプロイ(代替手段)
+
+Dashboard接続の代わりにCLIから直接デプロイする場合:
+
+```sh
+npm run build
+npx wrangler pages deploy dist --project-name=lifestack
+```
+
+静的アセットのみのデプロイのため、この場合も `wrangler.toml` は不要(コマンドライン引数で完結)。
 
 ## 設計書の読み方
 
