@@ -9,7 +9,8 @@
     "dev": "astro dev",
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "check:content": "node scripts/check-content-integrity.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.3",
@@ -25,6 +26,8 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
+    "@types/js-yaml": "^4.0.9",
+    "js-yaml": "^5.2.1",
     "typescript": "^6.0.3"
   }
 }
