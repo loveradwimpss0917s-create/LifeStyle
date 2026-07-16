@@ -1,0 +1,26 @@
+---
+/**
+ * Badge — 06章§6.2
+ * Props: label
+ */
+interface Props {
+  label: string;
+}
+
+const { label } = Astro.props;
+---
+
+<span class="badge">{label}</span>
+
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding-inline: var(--space-2);
+    padding-block: 2px;
+    border: var(--border-thin);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    color: var(--color-ink-secondary);
+  }
+</style>

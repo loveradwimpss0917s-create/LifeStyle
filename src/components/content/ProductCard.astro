@@ -1,0 +1,98 @@
+---
+/**
+ * ProductCard — 06章§6.3
+ * Props: product, showRating?=true, showPrice?=false
+ * リンク: カード全体 → /products/{slug}/(stretched-link)。hover: 画像 scale(1.02)
+ */
+import { getEntry, type CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import RatingStars from '@/components/base/RatingStars.astro';
+import { formatPrice } from '@/lib/format';
+
+interface Props {
+  product: CollectionEntry<'products'>;
+  showRating?: boolean;
+  showPrice?: boolean;
+}
+
+const { product, showRating = true, showPrice = false } = Astro.props;
+const brand = product.data.brand ? await getEntry(product.data.brand) : undefined;
+const price = formatPrice(product.data.price);
+---
+
+<article class="product-card">
+  <div class="product-card__media">
+    <Image
+      src={product.data.images[0].src}
+      alt={product.data.images[0].alt}
+      width={400}
+      height={500}
+      class="product-card__image"
+    />
+  </div>
+  <div class="product-card__body">
+    {brand && <p class="product-card__brand">{brand.data.name}</p>}
+    <h3 class="product-card__name">
+      <a href={`/products/${product.id}/`} class="stretched-link">{product.data.name}</a>
+    </h3>
+    {showRating && <RatingStars rating={product.data.rating} />}
+    {showPrice && price && <p class="product-card__price">{price}</p>}
+  </div>
+</article>
+
+<style>
+  .product-card {
+    position: relative;
+  }
+
+  .product-card__media {
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--color-bg-secondary);
+  }
+
+  .product-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .product-card:hover .product-card__image {
+    transform: scale(1.02);
+  }
+
+  .product-card__body {
+    margin-top: var(--space-3);
+  }
+
+  .product-card__brand {
+    font-size: var(--text-xs);
+    color: var(--color-ink-tertiary);
+  }
+
+  .product-card__name {
+    margin-top: 2px;
+    font-size: var(--text-base);
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  .product-card__price {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+    font-feature-settings: 'tnum';
+  }
+
+  .stretched-link {
+    position: static;
+  }
+
+  .stretched-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+</style>

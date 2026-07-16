@@ -1,0 +1,19 @@
+---
+/**
+ * 商品ページ — 04章§4.3
+ */
+import ProductLayout from '@/layouts/ProductLayout.astro';
+import { getPublished } from '@/lib/content';
+
+export async function getStaticPaths() {
+  const products = await getPublished('products');
+  return products.map((product) => ({
+    params: { slug: product.id },
+    props: { product },
+  }));
+}
+
+const { product } = Astro.props;
+---
+
+<ProductLayout product={product} />

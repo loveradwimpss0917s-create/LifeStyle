@@ -1,0 +1,39 @@
+---
+/**
+ * AffiliateButton — 06章§6.2
+ * Props: product, mall, position(計測用ラベル。data-pos属性として出力)
+ * 挙動: URL未設定のモールは何も描画しない。rel="nofollow sponsored noopener"を必ず付与。
+ * 直下に必ずPrLabelを描画する(12章§0不変条件2)。
+ */
+import Button from '@/components/base/Button.astro';
+import PrLabel from '@/components/base/PrLabel.astro';
+import { resolveAffiliateLink, type Mall } from '@/lib/affiliate';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  product: CollectionEntry<'products'>;
+  mall: Mall;
+  position: string;
+  fullWidth?: boolean;
+}
+
+const { product, mall, position, fullWidth = true } = Astro.props;
+const resolved = resolveAffiliateLink(product, mall);
+---
+
+{resolved && (
+  <div class="affiliate-button">
+    <Button
+      href={resolved.url}
+      external
+      rel="nofollow sponsored noopener"
+      variant="primary"
+      size="lg"
+      fullWidth={fullWidth}
+      data-pos={position}
+    >
+      {resolved.label}
+    </Button>
+    <PrLabel />
+  </div>
+)}

@@ -1,0 +1,208 @@
+---
+/**
+ * ProductLayout — 04章§4.3
+ * ①パンくず ②商品ヘッダー(Gallery+情報カラム) ③本文Review ④SpecTable
+ * ⑤文末CTA ⑥登場する記事 ⑦同じカテゴリの商品
+ */
+import { getEntry, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/base/Breadcrumb.astro';
+import RatingStars from '@/components/base/RatingStars.astro';
+import Badge from '@/components/base/Badge.astro';
+import TagChip from '@/components/base/TagChip.astro';
+import Gallery from '@/components/island/Gallery.astro';
+import AffiliateButton from '@/components/content/AffiliateButton.astro';
+import ReviewBlock from '@/components/content/ReviewBlock.astro';
+import SpecTable from '@/components/content/SpecTable.astro';
+import ArticleCard from '@/components/content/ArticleCard.astro';
+import ProductCard from '@/components/content/ProductCard.astro';
+import { formatPrice, formatUsagePeriod } from '@/lib/format';
+import { resolvePrimaryAffiliateLink } from '@/lib/affiliate';
+import { getRelatedProducts } from '@/lib/related';
+import { getArticlesForProduct } from '@/lib/product-index';
+
+interface Props {
+  product: CollectionEntry<'products'>;
+}
+
+const { product } = Astro.props;
+const { Content } = await render(product);
+
+const category = await getEntry(product.data.category);
+const brand = product.data.brand ? await getEntry(product.data.brand) : undefined;
+const tags = product.data.tags.length
+  ? await Promise.all(product.data.tags.map((t) => getEntry(t)))
+  : [];
+
+const relatedArticles = await getArticlesForProduct(product.id);
+const relatedProducts = await getRelatedProducts(product);
+
+const price = formatPrice(product.data.price);
+const usagePeriodLabel = formatUsagePeriod(product.data.usagePeriod);
+const primaryAffiliate = resolvePrimaryAffiliateLink(product);
+---
+
+<BaseLayout title={product.data.name} description={product.data.summary}>
+  <div class="container">
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: category.data.nameJa, href: `/categories/${category.id}/` },
+        { label: product.data.name },
+      ]}
+    />
+  </div>
+
+  <section class="product-header container">
+    <div class="product-header__gallery">
+      <Gallery product={product} />
+    </div>
+    <div class="product-header__info">
+      {brand && <p class="product-header__brand">{brand.data.name}</p>}
+      <h1 class="product-header__name">{product.data.name}</h1>
+      <div class="product-header__meta">
+        <RatingStars rating={product.data.rating} showNumber />
+        <Badge label={usagePeriodLabel} />
+      </div>
+      <p class="product-header__summary">{product.data.summary}</p>
+      {price && (
+        <p class="product-header__price">
+          参考価格 {price}
+        </p>
+      )}
+      {primaryAffiliate && (
+        <AffiliateButton product={product} mall={primaryAffiliate.mall} position="product_header" />
+      )}
+      {tags.length > 0 && (
+        <div class="product-header__tags">
+          {tags.map((tag) => <TagChip tag={tag} size="sm" />)}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <section class="container product-section">
+    <h2 class="product-section__heading">Review</h2>
+    <ReviewBlock product={product}>
+      <Content />
+    </ReviewBlock>
+  </section>
+
+  <section class="container product-section product-section--narrow">
+    <SpecTable product={product} />
+  </section>
+
+  {primaryAffiliate && (
+    <section class="container product-section product-section--narrow">
+      <AffiliateButton product={product} mall={primaryAffiliate.mall} position="product_footer" />
+    </section>
+  )}
+
+  {relatedArticles.length > 0 && (
+    <section class="container product-section">
+      <h2 class="product-section__heading">この商品が登場する記事</h2>
+      <div class="product-section__grid">
+        {relatedArticles.map((article) => <ArticleCard article={article} />)}
+      </div>
+    </section>
+  )}
+
+  {relatedProducts.length > 0 && (
+    <section class="container product-section">
+      <h2 class="product-section__heading">同じカテゴリの商品</h2>
+      <div class="product-section__grid product-section__grid--4">
+        {relatedProducts.map((related) => <ProductCard product={related} />)}
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+  .product-header {
+    margin-top: var(--space-6);
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 1024px) {
+    .product-header {
+      grid-template-columns: 55fr 45fr;
+      gap: var(--space-8);
+      align-items: start;
+    }
+
+    .product-header__info {
+      position: sticky;
+      top: calc(var(--header-height-desktop) + var(--space-5));
+    }
+  }
+
+  .product-header__brand {
+    font-size: var(--text-sm);
+    color: var(--color-ink-tertiary);
+  }
+
+  .product-header__name {
+    margin-top: var(--space-2);
+    font-size: var(--text-3xl);
+  }
+
+  .product-header__meta {
+    margin-top: var(--space-3);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .product-header__summary {
+    margin-top: var(--space-4);
+    color: var(--color-ink-secondary);
+  }
+
+  .product-header__price {
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-ink-tertiary);
+    font-feature-settings: 'tnum';
+  }
+
+  .product-header__info :global(.affiliate-button) {
+    margin-top: var(--space-5);
+  }
+
+  .product-header__tags {
+    margin-top: var(--space-5);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .product-section {
+    margin-top: var(--section-gap);
+  }
+
+  .product-section--narrow {
+    max-width: var(--container-text);
+  }
+
+  .product-section__heading {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-5);
+  }
+
+  .product-section__grid {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .product-section__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .product-section__grid--4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>

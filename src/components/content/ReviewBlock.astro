@@ -1,0 +1,82 @@
+---
+/**
+ * ReviewBlock — 06章§6.3
+ * Props: product。商品ページ本文の定型構成(なぜ買ったか/使ってみて/Good/Concern/シーン)を
+ * frontmatterデータから組み立てるアセンブリ。本文(なぜ買ったか/使ってみて)はrender済みの
+ * Markdownをdefault slotとして受け取る(04章§4.3の並び順: 本文 → Good → Concern → シーン)。
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import Prose from '@/components/base/Prose.astro';
+import GoodPoints from '@/components/content/GoodPoints.astro';
+import ConcernPoints from '@/components/content/ConcernPoints.astro';
+
+interface Props {
+  product: CollectionEntry<'products'>;
+}
+
+const { product } = Astro.props;
+const { goodPoints, concernPoints, scenes } = product.data;
+---
+
+<div class="review-block">
+  <Prose>
+    <slot />
+  </Prose>
+
+  <div class="review-block__points">
+    <GoodPoints points={goodPoints} />
+    <ConcernPoints points={concernPoints} />
+  </div>
+
+  {scenes.length > 0 && (
+    <div class="review-block__scenes">
+      <h3>使用シーン</h3>
+      {scenes.map((scene) => (
+        <figure class="review-block__scene">
+          <Image src={scene.image} alt={scene.alt} width={900} height={600} />
+          <figcaption>{scene.caption}</figcaption>
+        </figure>
+      ))}
+    </div>
+  )}
+</div>
+
+<style>
+  .review-block__points {
+    margin-top: var(--space-7);
+    display: grid;
+    gap: var(--space-6);
+    max-width: var(--container-text);
+  }
+
+  @media (min-width: 768px) {
+    .review-block__points {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .review-block__scenes {
+    margin-top: var(--space-7);
+    max-width: var(--container-text);
+  }
+
+  .review-block__scenes h3 {
+    font-size: var(--text-lg);
+  }
+
+  .review-block__scene {
+    margin-top: var(--space-4);
+  }
+
+  .review-block__scene img {
+    width: 100%;
+    height: auto;
+  }
+
+  .review-block__scene figcaption {
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-ink-tertiary);
+  }
+</style>

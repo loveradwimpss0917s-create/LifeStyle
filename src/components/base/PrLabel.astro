@@ -1,0 +1,28 @@
+---
+/**
+ * PrLabel — 06章§6.2
+ * 景表法ステマ規制対応の必須表記。AffiliateButtonの直下に必ず描画される(12章§0不変条件2)。
+ */
+---
+
+<p class="pr-label">
+  ※本サイトはアフィリエイト広告を利用しています。<a href="/disclosure/">詳しくはこちら</a>
+</p>
+
+<style>
+  .pr-label {
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-ink-tertiary);
+  }
+
+  .pr-label a {
+    color: var(--color-ink-tertiary);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .pr-label a:hover {
+    color: var(--color-ink-secondary);
+  }
+</style>

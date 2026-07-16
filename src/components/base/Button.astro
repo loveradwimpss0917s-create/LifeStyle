@@ -7,8 +7,11 @@ interface Props {
   size?: 'md' | 'lg';
   href?: string;
   external?: boolean;
+  /** external指定時のrelを上書きする(例: AffiliateButtonの "nofollow sponsored noopener") */
+  rel?: string;
   fullWidth?: boolean;
   class?: string;
+  'data-pos'?: string;
 }
 
 const {
@@ -16,19 +19,22 @@ const {
   size = 'md',
   href,
   external = false,
+  rel,
   fullWidth = false,
   class: className,
+  'data-pos': dataPos,
 } = Astro.props;
 
 const Tag = href ? 'a' : 'button';
 const externalProps = external
-  ? { target: '_blank', rel: 'noopener noreferrer' }
+  ? { target: '_blank', rel: rel ?? 'noopener noreferrer' }
   : {};
 ---
 
 <Tag
   class:list={['btn', `btn--${variant}`, `btn--${size}`, { 'btn--full': fullWidth }, className]}
   href={href}
+  data-pos={dataPos}
   {...externalProps}
 >
   <slot />

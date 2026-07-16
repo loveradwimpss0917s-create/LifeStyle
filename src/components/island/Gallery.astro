@@ -1,0 +1,123 @@
+---
+/**
+ * Gallery — 06章§6.5(island)
+ * メイン画像+サムネ列。サムネクリックでメイン切替(フェード200ms)。
+ * JS不可時: 全画像縦積み表示にフォールバック(CSSで既定は全表示、JSが `.gallery--enhanced`
+ * を付与したときのみ1枚表示+サムネ切替に切り替わるprogressive enhancement)。
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  product: CollectionEntry<'products'>;
+}
+
+const { product } = Astro.props;
+const images = product.data.images;
+---
+
+<div class="gallery" data-gallery>
+  <div class="gallery__main">
+    {images.map((img, index) => (
+      <Image
+        src={img.src}
+        alt={img.alt}
+        width={800}
+        height={1000}
+        class:list={['gallery__main-image', { 'is-active': index === 0 }]}
+        data-gallery-main
+        data-index={index}
+      />
+    ))}
+  </div>
+  {images.length > 1 && (
+    <div class="gallery__thumbs" role="list">
+      {images.map((img, index) => (
+        <button
+          type="button"
+          class:list={['gallery__thumb', { 'is-active': index === 0 }]}
+          data-gallery-thumb
+          data-index={index}
+          aria-label={`${index + 1}枚目の画像を表示`}
+          aria-pressed={index === 0}
+        >
+          <Image src={img.src} alt="" width={120} height={150} />
+        </button>
+      ))}
+    </div>
+  )}
+</div>
+
+<style>
+  .gallery__main-image {
+    width: 100%;
+    height: auto;
+    margin-bottom: var(--space-3);
+  }
+
+  .gallery--enhanced .gallery__main-image {
+    display: none;
+    margin-bottom: 0;
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+
+  .gallery--enhanced .gallery__main-image.is-active {
+    display: block;
+    opacity: 1;
+  }
+
+  .gallery__thumbs {
+    display: none;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+  }
+
+  .gallery--enhanced .gallery__thumbs {
+    display: flex;
+  }
+
+  .gallery__thumb {
+    width: 64px;
+    height: 80px;
+    overflow: hidden;
+    opacity: 0.6;
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+
+  .gallery__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .gallery__thumb.is-active,
+  .gallery__thumb:hover {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  const galleries = document.querySelectorAll<HTMLElement>('[data-gallery]');
+
+  for (const gallery of galleries) {
+    const mains = gallery.querySelectorAll<HTMLElement>('[data-gallery-main]');
+    const thumbs = gallery.querySelectorAll<HTMLButtonElement>('[data-gallery-thumb]');
+    if (mains.length <= 1) continue;
+
+    gallery.classList.add('gallery--enhanced');
+
+    for (const thumb of thumbs) {
+      thumb.addEventListener('click', () => {
+        const index = thumb.dataset.index;
+        for (const main of mains) {
+          main.classList.toggle('is-active', main.dataset.index === index);
+        }
+        for (const t of thumbs) {
+          t.classList.toggle('is-active', t === thumb);
+          t.setAttribute('aria-pressed', String(t === thumb));
+        }
+      });
+    }
+  }
+</script>

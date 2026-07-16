@@ -1,0 +1,45 @@
+---
+/**
+ * RatingStars — 06章§6.2
+ * Props: rating(1-5), showNumber?
+ */
+import Icon from '@/components/base/Icon.astro';
+
+interface Props {
+  /** 1-5の範囲(products.rating)。範囲の強制はZodスキーマ側で行う(07章§4)。 */
+  rating: number;
+  showNumber?: boolean;
+}
+
+const { rating, showNumber = false } = Astro.props;
+const stars = [1, 2, 3, 4, 5] as const;
+---
+
+<span class="rating-stars" role="img" aria-label={`おすすめ度 ${rating}/5`}>
+  {stars.map((n) => (
+    <Icon name="star" size={16} class:list={['rating-stars__star', { 'is-filled': n <= rating }]} />
+  ))}
+  {showNumber && <span class="rating-stars__number">{rating}/5</span>}
+</span>
+
+<style>
+  .rating-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .rating-stars__star {
+    color: var(--color-line);
+  }
+
+  .rating-stars__star.is-filled {
+    color: var(--color-star);
+  }
+
+  .rating-stars__number {
+    margin-left: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-ink-tertiary);
+  }
+</style>

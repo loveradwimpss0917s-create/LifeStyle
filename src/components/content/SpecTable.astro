@@ -1,0 +1,58 @@
+---
+/**
+ * SpecTable — 06章§6.3
+ * Props: product。ブランド/カテゴリ/参考価格/購入日/使用期間の定義リスト(dl)。
+ */
+import { getEntry, type CollectionEntry } from 'astro:content';
+import { formatPrice, formatDate, formatUsagePeriod } from '@/lib/format';
+
+interface Props {
+  product: CollectionEntry<'products'>;
+}
+
+const { product } = Astro.props;
+const category = await getEntry(product.data.category);
+const brand = product.data.brand ? await getEntry(product.data.brand) : undefined;
+const price = formatPrice(product.data.price);
+
+const rows = [
+  ...(brand ? [{ label: 'ブランド', value: brand.data.name }] : []),
+  { label: 'カテゴリ', value: category.data.nameJa },
+  ...(price ? [{ label: '参考価格', value: price }] : []),
+  { label: '購入日', value: formatDate(product.data.purchasedAt) },
+  { label: '使用期間', value: formatUsagePeriod(product.data.usagePeriod) },
+];
+---
+
+<dl class="spec-table">
+  {rows.map((row) => (
+    <div class="spec-table__row">
+      <dt class="spec-table__label">{row.label}</dt>
+      <dd class="spec-table__value">{row.value}</dd>
+    </div>
+  ))}
+</dl>
+
+<style>
+  .spec-table {
+    border-top: var(--border-thin);
+  }
+
+  .spec-table__row {
+    display: flex;
+    gap: var(--space-4);
+    padding-block: var(--space-3);
+    border-bottom: var(--border-thin);
+    font-size: var(--text-sm);
+  }
+
+  .spec-table__label {
+    flex: 0 0 8em;
+    color: var(--color-ink-tertiary);
+  }
+
+  .spec-table__value {
+    color: var(--color-ink-secondary);
+    font-feature-settings: 'tnum';
+  }
+</style>
