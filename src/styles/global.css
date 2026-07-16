@@ -1,7 +1,4 @@
-@import '@fontsource-variable/cormorant-garamond';
-@import '@fontsource/zen-kaku-gothic-new/400.css';
-@import '@fontsource/zen-kaku-gothic-new/500.css';
-@import '@fontsource/zen-kaku-gothic-new/700.css';
+/* フォント宣言(@font-face)は fonts.css に分離し、BaseLayoutから非同期読み込みする */
 @import './tokens.css';
 
 /* ============ Reset ============ */

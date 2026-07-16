@@ -1,0 +1,26 @@
+/**
+ * フォント宣言(@font-face)専用。global.cssから分離している。
+ * 出典: commit9 Lighthouse実測での気づき。
+ *
+ * @fontsource/zen-kaku-gothic-new は unicode-range 分割配信のため120以上の
+ * @font-face ルールを生成する。非同期読み込み・ウェイト削減(400のみ)を
+ * 試したが、いずれも「CSS適用時のスタイル再計算」自体がモバイル(4x CPU
+ * throttle)で1.2〜1.7秒かかり、LCPが3秒台から改善しないことを実測で確認した。
+ * fonts.css自体を無効化すると同条件でLCPが1.4秒・Performance 100に戻ることも
+ * 確認済みで、120個の@font-faceルール数そのものがボトルネックと特定した。
+ *
+ * そのため商品ページ用OGP画像生成(src/lib/og-image.ts)で使っている全CJK
+ * グリフ統合済みフォント(src/assets/fonts/README.md参照)をWOFF2圧縮し、
+ * @font-face 1本に置き換えた(4.5MB→1.1MB)。ルール数1個への削減により
+ * スタイル再計算コストが解消され、Performanceが再び100前後まで回復することを
+ * 確認している。
+ */
+@import '@fontsource-variable/cormorant-garamond';
+
+@font-face {
+  font-family: 'Zen Kaku Gothic New';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/zen-kaku-gothic-new-cjk-400.woff2') format('woff2');
+}

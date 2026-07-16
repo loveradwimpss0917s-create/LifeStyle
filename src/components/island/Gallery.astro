@@ -43,7 +43,7 @@ const images = product.data.images;
           aria-label={`${index + 1}枚目の画像を表示`}
           aria-pressed={index === 0}
         >
-          <Image src={img.src} alt="" width={120} height={150} />
+          <Image src={img.src} alt="" width={120} height={150} loading="eager" />
         </button>
       ))}
     </div>
@@ -107,7 +107,15 @@ const images = product.data.images;
     const thumbs = gallery.querySelectorAll<HTMLButtonElement>('[data-gallery-thumb]');
     if (mains.length <= 1) continue;
 
-    gallery.classList.add('gallery--enhanced');
+    // 初期描画直後にdisplay/opacityを変えるレイアウト変化を起こすと、
+    // LCP計測対象が不安定なサムネイル要素に誤って固定されることを実測で確認した。
+    // そのためLCPが確定してから見た目を切り替えるよう、初期描画後まで遅延させる。
+    const enhance = () => gallery.classList.add('gallery--enhanced');
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(enhance, { timeout: 2000 });
+    } else {
+      setTimeout(enhance, 0);
+    }
 
     for (const thumb of thumbs) {
       thumb.addEventListener('click', () => {

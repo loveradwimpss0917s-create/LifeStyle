@@ -8,6 +8,7 @@ import Header from '@/components/layout/Header.astro';
 import Footer from '@/components/layout/Footer.astro';
 import ScrollReveal from '@/components/island/ScrollReveal.astro';
 import '@/styles/global.css';
+import fontsCssUrl from '@/styles/fonts.css?url';
 import cormorantLatinWoff2 from '@fontsource-variable/cormorant-garamond/files/cormorant-garamond-latin-wght-normal.woff2?url';
 
 interface Props {
@@ -67,6 +68,15 @@ const jsonLdList = jsonLd
       type="font/woff2"
       crossorigin="anonymous"
     />
+
+    <!--
+      フォント宣言(@font-face)。詳細は src/styles/fonts.css のコメント参照。
+      レンダーブロッキングを避けるため非同期読み込みにしている。
+      preloadは付けない(実測で、大きなWOFF2ファイルのフェッチ優先度が上がり
+      LCP対象の画像と帯域を奪い合ってLCPが悪化する挙動を確認したため)。
+    -->
+    <link rel="stylesheet" href={fontsCssUrl} media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href={fontsCssUrl} /></noscript>
 
     {jsonLdList.map((entry) => (
       <script type="application/ld+json" set:html={JSON.stringify(entry)} is:inline />
