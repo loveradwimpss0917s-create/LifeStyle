@@ -1,0 +1,145 @@
+---
+/**
+ * カテゴリページ — 04章§4.2
+ */
+import { getCollection, getEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/base/Breadcrumb.astro';
+import TagChip from '@/components/base/TagChip.astro';
+import SectionHeader from '@/components/base/SectionHeader.astro';
+import FeaturedArticle from '@/components/content/FeaturedArticle.astro';
+import ArticleGrid from '@/components/section/ArticleGrid.astro';
+import ProductGrid from '@/components/section/ProductGrid.astro';
+import { getPublished } from '@/lib/content';
+
+export async function getStaticPaths() {
+  const categories = await getCollection('categories');
+  return categories.map((category) => ({
+    params: { slug: category.id },
+    props: { category },
+  }));
+}
+
+const { category } = Astro.props;
+
+const [allArticles, allProducts, site] = await Promise.all([
+  getPublished('articles'),
+  getPublished('products'),
+  getEntry('site', 'main'),
+]);
+
+const categoryArticles = allArticles
+  .filter((a) => a.data.category.id === category.id)
+  .sort((a, b) => (b.data.publishedAt?.getTime() ?? 0) - (a.data.publishedAt?.getTime() ?? 0));
+
+const categoryProducts = allProducts.filter((p) => p.data.category.id === category.id);
+
+const pinnedArticleRef = site?.data.pinned[category.id];
+const pinnedArticle = pinnedArticleRef ? await getEntry(pinnedArticleRef) : undefined;
+const otherArticles = categoryArticles.filter((a) => a.id !== pinnedArticle?.id).slice(0, 6);
+
+const relatedTagIds = new Set<string>();
+for (const a of categoryArticles) for (const t of a.data.tags) relatedTagIds.add(t.id);
+for (const p of categoryProducts) for (const t of p.data.tags) relatedTagIds.add(t.id);
+const relatedTags = relatedTagIds.size
+  ? (await Promise.all([...relatedTagIds].map((id) => getEntry('tags', id)))).filter(
+      (t): t is NonNullable<typeof t> => t !== undefined
+    )
+  : [];
+---
+
+<BaseLayout title={category.data.nameJa} description={category.data.lead}>
+  <div class="container">
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: category.data.nameJa }]} />
+  </div>
+
+  <header class="category-header container">
+    <div class="category-header__media">
+      <Image src={category.data.image} alt="" width={1440} height={480} priority />
+    </div>
+    <p class="category-header__en">{category.data.nameEn}</p>
+    <h1 class="category-header__ja">{category.data.nameJa}</h1>
+    <p class="category-header__lead">{category.data.lead}</p>
+  </header>
+
+  {pinnedArticle && (
+    <section class="container category-section">
+      <FeaturedArticle article={pinnedArticle} />
+    </section>
+  )}
+
+  {otherArticles.length > 0 && (
+    <section class="container category-section">
+      <SectionHeader labelEn="Articles" labelJa="記事" href="/articles/" />
+      <ArticleGrid items={otherArticles} columns={3} />
+    </section>
+  )}
+
+  {categoryProducts.length > 0 && (
+    <section class="container category-section category-section--items">
+      <SectionHeader labelEn="Items" labelJa="商品" href="/products/" />
+      <ProductGrid items={categoryProducts.slice(0, 8)} columns={4} />
+    </section>
+  )}
+
+  {relatedTags.length > 0 && (
+    <section class="container category-section">
+      <div class="category-tags">
+        {relatedTags.map((tag) => <TagChip tag={tag} />)}
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+  .category-header {
+    margin-top: var(--space-6);
+  }
+
+  .category-header__media {
+    aspect-ratio: 3 / 1;
+    overflow: hidden;
+  }
+
+  .category-header__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .category-header__en {
+    margin-top: var(--space-5);
+    font-family: var(--font-en);
+    font-size: var(--text-3xl);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .category-header__ja {
+    margin-top: var(--space-1);
+    font-size: var(--text-lg);
+    color: var(--color-ink-secondary);
+    font-weight: 400;
+  }
+
+  .category-header__lead {
+    margin-top: var(--space-4);
+    max-width: var(--container-text);
+    color: var(--color-ink-secondary);
+  }
+
+  .category-section {
+    margin-top: var(--section-gap);
+  }
+
+  .category-section--items {
+    padding-top: var(--section-gap);
+    border-top: var(--border-thin);
+  }
+
+  .category-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+</style>

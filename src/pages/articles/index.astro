@@ -1,0 +1,43 @@
+---
+/**
+ * 記事一覧 — 02章§2
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/base/Breadcrumb.astro';
+import ArticleGrid from '@/components/section/ArticleGrid.astro';
+import { getPublished } from '@/lib/content';
+
+const articles = (await getPublished('articles')).sort(
+  (a, b) => (b.data.publishedAt?.getTime() ?? 0) - (a.data.publishedAt?.getTime() ?? 0)
+);
+---
+
+<BaseLayout title="記事一覧" description="旅・子育て・暮らしの記録記事一覧です。">
+  <div class="container">
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: '記事一覧' }]} />
+    <h1 class="page-heading">記事一覧</h1>
+    {articles.length > 0 ? (
+      <div class="page-grid">
+        <ArticleGrid items={articles} columns={3} />
+      </div>
+    ) : (
+      <p class="page-empty">まだ記事がありません。</p>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .page-heading {
+    margin-top: var(--space-4);
+    font-size: var(--text-3xl);
+  }
+
+  .page-grid {
+    margin-top: var(--space-7);
+  }
+
+  .page-empty {
+    margin-top: var(--space-6);
+    color: var(--color-ink-tertiary);
+  }
+</style>

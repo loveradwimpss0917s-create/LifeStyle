@@ -1,0 +1,63 @@
+---
+/**
+ * SectionHeader — 06章§6.2
+ * Props: labelEn, labelJa?, href?(「すべて見る」)
+ */
+import Icon from '@/components/base/Icon.astro';
+
+interface Props {
+  labelEn: string;
+  labelJa?: string;
+  href?: string;
+}
+
+const { labelEn, labelJa, href } = Astro.props;
+---
+
+<div class="section-header">
+  <div class="section-header__label">
+    <p class="section-header__en">{labelEn}</p>
+    {labelJa && <p class="section-header__ja">{labelJa}</p>}
+  </div>
+  {href && (
+    <a href={href} class="section-header__link">
+      すべて見る
+      <Icon name="arrow-right" size={16} />
+    </a>
+  )}
+</div>
+
+<style>
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: var(--space-5);
+  }
+
+  .section-header__en {
+    font-family: var(--font-en);
+    font-size: var(--text-2xl);
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-ink);
+  }
+
+  .section-header__ja {
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--color-ink-tertiary);
+  }
+
+  .section-header__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex-shrink: 0;
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+  }
+
+  .section-header__link:hover {
+    color: var(--color-ink);
+  }
+</style>

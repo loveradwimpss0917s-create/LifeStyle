@@ -1,0 +1,28 @@
+---
+/**
+ * FeaturedArticle — 06章§6.4
+ * トップ③・カテゴリ③の大判。ArticleCard variant='large' のセクション用ラッパー(背景色帯オプション)。
+ */
+import type { CollectionEntry } from 'astro:content';
+import ArticleCard from '@/components/content/ArticleCard.astro';
+
+interface Props {
+  article: CollectionEntry<'articles'>;
+  band?: boolean;
+}
+
+const { article, band = false } = Astro.props;
+---
+
+<div class:list={['featured-article', { 'featured-article--band': band }]}>
+  <div class:list={[band ? 'container' : undefined]}>
+    <ArticleCard article={article} variant="large" />
+  </div>
+</div>
+
+<style>
+  .featured-article--band {
+    padding-block: var(--space-7);
+    background: var(--color-bg-secondary);
+  }
+</style>

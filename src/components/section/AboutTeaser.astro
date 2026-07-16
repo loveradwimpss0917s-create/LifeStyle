@@ -1,0 +1,72 @@
+---
+/**
+ * AboutTeaser — 06章§6.4
+ * トップ⑧。site.jsonから紹介文・写真を取得。
+ */
+import { getEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+
+const site = await getEntry('site', 'main');
+---
+
+{site && (
+  <section class="about-teaser container">
+    <div class="about-teaser__media">
+      <Image src={site.data.author.image} alt="" width={480} height={480} />
+    </div>
+    <div class="about-teaser__body">
+      <p class="about-teaser__label">About</p>
+      <p class="about-teaser__bio">{site.data.author.bio}</p>
+      <a href="/about/" class="about-teaser__link">プロフィールを見る →</a>
+    </div>
+  </section>
+)}
+
+<style>
+  .about-teaser {
+    display: grid;
+    gap: var(--space-6);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .about-teaser {
+      grid-template-columns: 240px 1fr;
+    }
+  }
+
+  .about-teaser__media {
+    aspect-ratio: 1;
+    overflow: hidden;
+    max-width: 240px;
+  }
+
+  .about-teaser__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .about-teaser__label {
+    font-family: var(--font-en);
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .about-teaser__bio {
+    margin-top: var(--space-3);
+    color: var(--color-ink-secondary);
+    max-width: var(--container-text);
+  }
+
+  .about-teaser__link {
+    display: inline-block;
+    margin-top: var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+</style>

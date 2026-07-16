@@ -1,0 +1,70 @@
+---
+/**
+ * CategoryBand — 06章§6.4
+ * トップ⑤⑥の特集帯。Props: category, articles[], products[]
+ */
+import type { CollectionEntry } from 'astro:content';
+import SectionHeader from '@/components/base/SectionHeader.astro';
+import ArticleCard from '@/components/content/ArticleCard.astro';
+import ProductCard from '@/components/content/ProductCard.astro';
+
+interface Props {
+  category: CollectionEntry<'categories'>;
+  articles: CollectionEntry<'articles'>[];
+  products: CollectionEntry<'products'>[];
+}
+
+const { category, articles, products } = Astro.props;
+---
+
+<section class="category-band">
+  <div class="container">
+    <SectionHeader
+      labelEn={category.data.nameEn}
+      labelJa={category.data.nameJa}
+      href={`/categories/${category.id}/`}
+    />
+    {articles.length > 0 && (
+      <div class="category-band__articles">
+        {articles.map((article) => <ArticleCard article={article} />)}
+      </div>
+    )}
+    {products.length > 0 && (
+      <div class="category-band__products">
+        {products.map((product) => <ProductCard product={product} />)}
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .category-band {
+    padding-block: var(--space-7);
+    background: var(--color-bg-secondary);
+  }
+
+  .category-band__articles {
+    display: grid;
+    gap: var(--space-6);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 768px) {
+    .category-band__articles {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .category-band__products {
+    margin-top: var(--space-6);
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .category-band__products {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>

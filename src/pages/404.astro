@@ -1,0 +1,91 @@
+---
+/**
+ * 404 — 04章§4.9 / 12章§3
+ * 静かなトーン+検索へのリンク+CategoryCard 6枚。
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import CategoryCard from '@/components/content/CategoryCard.astro';
+
+const categories = (await getCollection('categories'))
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 6);
+---
+
+<BaseLayout title="ページが見つかりません" description="お探しのページが見つかりませんでした。">
+  <section class="not-found container-text">
+    <p class="not-found__label">404</p>
+    <h1 class="not-found__title">ページが見つかりませんでした</h1>
+    <p class="not-found__lead">
+      URLが変更されたか、削除された可能性があります。検索するか、カテゴリから探してみてください。
+    </p>
+    <a href="/search/" class="not-found__search">サイト内を検索する →</a>
+  </section>
+
+  {categories.length > 0 && (
+    <section class="container not-found-categories">
+      <div class="not-found-categories__grid">
+        {categories.map((category) => <CategoryCard category={category} />)}
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+  .container-text {
+    max-width: var(--container-text);
+    margin-inline: auto;
+    padding-inline: var(--outer-margin-mobile);
+  }
+
+  @media (min-width: 768px) {
+    .container-text {
+      padding-inline: var(--outer-margin);
+    }
+  }
+
+  .not-found {
+    margin-top: var(--space-9);
+    text-align: center;
+  }
+
+  .not-found__label {
+    font-family: var(--font-en);
+    font-size: var(--text-hero);
+    color: var(--color-line);
+  }
+
+  .not-found__title {
+    margin-top: var(--space-3);
+    font-size: var(--text-2xl);
+  }
+
+  .not-found__lead {
+    margin-top: var(--space-4);
+    color: var(--color-ink-secondary);
+  }
+
+  .not-found__search {
+    display: inline-block;
+    margin-top: var(--space-6);
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .not-found-categories {
+    margin-top: var(--space-9);
+  }
+
+  .not-found-categories__grid {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .not-found-categories__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

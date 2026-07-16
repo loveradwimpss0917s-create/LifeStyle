@@ -1,0 +1,64 @@
+---
+/**
+ * CategoryCard — 06章§6.3
+ * Props: category。写真+英字名(Cormorant)+和名。hover: scale。
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  category: CollectionEntry<'categories'>;
+}
+
+const { category } = Astro.props;
+---
+
+<a href={`/categories/${category.id}/`} class="category-card">
+  <div class="category-card__media">
+    <Image src={category.data.image} alt="" width={480} height={320} class="category-card__image" />
+  </div>
+  <div class="category-card__body">
+    <p class="category-card__en">{category.data.nameEn}</p>
+    <p class="category-card__ja">{category.data.nameJa}</p>
+  </div>
+</a>
+
+<style>
+  .category-card {
+    display: block;
+  }
+
+  .category-card__media {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--color-bg-secondary);
+  }
+
+  .category-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .category-card:hover .category-card__image {
+    transform: scale(1.02);
+  }
+
+  .category-card__body {
+    margin-top: var(--space-3);
+  }
+
+  .category-card__en {
+    font-family: var(--font-en);
+    font-size: var(--text-lg);
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-ink);
+  }
+
+  .category-card__ja {
+    margin-top: 2px;
+    font-size: var(--text-sm);
+    color: var(--color-ink-tertiary);
+  }
+</style>

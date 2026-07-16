@@ -1,0 +1,37 @@
+---
+/**
+ * ProductGrid — 06章§6.4
+ * Props: items(products), columns?: 2|3|4
+ */
+import type { CollectionEntry } from 'astro:content';
+import ProductCard from '@/components/content/ProductCard.astro';
+
+interface Props {
+  items: CollectionEntry<'products'>[];
+  columns?: 2 | 3 | 4;
+}
+
+const { items, columns = 4 } = Astro.props;
+---
+
+<div class:list={['product-grid', `product-grid--${columns}`]}>
+  {items.map((product) => <ProductCard product={product} />)}
+</div>
+
+<style>
+  .product-grid {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .product-grid--3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .product-grid--4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>

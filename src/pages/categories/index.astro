@@ -1,0 +1,41 @@
+---
+/**
+ * カテゴリ一覧 — 02章§2
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/base/Breadcrumb.astro';
+import CategoryCard from '@/components/content/CategoryCard.astro';
+
+const categories = (await getCollection('categories')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title="カテゴリ一覧" description="旅行・子育て・暮らしなど、生活のシーンでコンテンツを探せます。">
+  <div class="container">
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'カテゴリ一覧' }]} />
+    <h1 class="page-heading">カテゴリ</h1>
+    <div class="categories-grid">
+      {categories.map((category) => <CategoryCard category={category} />)}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-heading {
+    margin-top: var(--space-4);
+    font-size: var(--text-3xl);
+  }
+
+  .categories-grid {
+    margin-top: var(--space-7);
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .categories-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

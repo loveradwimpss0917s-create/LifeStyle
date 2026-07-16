@@ -1,0 +1,74 @@
+---
+/**
+ * Pagination — 06章§6.2
+ * Props: current, total, basePath。1ページなら非描画。
+ */
+interface Props {
+  current: number;
+  total: number;
+  basePath: string;
+}
+
+const { current, total, basePath } = Astro.props;
+
+function pageHref(page: number): string {
+  return page === 1 ? basePath : `${basePath}page/${page}/`;
+}
+---
+
+{total > 1 && (
+  <nav aria-label="ページネーション" class="pagination">
+    {current > 1 && (
+      <a href={pageHref(current - 1)} class="pagination__link">前へ</a>
+    )}
+    <ul role="list" class="pagination__list">
+      {Array.from({ length: total }, (_, i) => i + 1).map((page) => (
+        <li>
+          {page === current ? (
+            <span aria-current="page" class="pagination__current">{page}</span>
+          ) : (
+            <a href={pageHref(page)}>{page}</a>
+          )}
+        </li>
+      ))}
+    </ul>
+    {current < total && (
+      <a href={pageHref(current + 1)} class="pagination__link">次へ</a>
+    )}
+  </nav>
+)}
+
+<style>
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    margin-top: var(--section-gap);
+    font-size: var(--text-sm);
+  }
+
+  .pagination__list {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .pagination__list a,
+  .pagination__current {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    color: var(--color-ink-secondary);
+  }
+
+  .pagination__current {
+    color: var(--color-ink);
+    border: var(--border-thin);
+  }
+
+  .pagination__link:hover {
+    color: var(--color-ink);
+  }
+</style>

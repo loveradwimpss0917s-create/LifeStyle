@@ -1,0 +1,59 @@
+---
+/**
+ * SocialLinks — 06章§6.3
+ * Props: variant: 'footer' | 'about'。site.jsonのSNS URLから描画。
+ */
+import { getEntry } from 'astro:content';
+import Icon, { type IconName } from '@/components/base/Icon.astro';
+
+interface Props {
+  variant: 'footer' | 'about';
+}
+
+const { variant } = Astro.props;
+const site = await getEntry('site', 'main');
+
+type SocialLink = { name: IconName; label: string; url: string };
+
+const links: SocialLink[] = [];
+if (site) {
+  const { sns } = site.data;
+  if (sns.instagramPhoto) links.push({ name: 'instagram', label: 'Instagram(写真)', url: sns.instagramPhoto });
+  if (sns.instagramHome) links.push({ name: 'instagram', label: 'Instagram(暮らし)', url: sns.instagramHome });
+  if (sns.youtube) links.push({ name: 'youtube', label: 'YouTube', url: sns.youtube });
+  if (sns.tiktok) links.push({ name: 'tiktok', label: 'TikTok', url: sns.tiktok });
+  if (sns.threads) links.push({ name: 'threads', label: 'Threads', url: sns.threads });
+}
+---
+
+{links.length > 0 && (
+  <ul role="list" class:list={['social-links', `social-links--${variant}`]}>
+    {links.map((link) => (
+      <li>
+        <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={link.label}>
+          <Icon name={link.name} size={20} />
+        </a>
+      </li>
+    ))}
+  </ul>
+)}
+
+<style>
+  .social-links {
+    display: flex;
+    gap: var(--space-3);
+  }
+
+  .social-links a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: var(--color-ink-secondary);
+  }
+
+  .social-links a:hover {
+    color: var(--color-ink);
+  }
+</style>

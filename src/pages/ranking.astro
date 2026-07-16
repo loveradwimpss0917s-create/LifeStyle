@@ -1,0 +1,100 @@
+---
+/**
+ * ランキングページ — 04章§4.7
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/base/Breadcrumb.astro';
+import SectionHeader from '@/components/base/SectionHeader.astro';
+import RankingList from '@/components/content/RankingList.astro';
+import PrLabel from '@/components/base/PrLabel.astro';
+import { formatDate } from '@/lib/format';
+import { getOverallRanking, getCategoryRanking } from '@/lib/ranking';
+
+const overall = await getOverallRanking(10);
+const overallItems = overall.map((product, index) => ({
+  rank: index + 1,
+  productId: product.id,
+  comment: product.data.summary,
+}));
+
+const updatedAt = overall.reduce<Date | undefined>((latest, p) => {
+  const candidate = p.data.updatedAt ?? p.data.publishedAt;
+  if (!candidate) return latest;
+  if (!latest || candidate > latest) return candidate;
+  return latest;
+}, undefined);
+
+const categories = (await getCollection('categories')).sort((a, b) => a.data.order - b.data.order);
+const categoryRankings = (
+  await Promise.all(
+    categories.map(async (category) => {
+      const products = await getCategoryRanking(category.id, 3);
+      if (products.length === 0) return null;
+      return {
+        category,
+        items: products.map((product, index) => ({
+          rank: index + 1,
+          productId: product.id,
+          comment: product.data.summary,
+        })),
+      };
+    })
+  )
+).filter((r): r is NonNullable<typeof r> => r !== null);
+---
+
+<BaseLayout title="ランキング" description="実際に使ったものの中から、おすすめ度の高い順にまとめました。">
+  <div class="container">
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'ランキング' }]} />
+    <header class="ranking-header">
+      <h1 class="ranking-header__title">Best Picks</h1>
+      {updatedAt && <p class="ranking-header__updated">最終更新: {formatDate(updatedAt)}</p>}
+      <p class="ranking-header__lead">
+        実際に購入して使ったものの中から、おすすめ度(rating)と編集部の調整値をもとに順位をつけています。
+      </p>
+    </header>
+
+    {overallItems.length > 0 && (
+      <section class="ranking-section">
+        <SectionHeader labelEn="Overall" labelJa="総合ランキング" />
+        <RankingList items={overallItems} />
+      </section>
+    )}
+
+    {categoryRankings.map((entry) => (
+      <section class="ranking-section">
+        <SectionHeader labelEn={entry.category.data.nameEn} labelJa={entry.category.data.nameJa} />
+        <RankingList items={entry.items} compact />
+      </section>
+    ))}
+
+    <PrLabel />
+  </div>
+</BaseLayout>
+
+<style>
+  .ranking-header {
+    margin-top: var(--space-4);
+    max-width: var(--container-text);
+  }
+
+  .ranking-header__title {
+    font-size: var(--text-3xl);
+  }
+
+  .ranking-header__updated {
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-ink-tertiary);
+  }
+
+  .ranking-header__lead {
+    margin-top: var(--space-4);
+    color: var(--color-ink-secondary);
+  }
+
+  .ranking-section {
+    margin-top: var(--section-gap);
+  }
+</style>

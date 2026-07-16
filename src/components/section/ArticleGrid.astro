@@ -1,0 +1,41 @@
+---
+/**
+ * ArticleGrid — 06章§6.4
+ * Props: items(articles), columns?: 2|3|4
+ */
+import type { CollectionEntry } from 'astro:content';
+import ArticleCard from '@/components/content/ArticleCard.astro';
+
+interface Props {
+  items: CollectionEntry<'articles'>[];
+  columns?: 2 | 3 | 4;
+}
+
+const { items, columns = 3 } = Astro.props;
+---
+
+<div class:list={['article-grid', `article-grid--${columns}`]}>
+  {items.map((article) => <ArticleCard article={article} />)}
+</div>
+
+<style>
+  .article-grid {
+    display: grid;
+    gap: var(--space-6);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 768px) {
+    .article-grid--2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .article-grid--3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .article-grid--4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>

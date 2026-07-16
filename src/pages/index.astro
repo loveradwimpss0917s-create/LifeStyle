@@ -1,20 +1,137 @@
 ---
 /**
- * トップページ — 暫定実装
- * TODO(commit6/hub-pages): 04章§4.1の8セクション構成(Hero/Journal/Editor's Picks/
- * Explore/特集バンド×2/Best Picks/About導線)に置き換える。
+ * トップページ — 04章§4.1(8セクション)
+ * ①Hero ②最新の記事Journal ③編集部のおすすめEditor's Picks ④カテゴリExplore
+ * ⑤⑥特集バンド(pinned) ⑦ランキングBest Picks ⑧About導線
  */
+import { getCollection, getEntry } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import SectionHeader from '@/components/base/SectionHeader.astro';
+import Hero from '@/components/section/Hero.astro';
+import ArticleGrid from '@/components/section/ArticleGrid.astro';
+import ProductGrid from '@/components/section/ProductGrid.astro';
+import CategoryBand from '@/components/section/CategoryBand.astro';
+import FeaturedArticle from '@/components/content/FeaturedArticle.astro';
+import CategoryCard from '@/components/content/CategoryCard.astro';
+import RankingList from '@/components/content/RankingList.astro';
+import AboutTeaser from '@/components/section/AboutTeaser.astro';
+import { getPublished } from '@/lib/content';
+import { getOverallRanking } from '@/lib/ranking';
+
+const site = await getEntry('site', 'main');
+
+const articles = (await getPublished('articles')).sort(
+  (a, b) => (b.data.publishedAt?.getTime() ?? 0) - (a.data.publishedAt?.getTime() ?? 0)
+);
+const latestArticles = articles.slice(0, 3);
+const featured = articles[0];
+
+const editorsPicks = site
+  ? (await Promise.all(site.data.editorsPicks.map((ref) => getEntry(ref)))).filter(
+      (p): p is NonNullable<typeof p> => p !== undefined
+    )
+  : [];
+
+const categories = (await getCollection('categories')).sort((a, b) => a.data.order - b.data.order);
+
+const pinnedEntries = site ? Object.entries(site.data.pinned) : [];
+const categoryBands = (
+  await Promise.all(
+    pinnedEntries.map(async ([categoryId, articleRef]) => {
+      const category = categories.find((c) => c.id === categoryId);
+      const pinnedArticle = await getEntry(articleRef);
+      if (!category || !pinnedArticle) return null;
+      const products = (await getPublished('products')).filter(
+        (p) => p.data.category.id === categoryId
+      );
+      return { category, articles: [pinnedArticle], products: products.slice(0, 4) };
+    })
+  )
+).filter((band): band is NonNullable<typeof band> => band !== null);
+
+const ranking = await getOverallRanking(5);
+const rankingItems = ranking.map((product, index) => ({
+  rank: index + 1,
+  productId: product.id,
+  comment: product.data.summary,
+}));
 ---
 
 <BaseLayout
   title="LIFESTACK"
-  description="人生を記録するライフスタイルメディア。日常を、美しく残す。"
+  description={site?.data.description ?? '日常を、美しく残す。'}
 >
-  <div class="container" style="padding-block: var(--space-8);">
-    <p style="color: var(--color-ink-tertiary); font-size: var(--text-sm);">
-      content-schema commit: レイアウト基盤+コンテンツスキーマ(products/articles/categories/brands/tags/site)実装済み。
-      サンプルコンテンツはcommit3で追加予定。
-    </p>
+  {site && (
+    <Hero
+      image={site.data.heroImage}
+      alt={site.data.heroAlt}
+      labelEn="LIFESTACK — Life & Living"
+      tagline={site.data.tagline}
+    />
+  )}
+
+  {latestArticles.length > 0 && (
+    <section class="container home-section">
+      <SectionHeader labelEn="Journal" labelJa="最新の記事" href="/articles/" />
+      <ArticleGrid items={latestArticles} columns={3} />
+    </section>
+  )}
+
+  {(featured || editorsPicks.length > 0) && (
+    <section class="container home-section">
+      <SectionHeader labelEn="Editor's Picks" labelJa="編集部のおすすめ" />
+      {featured && (
+        <div class="home-section__featured">
+          <FeaturedArticle article={featured} />
+        </div>
+      )}
+      {editorsPicks.length > 0 && <ProductGrid items={editorsPicks} columns={4} />}
+    </section>
+  )}
+
+  {categories.length > 0 && (
+    <section class="container home-section">
+      <SectionHeader labelEn="Explore" labelJa="カテゴリ" />
+      <div class="home-categories">
+        {categories.map((category) => <CategoryCard category={category} />)}
+      </div>
+    </section>
+  )}
+
+  {categoryBands.map((band) => (
+    <CategoryBand category={band.category} articles={band.articles} products={band.products} />
+  ))}
+
+  {rankingItems.length > 0 && (
+    <section class="container home-section">
+      <SectionHeader labelEn="Best Picks" labelJa="ランキング" href="/ranking/" />
+      <RankingList items={rankingItems} compact />
+    </section>
+  )}
+
+  <div class="home-section">
+    <AboutTeaser />
   </div>
 </BaseLayout>
+
+<style>
+  .home-section {
+    margin-top: var(--section-gap);
+  }
+
+  .home-section__featured {
+    margin-bottom: var(--space-6);
+  }
+
+  .home-categories {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .home-categories {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

@@ -1,0 +1,131 @@
+---
+/**
+ * プロフィール — 04章§4.5
+ */
+import { getEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/base/Breadcrumb.astro';
+import SocialLinks from '@/components/content/SocialLinks.astro';
+
+const site = await getEntry('site', 'main');
+---
+
+<BaseLayout title="About" description={site?.data.description ?? 'LIFESTACKについて'}>
+  <div class="container">
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
+  </div>
+
+  {site && (
+    <>
+      <section class="about-hero container-wide">
+        <div class="about-hero__media">
+          <Image src={site.data.heroImage} alt={site.data.heroAlt} width={1440} height={810} priority />
+        </div>
+        <p class="about-hero__tagline">{site.data.tagline}</p>
+      </section>
+
+      <section class="about-section container-text">
+        <h2>わたしについて</h2>
+        <p>{site.data.author.bio}</p>
+      </section>
+
+      <section class="about-section container-text">
+        <h2>このサイトについて</h2>
+        <p>LIFESTACKは、次の3つを約束してコンテンツをつくっています。</p>
+        <ul role="list" class="about-promises">
+          <li>実際に購入して、使ったものだけを紹介します。</li>
+          <li>良かった点だけでなく、気になった点も正直に書きます。</li>
+          <li>広告・アフィリエイトの表記は、常に分かりやすく明示します。</li>
+        </ul>
+      </section>
+
+      <section class="about-section container-text">
+        <h2>SNS</h2>
+        <SocialLinks variant="about" />
+      </section>
+
+      <section class="about-section container-text">
+        <h2>撮影について</h2>
+        <p>
+          写真アカウントとして活動していますが、機材紹介をメインにはしていません。
+          日常の光や暮らしの空気をできるだけそのまま残すことを大切にしています。
+        </p>
+      </section>
+
+      <section class="about-section container-text">
+        <h2>お問い合わせ</h2>
+        {site.data.contactEmail && (
+          <p><a href={`mailto:${site.data.contactEmail}`}>{site.data.contactEmail}</a></p>
+        )}
+        <p><a href="/disclosure/">アフィリエイト・PR表記について</a></p>
+      </section>
+    </>
+  )}
+</BaseLayout>
+
+<style>
+  .about-hero {
+    margin-top: var(--space-6);
+  }
+
+  .about-hero__media {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+  }
+
+  .about-hero__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .about-hero__tagline {
+    margin-top: var(--space-4);
+    font-size: var(--text-lg);
+    color: var(--color-ink-secondary);
+    text-align: center;
+  }
+
+  .container-text {
+    max-width: var(--container-text);
+    margin-inline: auto;
+    padding-inline: var(--outer-margin-mobile);
+  }
+
+  @media (min-width: 768px) {
+    .container-text {
+      padding-inline: var(--outer-margin);
+    }
+  }
+
+  .about-section {
+    margin-top: var(--section-gap);
+  }
+
+  .about-section h2 {
+    font-size: var(--text-2xl);
+  }
+
+  .about-section p {
+    margin-top: var(--space-4);
+    color: var(--color-ink-secondary);
+  }
+
+  .about-promises {
+    margin-top: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    color: var(--color-ink-secondary);
+  }
+
+  .about-promises li::before {
+    content: '— ';
+    color: var(--color-accent);
+  }
+
+  .about-section :global(.social-links) {
+    margin-top: var(--space-4);
+  }
+</style>

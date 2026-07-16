@@ -1,0 +1,67 @@
+---
+/**
+ * タグページ — 04章§4.9
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/base/Breadcrumb.astro';
+import ArticleCard from '@/components/content/ArticleCard.astro';
+import ProductCard from '@/components/content/ProductCard.astro';
+import { getPublished } from '@/lib/content';
+
+export async function getStaticPaths() {
+  const tags = await getCollection('tags');
+  return tags.map((tag) => ({
+    params: { slug: tag.id },
+    props: { tag },
+  }));
+}
+
+const { tag } = Astro.props;
+
+const [articles, products] = await Promise.all([getPublished('articles'), getPublished('products')]);
+const taggedArticles = articles.filter((a) => a.data.tags.some((t) => t.id === tag.id));
+const taggedProducts = products.filter((p) => p.data.tags.some((t) => t.id === tag.id));
+const isEmpty = taggedArticles.length === 0 && taggedProducts.length === 0;
+---
+
+<BaseLayout title={`#${tag.data.name}`} description={`「${tag.data.name}」に関する記事・商品一覧`}>
+  <div class="container">
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: `#${tag.data.name}` }]} />
+    <h1 class="page-heading">#{tag.data.name}</h1>
+
+    {isEmpty ? (
+      <p class="tag-empty">このタグに該当するコンテンツはまだありません。</p>
+    ) : (
+      <div class="tag-grid">
+        {taggedArticles.map((article) => <ArticleCard article={article} />)}
+        {taggedProducts.map((product) => <ProductCard product={product} />)}
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .page-heading {
+    margin-top: var(--space-4);
+    font-size: var(--text-3xl);
+  }
+
+  .tag-empty {
+    margin-top: var(--space-6);
+    color: var(--color-ink-tertiary);
+  }
+
+  .tag-grid {
+    margin-top: var(--space-7);
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .tag-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>
