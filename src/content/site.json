@@ -20,7 +20,10 @@
       "threads": "https://www.threads.net/"
     },
     "contactEmail": "hello@example.com",
-    "editorsPicks": [],
-    "pinned": {}
+    "editorsPicks": ["drip-kettle", "kids-stainless-bottle", "bath-towel"],
+    "pinned": {
+      "coffee": "drip-kettle-half-year-review",
+      "travel": "okinawa-family-trip-first-time"
+    }
   }
 }
