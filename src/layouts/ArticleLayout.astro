@@ -57,7 +57,7 @@ const description = article.data.seo.description ?? article.data.lead;
 ---
 
 <BaseLayout title={article.data.title} description={description} ogImage={article.data.heroImage.src} noindex={article.data.seo.noindex}>
-  <div class="container">
+  <div class="container" data-pagefind-meta="type:記事">
     <Breadcrumb
       items={[
         { label: 'Home', href: '/' },

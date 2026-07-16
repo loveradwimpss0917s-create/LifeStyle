@@ -1,0 +1,129 @@
+---
+/**
+ * 検索 — 04章§4.6 / 12章§3
+ * Pagefind UIをトークンでスタイル上書き。URLの?qと検索語を同期。
+ * 常設の人気タグ・カテゴリ導線で行き止まりを防ぐ(空状態/結果状態どちらでも表示)。
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/base/Breadcrumb.astro';
+import TagChip from '@/components/base/TagChip.astro';
+import CategoryCard from '@/components/content/CategoryCard.astro';
+
+const tags = (await getCollection('tags')).slice(0, 8);
+const categories = (await getCollection('categories')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title="検索" description="商品名・カテゴリ・気分でLIFESTACKのコンテンツを探せます。">
+  <div class="container">
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: '検索' }]} />
+    <h1 class="page-heading">検索</h1>
+
+    <div id="search-ui" class="search-ui"></div>
+
+    <section class="search-discover">
+      {tags.length > 0 && (
+        <div class="search-discover__block">
+          <p class="search-discover__label">人気のタグ</p>
+          <div class="search-discover__tags">
+            {tags.map((tag) => <TagChip tag={tag} />)}
+          </div>
+        </div>
+      )}
+      {categories.length > 0 && (
+        <div class="search-discover__block">
+          <p class="search-discover__label">カテゴリから探す</p>
+          <div class="search-discover__categories">
+            {categories.map((category) => <CategoryCard category={category} />)}
+          </div>
+        </div>
+      )}
+    </section>
+  </div>
+</BaseLayout>
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+<script src="/pagefind/pagefind-ui.js" is:inline></script>
+<script is:inline>
+  window.addEventListener('DOMContentLoaded', () => {
+    if (typeof PagefindUI === 'undefined') return;
+    const ui = new PagefindUI({
+      element: '#search-ui',
+      showImages: false,
+      showSubResults: false,
+      translations: { placeholder: '商品名・カテゴリ・気分で探す' },
+    });
+
+    const params = new URLSearchParams(location.search);
+    const initialQuery = params.get('q');
+    if (initialQuery && typeof ui.triggerSearch === 'function') {
+      ui.triggerSearch(initialQuery);
+    }
+
+    document.addEventListener('input', (e) => {
+      const target = e.target;
+      if (!(target instanceof HTMLInputElement)) return;
+      if (!target.closest('#search-ui')) return;
+      const url = new URL(location.href);
+      if (target.value) {
+        url.searchParams.set('q', target.value);
+      } else {
+        url.searchParams.delete('q');
+      }
+      history.replaceState({}, '', url);
+    });
+  });
+</script>
+
+<style>
+  .page-heading {
+    margin-top: var(--space-4);
+    font-size: var(--text-3xl);
+  }
+
+  .search-ui {
+    margin-top: var(--space-6);
+    --pagefind-ui-primary: var(--color-ink);
+    --pagefind-ui-text: var(--color-ink-secondary);
+    --pagefind-ui-background: var(--color-bg);
+    --pagefind-ui-border: var(--color-line);
+    --pagefind-ui-tag: var(--color-bg-tertiary);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 2px;
+    --pagefind-ui-image-border-radius: 0;
+    --pagefind-ui-image-box-ratio: 4 / 5;
+    --pagefind-ui-font: var(--font-ja);
+  }
+
+  .search-discover {
+    margin-top: var(--section-gap);
+  }
+
+  .search-discover__block + .search-discover__block {
+    margin-top: var(--space-7);
+  }
+
+  .search-discover__label {
+    font-size: var(--text-sm);
+    color: var(--color-ink-tertiary);
+    margin-bottom: var(--space-3);
+  }
+
+  .search-discover__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .search-discover__categories {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .search-discover__categories {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>
