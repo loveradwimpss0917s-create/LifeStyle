@@ -21,6 +21,7 @@ import ArticleCard from '@/components/content/ArticleCard.astro';
 import { formatDate } from '@/lib/format';
 import { getRelatedArticles } from '@/lib/related';
 import { getEmbeddedProductIds } from '@/lib/product-index';
+import { buildArticleJsonLd, buildItemListJsonLd } from '@/lib/seo';
 
 interface Props {
   article: CollectionEntry<'articles'>;
@@ -54,9 +55,25 @@ const updatedLabel =
 const rankingToc = article.data.type === 'ranking' ? headings.filter((h) => h.depth === 2) : [];
 
 const description = article.data.seo.description ?? article.data.lead;
+
+const articleJsonLd = await buildArticleJsonLd(article, Astro.site!);
+const itemListJsonLd =
+  (article.data.type === 'ranking' || article.data.type === 'roundup') && embeddedProducts.length > 0
+    ? buildItemListJsonLd(
+        embeddedProducts.map((p) => ({ url: `/products/${p.id}/`, name: p.data.name })),
+        Astro.site!
+      )
+    : undefined;
+const jsonLd = itemListJsonLd ? [articleJsonLd, itemListJsonLd] : articleJsonLd;
 ---
 
-<BaseLayout title={article.data.title} description={description} ogImage={article.data.heroImage.src} noindex={article.data.seo.noindex}>
+<BaseLayout
+  title={article.data.title}
+  description={description}
+  ogImage={`/og/articles/${article.id}.png`}
+  jsonLd={jsonLd}
+  noindex={article.data.seo.noindex}
+>
   <div class="container" data-pagefind-meta="type:記事">
     <Breadcrumb
       items={[

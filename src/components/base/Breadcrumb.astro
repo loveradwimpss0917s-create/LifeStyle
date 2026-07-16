@@ -1,29 +1,18 @@
 ---
 /**
  * Breadcrumb — 06章§6.2
- * Props: items({label, href?}[])。JSON-LD BreadcrumbListも同時出力する。
+ * Props: items({label, href?}[])。JSON-LD BreadcrumbListも同時出力する(lib/seo.ts)。
  */
-export interface BreadcrumbItem {
-  label: string;
-  href?: string;
-}
+import { buildBreadcrumbJsonLd, type BreadcrumbInput } from '@/lib/seo';
+
+export type BreadcrumbItem = BreadcrumbInput;
 
 interface Props {
   items: BreadcrumbItem[];
 }
 
 const { items } = Astro.props;
-
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
-  itemListElement: items.map((item, index) => ({
-    '@type': 'ListItem',
-    position: index + 1,
-    name: item.label,
-    ...(item.href ? { item: new URL(item.href, Astro.site).toString() } : {}),
-  })),
-};
+const jsonLd = buildBreadcrumbJsonLd(items, Astro.site!);
 ---
 
 <nav aria-label="パンくずリスト" class="breadcrumb">

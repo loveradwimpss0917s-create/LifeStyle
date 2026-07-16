@@ -1,0 +1,81 @@
+---
+/**
+ * TextPageLayout — 08章§3
+ * privacy/disclosure等のテキストページ用(--container-text)。
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/base/Breadcrumb.astro';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="container">
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: title }]} />
+  </div>
+  <article class="text-page container-text">
+    <h1>{title}</h1>
+    <div class="text-page__body">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .container-text {
+    max-width: var(--container-text);
+    margin-inline: auto;
+    padding-inline: var(--outer-margin-mobile);
+  }
+
+  @media (min-width: 768px) {
+    .container-text {
+      padding-inline: var(--outer-margin);
+    }
+  }
+
+  .text-page {
+    margin-top: var(--space-4);
+    margin-bottom: var(--section-gap);
+  }
+
+  .text-page h1 {
+    font-size: var(--text-3xl);
+  }
+
+  .text-page__body {
+    margin-top: var(--space-6);
+    color: var(--color-ink-secondary);
+  }
+
+  .text-page__body :global(h2) {
+    margin-top: var(--space-7);
+    font-size: var(--text-xl);
+    color: var(--color-ink);
+  }
+
+  .text-page__body :global(p) {
+    margin-top: var(--space-4);
+  }
+
+  .text-page__body :global(ul) {
+    margin-top: var(--space-4);
+    padding-left: 1.5em;
+    list-style: disc;
+  }
+
+  .text-page__body :global(li + li) {
+    margin-top: var(--space-2);
+  }
+
+  .text-page__body :global(a) {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+</style>

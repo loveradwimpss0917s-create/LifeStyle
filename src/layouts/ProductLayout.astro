@@ -20,6 +20,7 @@ import { formatPrice, formatUsagePeriod } from '@/lib/format';
 import { resolvePrimaryAffiliateLink } from '@/lib/affiliate';
 import { getRelatedProducts } from '@/lib/related';
 import { getArticlesForProduct } from '@/lib/product-index';
+import { buildProductJsonLd } from '@/lib/seo';
 
 interface Props {
   product: CollectionEntry<'products'>;
@@ -40,9 +41,10 @@ const relatedProducts = await getRelatedProducts(product);
 const price = formatPrice(product.data.price);
 const usagePeriodLabel = formatUsagePeriod(product.data.usagePeriod);
 const primaryAffiliate = resolvePrimaryAffiliateLink(product);
+const jsonLd = await buildProductJsonLd(product, brand, Astro.site!);
 ---
 
-<BaseLayout title={product.data.name} description={product.data.summary}>
+<BaseLayout title={product.data.name} description={product.data.summary} jsonLd={jsonLd} ogImage={`/og/products/${product.id}.png`}>
   <div class="container" data-pagefind-meta="type:商品">
     <Breadcrumb
       items={[
