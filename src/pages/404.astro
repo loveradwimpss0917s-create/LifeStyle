@@ -14,7 +14,7 @@ const categories = (await getCollection('categories'))
 
 <BaseLayout title="ページが見つかりません" description="お探しのページが見つかりませんでした。">
   <section class="not-found container-text">
-    <p class="not-found__label">404</p>
+    <p class="not-found__label" aria-hidden="true">404</p>
     <h1 class="not-found__title">ページが見つかりませんでした</h1>
     <p class="not-found__lead">
       URLが変更されたか、削除された可能性があります。検索するか、カテゴリから探してみてください。
@@ -52,7 +52,7 @@ const categories = (await getCollection('categories'))
   .not-found__label {
     font-family: var(--font-en);
     font-size: var(--text-hero);
-    color: var(--color-line);
+    color: var(--color-ink-tertiary);
   }
 
   .not-found__title {

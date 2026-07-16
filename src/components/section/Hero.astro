@@ -3,6 +3,8 @@
  * Hero — 06章§6.4
  * Props: image, alt, labelEn, tagline
  * --container-wideの写真(16:9, priority load)+下部にラベル・タグライン。
+ * labelEnはh1として描画する(トップページのみで使用する前提。他ページで
+ * 再利用する場合はページ側の見出し階層と重複しないよう要注意)。
  */
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
@@ -23,7 +25,7 @@ const { image, alt, labelEn, tagline } = Astro.props;
       <Image src={image} alt={alt} width={1920} height={1080} priority class="hero__image" />
     </div>
     <div class="hero__text">
-      <p class="hero__label">{labelEn}</p>
+      <h1 class="hero__label">{labelEn}</h1>
       <p class="hero__tagline">{tagline}</p>
     </div>
   </div>

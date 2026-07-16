@@ -18,6 +18,7 @@ const articles = (await getPublished('articles')).sort(
     <h1 class="page-heading">記事一覧</h1>
     {articles.length > 0 ? (
       <div class="page-grid">
+        <h2 class="visually-hidden">記事一覧</h2>
         <ArticleGrid items={articles} columns={3} />
       </div>
     ) : (

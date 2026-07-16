@@ -71,14 +71,14 @@ const rankingItems = ranking.map((product, index) => ({
   )}
 
   {latestArticles.length > 0 && (
-    <section class="container home-section">
+    <section class="container home-section reveal">
       <SectionHeader labelEn="Journal" labelJa="最新の記事" href="/articles/" />
       <ArticleGrid items={latestArticles} columns={3} />
     </section>
   )}
 
   {(featured || editorsPicks.length > 0) && (
-    <section class="container home-section">
+    <section class="container home-section reveal">
       <SectionHeader labelEn="Editor's Picks" labelJa="編集部のおすすめ" />
       {featured && (
         <div class="home-section__featured">
@@ -90,7 +90,7 @@ const rankingItems = ranking.map((product, index) => ({
   )}
 
   {categories.length > 0 && (
-    <section class="container home-section">
+    <section class="container home-section reveal">
       <SectionHeader labelEn="Explore" labelJa="カテゴリ" />
       <div class="home-categories">
         {categories.map((category) => <CategoryCard category={category} />)}
@@ -103,13 +103,13 @@ const rankingItems = ranking.map((product, index) => ({
   ))}
 
   {rankingItems.length > 0 && (
-    <section class="container home-section">
+    <section class="container home-section reveal">
       <SectionHeader labelEn="Best Picks" labelJa="ランキング" href="/ranking/" />
       <RankingList items={rankingItems} compact />
     </section>
   )}
 
-  <div class="home-section">
+  <div class="home-section reveal">
     <AboutTeaser />
   </div>
 </BaseLayout>

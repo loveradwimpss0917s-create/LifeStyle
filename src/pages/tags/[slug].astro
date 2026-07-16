@@ -34,6 +34,7 @@ const isEmpty = taggedArticles.length === 0 && taggedProducts.length === 0;
       <p class="tag-empty">このタグに該当するコンテンツはまだありません。</p>
     ) : (
       <div class="tag-grid">
+        <h2 class="visually-hidden">#{tag.data.name} の記事・商品</h2>
         {taggedArticles.map((article) => <ArticleCard article={article} />)}
         {taggedProducts.map((product) => <ProductCard product={product} />)}
       </div>

@@ -6,6 +6,7 @@
 import { ClientRouter } from 'astro:transitions';
 import Header from '@/components/layout/Header.astro';
 import Footer from '@/components/layout/Footer.astro';
+import ScrollReveal from '@/components/island/ScrollReveal.astro';
 import '@/styles/global.css';
 import cormorantLatinWoff2 from '@fontsource-variable/cormorant-garamond/files/cormorant-garamond-latin-wght-normal.woff2?url';
 
@@ -39,6 +40,9 @@ const jsonLdList = jsonLd
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#1A1A18" />
     <link rel="canonical" href={canonicalURL} />
     <link rel="alternate" type="application/rss+xml" title={siteName} href="/rss.xml" />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
@@ -77,5 +81,6 @@ const jsonLdList = jsonLd
       <slot />
     </main>
     <Footer />
+    <ScrollReveal />
   </body>
 </html>

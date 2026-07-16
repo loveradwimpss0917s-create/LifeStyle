@@ -27,11 +27,13 @@ const images = product.data.images;
         class:list={['gallery__main-image', { 'is-active': index === 0 }]}
         data-gallery-main
         data-index={index}
+        loading={index === 0 ? 'eager' : 'lazy'}
+        priority={index === 0}
       />
     ))}
   </div>
   {images.length > 1 && (
-    <div class="gallery__thumbs" role="list">
+    <div class="gallery__thumbs">
       {images.map((img, index) => (
         <button
           type="button"

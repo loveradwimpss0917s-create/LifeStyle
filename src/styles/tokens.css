@@ -13,10 +13,10 @@
   /* Ink(テキスト) */
   --color-ink: #1a1a18; /* 見出し・本文強調(純黒は使わない) */
   --color-ink-secondary: #55534e; /* 本文 */
-  --color-ink-tertiary: #8b887f; /* キャプション・メタ情報 */
+  --color-ink-tertiary: #6f6c65; /* キャプション・メタ情報(commit9で調整: 元#8b887fはbg-secondary上で3.28:1しかなくWCAG AA未達だったため、白/bg-secondary両方で4.5:1以上を確保する値に変更。実測: 白5.24:1・bg-secondary4.85:1) */
 
   /* Accent */
-  --color-accent: #8a6d4b; /* 真鍮/ブロンズ。リンク下線・小さな強調のみ */
+  --color-accent: #7c6243; /* 真鍮/ブロンズ。リンク下線・小さな強調のみ(commit9で調整: 元#8a6d4bはbg-secondary上で4.45:1とWCAG AA(4.5:1)にわずかに届かなかったため変更。実測: 白5.70:1・bg-secondary5.28:1) */
   --color-accent-strong: #6e5539; /* hover */
 
   /* Functional */
