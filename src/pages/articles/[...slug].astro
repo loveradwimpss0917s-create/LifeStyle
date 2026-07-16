@@ -1,0 +1,19 @@
+---
+/**
+ * 記事ページ — 04章§4.4
+ */
+import ArticleLayout from '@/layouts/ArticleLayout.astro';
+import { getPublished } from '@/lib/content';
+
+export async function getStaticPaths() {
+  const articles = await getPublished('articles');
+  return articles.map((article) => ({
+    params: { slug: article.id },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+---
+
+<ArticleLayout article={article} />

@@ -1,0 +1,30 @@
+---
+/**
+ * RankingList — 06章§6.3
+ * Props: items({rank, productId, comment}[]), compact?
+ */
+import { getEntry } from 'astro:content';
+import RankingItem from '@/components/content/RankingItem.astro';
+
+interface Props {
+  items: { rank: number; productId: string; comment?: string }[];
+  compact?: boolean;
+}
+
+const { items, compact = false } = Astro.props;
+const resolved = await Promise.all(
+  items.map(async (item) => {
+    const product = await getEntry('products', item.productId);
+    if (!product) {
+      throw new Error(`[RankingList] 存在しない商品ID "${item.productId}" が参照されています`);
+    }
+    return { ...item, product };
+  })
+);
+---
+
+<div class="ranking-list">
+  {resolved.map((item) => (
+    <RankingItem rank={item.rank} product={item.product} comment={item.comment} compact={compact} />
+  ))}
+</div>

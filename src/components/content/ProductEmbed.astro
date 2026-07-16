@@ -1,0 +1,86 @@
+---
+/**
+ * ProductEmbed — 06章§6.3(MDX内で使用)
+ * Props: id(productId), note?(編集ひとこと)
+ * 存在しない商品IDはビルドエラーにする(リンク切れ防止)。
+ */
+import { getEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import RatingStars from '@/components/base/RatingStars.astro';
+import AffiliateButton from '@/components/content/AffiliateButton.astro';
+import { resolvePrimaryAffiliateLink } from '@/lib/affiliate';
+
+interface Props {
+  id: string;
+  note?: string;
+}
+
+const { id, note } = Astro.props;
+const product = await getEntry('products', id);
+
+if (!product) {
+  throw new Error(`[ProductEmbed] 存在しない商品ID "${id}" が参照されています`);
+}
+
+const primaryAffiliate = resolvePrimaryAffiliateLink(product);
+---
+
+<div class="product-embed">
+  <Image
+    src={product.data.images[0].src}
+    alt={product.data.images[0].alt}
+    width={160}
+    height={200}
+    class="product-embed__image"
+  />
+  <div class="product-embed__body">
+    <p class="product-embed__name">
+      <a href={`/products/${product.id}/`}>{product.data.name}</a>
+    </p>
+    <RatingStars rating={product.data.rating} />
+    {note && <p class="product-embed__note">{note}</p>}
+    {primaryAffiliate && (
+      <AffiliateButton
+        product={product}
+        mall={primaryAffiliate.mall}
+        position="article_embed"
+        fullWidth={false}
+      />
+    )}
+  </div>
+</div>
+
+<style>
+  .product-embed {
+    display: flex;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border: var(--border-thin);
+    background: var(--color-bg);
+  }
+
+  .product-embed__image {
+    flex-shrink: 0;
+    width: 96px;
+    height: 120px;
+    object-fit: cover;
+  }
+
+  .product-embed__name a {
+    font-size: var(--text-base);
+    font-weight: 500;
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .product-embed__note {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+  }
+
+  .product-embed :global(.affiliate-button) {
+    margin-top: var(--space-3);
+  }
+</style>

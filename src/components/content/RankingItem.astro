@@ -1,0 +1,82 @@
+---
+/**
+ * RankingItem — 06章§6.3
+ * Props: rank, product(解決済みエントリ), comment?
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import RatingStars from '@/components/base/RatingStars.astro';
+
+interface Props {
+  rank: number;
+  product: CollectionEntry<'products'>;
+  comment?: string;
+  compact?: boolean;
+}
+
+const { rank, product, comment, compact = false } = Astro.props;
+---
+
+<div class:list={['ranking-item', { 'ranking-item--compact': compact }]} id={`rank-${rank}`}>
+  <span class="ranking-item__rank">{rank}</span>
+  <Image
+    src={product.data.images[0].src}
+    alt={product.data.images[0].alt}
+    width={compact ? 80 : 160}
+    height={compact ? 100 : 200}
+    class="ranking-item__image"
+  />
+  <div class="ranking-item__body">
+    <p class="ranking-item__name">
+      <a href={`/products/${product.id}/`}>{product.data.name}</a>
+    </p>
+    <RatingStars rating={product.data.rating} />
+    {comment && <p class="ranking-item__comment">{comment}</p>}
+  </div>
+</div>
+
+<style>
+  .ranking-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding-block: var(--space-4);
+    border-bottom: var(--border-thin);
+  }
+
+  .ranking-item__rank {
+    flex-shrink: 0;
+    width: 2.2em;
+    font-family: var(--font-en);
+    font-size: var(--text-2xl);
+    color: var(--color-accent);
+    text-align: center;
+  }
+
+  .ranking-item--compact .ranking-item__rank {
+    font-size: var(--text-lg);
+  }
+
+  .ranking-item__image {
+    flex-shrink: 0;
+    width: 80px;
+    height: 100px;
+    object-fit: cover;
+  }
+
+  .ranking-item--compact .ranking-item__image {
+    width: 48px;
+    height: 60px;
+  }
+
+  .ranking-item__name a {
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  .ranking-item__comment {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+  }
+</style>

@@ -1,0 +1,97 @@
+---
+/**
+ * ComparisonTable — 06章§6.3(MDX内・comparison記事で使用)
+ * Props: ids(productId 2〜3), rows({label, values[]}[])
+ */
+import { getEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+
+interface Props {
+  ids: string[];
+  rows: { label: string; values: string[] }[];
+}
+
+const { ids, rows } = Astro.props;
+const products = await Promise.all(
+  ids.map(async (id) => {
+    const product = await getEntry('products', id);
+    if (!product) {
+      throw new Error(`[ComparisonTable] 存在しない商品ID "${id}" が参照されています`);
+    }
+    return product;
+  })
+);
+---
+
+<div class="comparison-table-wrap">
+  <table class="comparison-table">
+    <thead>
+      <tr>
+        <th scope="col"></th>
+        {products.map((product) => (
+          <th scope="col">
+            <a href={`/products/${product.id}/`} class="comparison-table__product">
+              <Image
+                src={product.data.images[0].src}
+                alt={product.data.images[0].alt}
+                width={120}
+                height={150}
+              />
+              <span>{product.data.name}</span>
+            </a>
+          </th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          <th scope="row">{row.label}</th>
+          {row.values.map((value) => <td>{value}</td>)}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .comparison-table-wrap {
+    overflow-x: auto;
+    box-shadow: inset -8px 0 8px -8px rgba(0, 0, 0, 0.06);
+  }
+
+  .comparison-table {
+    width: 100%;
+    min-width: 480px;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+
+  .comparison-table th,
+  .comparison-table td {
+    padding: var(--space-3);
+    border-bottom: var(--border-thin);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .comparison-table__product {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  .comparison-table__product img {
+    width: 80px;
+    height: 100px;
+    object-fit: cover;
+  }
+
+  .comparison-table tbody th {
+    color: var(--color-ink-tertiary);
+    font-weight: 400;
+    white-space: nowrap;
+  }
+</style>

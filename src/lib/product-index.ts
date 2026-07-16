@@ -58,3 +58,28 @@ export async function getArticlesForProduct(
     .map((id) => byId.get(id))
     .filter((a): a is CollectionEntry<'articles'> => a !== undefined);
 }
+
+/**
+ * 記事本文に埋め込まれた商品IDを出現順・重複除去で抽出する(04章§4.4「登場した商品まとめ」用)。
+ * 存在しない商品IDが含まれる場合はビルドエラーにする(product-indexと同じ整合性保証)。
+ */
+export async function getEmbeddedProductIds(
+  article: Pick<CollectionEntry<'articles'>, 'id' | 'body'>
+): Promise<string[]> {
+  const products = await getCollection('products');
+  const productIds = new Set(products.map((p) => p.id));
+  const body = article.body ?? '';
+  const ids: string[] = [];
+
+  for (const match of body.matchAll(PRODUCT_EMBED_PATTERN)) {
+    const productId = match[1];
+    if (!productIds.has(productId)) {
+      throw new Error(
+        `[product-index] 記事 "${article.id}" が存在しない商品ID "${productId}" を ProductEmbed で参照しています`
+      );
+    }
+    if (!ids.includes(productId)) ids.push(productId);
+  }
+
+  return ids;
+}
