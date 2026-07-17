@@ -78,7 +78,7 @@
 - ヘッダーは常に白背景・細い下線のみ。スクロールで隠れ、上スクロールで再表示(視界の邪魔をしない)
 
 ### フッター
-`ブランドステートメント / カテゴリ全一覧 / About / SNSリンク / Newsletter(V2) / Privacy / Disclosure / © LIFESTACK`
+`ブランドステートメント / カテゴリ全一覧 / About / SNSリンク / Newsletter(V2) / Privacy / Disclosure / © HIBISTACK`
 
 ### パンくず
 全下層ページに表示: `Home > カテゴリ > ページ名`。JSON-LD `BreadcrumbList` を出力。

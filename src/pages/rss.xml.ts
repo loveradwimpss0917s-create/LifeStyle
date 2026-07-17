@@ -13,7 +13,7 @@ export const GET: APIRoute = async (context) => {
   const site = await getEntry('site', 'main');
 
   return rss({
-    title: site?.data.siteName ?? 'LIFESTACK',
+    title: site?.data.siteName ?? 'HIBISTACK',
     description: site?.data.description ?? '日常を、美しく残す。',
     site: context.site!,
     items: articles.map((article) => ({

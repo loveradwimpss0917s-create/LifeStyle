@@ -14,7 +14,7 @@ const tags = (await getCollection('tags')).slice(0, 8);
 const categories = (await getCollection('categories')).sort((a, b) => a.data.order - b.data.order);
 ---
 
-<BaseLayout title="検索" description="商品名・カテゴリ・気分でLIFESTACKのコンテンツを探せます。">
+<BaseLayout title="検索" description="商品名・カテゴリ・気分でHIBISTACKのコンテンツを探せます。">
   <div class="container">
     <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: '検索' }]} />
     <h1 class="page-heading">検索</h1>

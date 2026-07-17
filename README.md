@@ -1,4 +1,4 @@
-# PROJECT LIFESTACK
+# PROJECT HIBISTACK
 
 **AI Affiliate Media Platform**
 
@@ -129,7 +129,7 @@ Dashboard接続の代わりにCLIから直接デプロイする場合:
 
 ```sh
 npm run build
-npx wrangler pages deploy dist --project-name=lifestack
+npx wrangler pages deploy dist --project-name=hibistack
 ```
 
 静的アセットのみのデプロイのため、この場合も `wrangler.toml` は不要(コマンドライン引数で完結)。
@@ -138,7 +138,7 @@ npx wrangler pages deploy dist --project-name=lifestack
 
 V1実装は完了していますが、以下はオーナー本人の対応が必要です(12章§7)。
 
-1. **サイト名の確定** — 仮称「LIFESTACK」のままでよいか確認。変更する場合は `src/content/site.json` の `siteName`/`tagline` 等と `src/layouts/BaseLayout.astro` の `siteName` 定数を変更
+1. **サイト名の確定** — 完了。サイト名は「HIBISTACK」に確定し、`src/content/site.json` の `siteName` 等、`src/layouts/BaseLayout.astro`・`src/lib/seo.ts` の定数、ロゴ表示箇所を含め全箇所を更新済み
 2. **独自ドメインの取得・Cloudflare Pages接続** — 取得後、`astro.config.mjs` の `site` と `src/content/site.json` の `url` を実ドメインに変更(現在は仮ドメイン `https://lifestack.pages.dev`)
 3. **Yahoo!アフィリエイト登録・各商品へのURL貼り付け** — 各商品Markdownの `affiliate.yahooShopping.url` / `affiliate.yahooTravel.url` に実際のリンクを追加(`checkedAt` も併せて設定)。未設定の間はAffiliateButton・PrLabelは自動的に非表示になる
 4. **サンプル写真から実写真への差し替え** — `src/assets/products/` `src/assets/articles/` `src/assets/categories/` `src/assets/site/` 配下のプレースホルダーSVGを実写真(JPEG/PNG)に差し替え、各商品・記事frontmatterの画像パスを更新

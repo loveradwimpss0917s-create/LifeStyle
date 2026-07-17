@@ -11,7 +11,7 @@ import SocialLinks from '@/components/content/SocialLinks.astro';
 const site = await getEntry('site', 'main');
 ---
 
-<BaseLayout title="About" description={site?.data.description ?? 'LIFESTACKについて'}>
+<BaseLayout title="About" description={site?.data.description ?? 'HIBISTACKについて'}>
   <div class="container">
     <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
   </div>
@@ -32,7 +32,7 @@ const site = await getEntry('site', 'main');
 
       <section class="about-section container-text">
         <h2>このサイトについて</h2>
-        <p>LIFESTACKは、次の3つを約束してコンテンツをつくっています。</p>
+        <p>HIBISTACKは、次の3つを約束してコンテンツをつくっています。</p>
         <ul role="list" class="about-promises">
           <li>実際に購入して、使ったものだけを紹介します。</li>
           <li>良かった点だけでなく、気になった点も正直に書きます。</li>

@@ -1,14 +1,14 @@
 {
   "main": {
-    "siteName": "LIFESTACK",
+    "siteName": "HIBISTACK",
     "tagline": "日常を、美しく残す。",
     "taglineEn": "Stacking life, beautifully.",
     "description": "旅・子育て・暮らしの記録から生まれた、小さなライフスタイルマガジン。",
     "url": "https://lifestack.pages.dev",
     "heroImage": "../assets/site/hero.svg",
-    "heroAlt": "LIFESTACK — placeholder hero image",
+    "heroAlt": "HIBISTACK — placeholder hero image",
     "author": {
-      "name": "LIFESTACK",
+      "name": "HIBISTACK",
       "bio": "写真とふたつの暮らしのアカウントを中心に、旅・子育て・暮らしの記録を発信しています。実際に使ったものだけを、良かった点も気になった点も正直に書いています。",
       "image": "../assets/site/author.svg"
     },

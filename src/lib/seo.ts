@@ -5,7 +5,7 @@
 import { getImage } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 
-const SITE_NAME = 'LIFESTACK';
+const SITE_NAME = 'HIBISTACK';
 
 export type BreadcrumbInput = { label: string; href?: string };
 

@@ -82,7 +82,7 @@ export async function renderOgImage({ title, categoryLabel }: OgImageInput): Pro
                 textTransform: 'uppercase',
                 color: '#8A6D4B',
               },
-              children: categoryLabel ?? 'LIFESTACK',
+              children: categoryLabel ?? 'HIBISTACK',
             },
           },
           {
@@ -108,7 +108,7 @@ export async function renderOgImage({ title, categoryLabel }: OgImageInput): Pro
                 letterSpacing: 6,
                 color: '#1A1A18',
               },
-              children: 'LIFESTACK',
+              children: 'HIBISTACK',
             },
           },
         ],
