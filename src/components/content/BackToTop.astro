@@ -1,0 +1,111 @@
+---
+/**
+ * BackToTop — 17章§5
+ * 2画面分スクロール後に右下へ出現(circle 44px・chevron-up)。フッター到達で非表示。
+ * 記事ページのみ表示(商品ページはStickyCtaが右下相当の帯を占有するため、
+ * 同時に複数の浮動要素を出さない)。
+ */
+import Icon from '@/components/base/Icon.astro';
+---
+
+<button type="button" class="back-to-top" id="back-to-top" aria-label="ページの先頭に戻る" hidden>
+  <Icon name="arrow-up" size={20} />
+</button>
+
+<style>
+  .back-to-top {
+    position: fixed;
+    right: var(--space-4);
+    bottom: var(--space-4);
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-full);
+    background: var(--color-bg);
+    color: var(--color-ink);
+    border: var(--border-thin);
+    box-shadow: var(--shadow-sm);
+    opacity: 0;
+    transform: translateY(var(--motion-distance, 16px));
+    transition:
+      opacity var(--duration-fast) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
+  }
+
+  .back-to-top[hidden] {
+    display: flex;
+    visibility: hidden;
+  }
+
+  .back-to-top.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-top {
+      transition: none;
+    }
+  }
+</style>
+
+<script is:inline data-astro-rerun>
+  // BackToTop制御(17章§5)。2画面分スクロールで出現、フッター到達で非表示。
+  // data-astro-rerun: View Transitions遷移後も新しいDOM要素・状態で再設定するため必須。
+  // IIFEで包む: トップレベルconst/letの再宣言エラーを避ける。
+  (function () {
+    function run() {
+      var btn = document.getElementById('back-to-top');
+      var footer = document.querySelector('footer');
+      if (!btn) return;
+
+      btn.hidden = false;
+
+      var footerVisible = false;
+      if (footer && 'IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(
+          function (entries) {
+            footerVisible = entries[0].isIntersecting;
+            update();
+          },
+          { threshold: 0 }
+        );
+        observer.observe(footer);
+      }
+
+      var ticking = false;
+      function update() {
+        var pastThreshold = window.scrollY > window.innerHeight * 2;
+        btn.classList.toggle('is-visible', pastThreshold && !footerVisible);
+        ticking = false;
+      }
+
+      window.addEventListener(
+        'scroll',
+        function () {
+          if (!ticking) {
+            requestAnimationFrame(update);
+            ticking = true;
+          }
+        },
+        { passive: true }
+      );
+
+      btn.addEventListener('click', function () {
+        var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+      });
+
+      update();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run);
+    } else {
+      run();
+    }
+  })();
+</script>
