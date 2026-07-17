@@ -93,6 +93,12 @@ const dateLabel = article.data.publishedAt ? formatDate(article.data.publishedAt
     font-size: var(--text-lg);
     line-height: var(--leading-tight);
     color: var(--color-ink);
+    overflow-wrap: break-word;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    min-height: calc(var(--leading-tight) * 2em);
   }
 
   .article-card--compact .article-card__title {
@@ -102,6 +108,7 @@ const dateLabel = article.data.publishedAt ? formatDate(article.data.publishedAt
 
   .article-card--large .article-card__title {
     font-size: var(--text-2xl);
+    -webkit-line-clamp: 3;
   }
 
   .article-card__date {

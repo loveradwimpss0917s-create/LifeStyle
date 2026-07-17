@@ -1,5 +1,5 @@
 ---
-name: "北欧デザインの天然木ダイニングチェア(ペーパーコード)"
+name: "北欧ペーパーコードダイニングチェア"
 category: living
 purchasedAt: 2026-07-01
 usagePeriod: under1m
@@ -14,12 +14,10 @@ goodPoints:
 concernPoints:
   - "脚の裏に貼るキズ防止フェルトが小さめで、そのうち剥がれてきそうな厚みが気になる"
 images:
-  - src: "../../assets/products/nordic-paper-cord-dining-chair/01.svg"
-    alt: "北欧デザインの天然木ダイニングチェアの正面写真(placeholder)"
-  - src: "../../assets/products/nordic-paper-cord-dining-chair/02.svg"
-    alt: "ペーパーコードの座面部分のディテール写真(placeholder)"
-  - src: "../../assets/products/nordic-paper-cord-dining-chair/03.svg"
-    alt: "机の縁にかけた状態のダイニングチェアの写真(placeholder)"
+  - src: "../../assets/products/nordic-paper-cord-dining-chair/01-table-edge-hook.jpg"
+    alt: "天板の縁に椅子をひっかけ、下をお掃除ロボットが通っている実際の使用写真"
+  - src: "../../assets/products/nordic-paper-cord-dining-chair/02-dimensions.jpg"
+    alt: "ダイニングチェアのサイズ図(全体寸法・座面高)とキズ防止フェルト・クッションの位置"
 tags:
   - kattekyokatta
   - hokuo-interior

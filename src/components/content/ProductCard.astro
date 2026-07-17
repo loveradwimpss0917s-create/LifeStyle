@@ -75,7 +75,14 @@ const price = formatPrice(product.data.price);
     margin-top: 2px;
     font-size: var(--text-base);
     font-weight: 500;
+    line-height: var(--leading-tight);
     color: var(--color-ink);
+    overflow-wrap: break-word;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    min-height: calc(var(--leading-tight) * 2em);
   }
 
   .product-card__price {
