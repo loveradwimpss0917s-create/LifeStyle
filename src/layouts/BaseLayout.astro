@@ -40,10 +40,39 @@ const jsonLdList = jsonLd
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ffffff" id="theme-color-meta" />
+
+    <!--
+      ダークモード初期化(16章§1.3)。CSS読込前・head最上部付近で同期実行し、
+      FOUC(一瞬ライトテーマが見えてから切り替わる現象)を防ぐ。theme-color-meta
+      は直前で定義済みのためここで即座に更新できる。
+      data-astro-rerunは付けない: <html>要素自体はView Transitions遷移を
+      またいで保持されるため、data-theme属性は自然に引き継がれる
+      (再実行すると保存値の再読込になるだけで害はないが不要)。
+    -->
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem('hibistack:theme');
+          var theme =
+            stored === 'dark' || stored === 'light'
+              ? stored
+              : window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light';
+          document.documentElement.dataset.theme = theme;
+          var meta = document.getElementById('theme-color-meta');
+          if (meta) meta.setAttribute('content', theme === 'dark' ? '#161513' : '#ffffff');
+        } catch (e) {
+          /* localStorage/matchMedia が使えない環境ではライト既定のまま */
+        }
+      })();
+    </script>
+
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icons/favicon-48.png" type="image/png" sizes="48x48" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <meta name="theme-color" content="#1A1A18" />
     <link rel="canonical" href={canonicalURL} />
     <link rel="alternate" type="application/rss+xml" title={siteName} href="/rss.xml" />
     {noindex && <meta name="robots" content="noindex, nofollow" />}

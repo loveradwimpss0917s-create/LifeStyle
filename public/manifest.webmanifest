@@ -1,7 +1,7 @@
 {
   "name": "HIBISTACK",
   "short_name": "HIBISTACK",
-  "description": "日常を、美しく残す。旅・子育て・暮らしの記録から生まれたライフスタイルマガジン。",
+  "description": "日々の暮らしを、少しだけ豊かにする。旅・子育て・暮らしの記録から生まれたライフスタイルマガジン。",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

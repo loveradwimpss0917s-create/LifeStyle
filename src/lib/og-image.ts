@@ -76,13 +76,55 @@ export async function renderOgImage({ title, categoryLabel }: OgImageInput): Pro
             props: {
               style: {
                 display: 'flex',
-                fontFamily: 'Cormorant Garamond',
-                fontSize: 28,
-                letterSpacing: 4,
-                textTransform: 'uppercase',
-                color: '#8A6D4B',
+                alignItems: 'center',
+                gap: 16,
               },
-              children: categoryLabel ?? 'HIBISTACK',
+              children: [
+                {
+                  type: 'div',
+                  props: {
+                    style: {
+                      display: 'flex',
+                      position: 'relative',
+                      width: 24,
+                      height: 36,
+                      border: '4px solid #1A1A18',
+                      borderRadius: 6,
+                    },
+                    children: [
+                      {
+                        type: 'div',
+                        props: {
+                          style: {
+                            display: 'flex',
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            top: '50%',
+                            height: 4,
+                            marginTop: -2,
+                            background: '#1A1A18',
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  type: 'div',
+                  props: {
+                    style: {
+                      display: 'flex',
+                      fontFamily: 'Cormorant Garamond',
+                      fontSize: 28,
+                      letterSpacing: 4,
+                      textTransform: 'uppercase',
+                      color: '#8A6D4B',
+                    },
+                    children: categoryLabel ?? 'HIBISTACK',
+                  },
+                },
+              ],
             },
           },
           {

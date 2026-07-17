@@ -10,6 +10,7 @@
  * SocialLinksコンポーネント実装時にオーバーレイ内へ追加する。
  */
 import Icon from '@/components/base/Icon.astro';
+import ThemeToggle from '@/components/base/ThemeToggle.astro';
 import { getAllCategoryNav } from '@/lib/nav';
 
 const allCategoryNav = await getAllCategoryNav();
@@ -55,6 +56,11 @@ const allCategoryNav = await getAllCategoryNav();
       <li><a href="/search/">検索</a></li>
     </ul>
   </nav>
+
+  <div class="mobile-menu__theme">
+    <span class="mobile-menu__theme-label">ダークモード</span>
+    <ThemeToggle />
+  </div>
 </div>
 
 <style>
@@ -117,6 +123,20 @@ const allCategoryNav = await getAllCategoryNav();
     gap: var(--space-4);
     font-size: var(--text-xl);
     font-family: var(--font-en);
+  }
+
+  .mobile-menu__theme {
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
+    border-top: var(--border-thin);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mobile-menu__theme-label {
+    font-size: var(--text-base);
+    color: var(--color-ink-secondary);
   }
 </style>
 

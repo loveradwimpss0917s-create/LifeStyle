@@ -1,8 +1,8 @@
 {
   "main": {
     "siteName": "HIBISTACK",
-    "tagline": "日常を、美しく残す。",
-    "taglineEn": "Stacking life, beautifully.",
+    "tagline": "日々の暮らしを、少しだけ豊かにする。",
+    "taglineEn": "Stacking better days.",
     "description": "旅・子育て・暮らしの記録から生まれた、小さなライフスタイルマガジン。",
     "url": "https://lifestack.pages.dev",
     "heroImage": "../assets/site/hero.svg",

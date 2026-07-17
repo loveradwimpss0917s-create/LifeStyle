@@ -14,7 +14,7 @@ export const GET: APIRoute = async (context) => {
 
   return rss({
     title: site?.data.siteName ?? 'HIBISTACK',
-    description: site?.data.description ?? '日常を、美しく残す。',
+    description: site?.data.description ?? '日々の暮らしを、少しだけ豊かにする。',
     site: context.site!,
     items: articles.map((article) => ({
       title: article.data.title,

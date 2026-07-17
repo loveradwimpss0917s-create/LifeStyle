@@ -1,0 +1,62 @@
+---
+/**
+ * ThemeToggle — 16章§1.3 / 17章§1
+ * 見た目のみのコンポーネント(挙動はHeader.astro側の共有スクリプトが担う)。
+ * ページ内に複数配置される(PCヘッダー直置き + モバイルメニュー内)ため、
+ * data-theme-toggle 属性で識別する(id重複を避ける)。
+ * 状態(aria-pressed/aria-label)の初期表示はSSR時点では確定できないため
+ * デフォルト値を置き、Header.astro側のスクリプトが読み込み時に補正する。
+ */
+import Icon from '@/components/base/Icon.astro';
+---
+
+<button
+  type="button"
+  class="theme-toggle"
+  data-theme-toggle
+  aria-pressed="false"
+  aria-label="ダークモードに切り替え"
+>
+  <span class="theme-toggle__icon theme-toggle__icon--sun">
+    <Icon name="sun" size={20} />
+  </span>
+  <span class="theme-toggle__icon theme-toggle__icon--moon">
+    <Icon name="moon" size={20} />
+  </span>
+</button>
+
+<style>
+  .theme-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: var(--color-ink);
+  }
+
+  .theme-toggle__icon {
+    position: absolute;
+    display: flex;
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+
+  .theme-toggle__icon--moon {
+    opacity: 0;
+  }
+
+  html[data-theme='dark'] .theme-toggle__icon--sun {
+    opacity: 0;
+  }
+
+  html[data-theme='dark'] .theme-toggle__icon--moon {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .theme-toggle__icon {
+      transition: none;
+    }
+  }
+</style>

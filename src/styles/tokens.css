@@ -76,13 +76,47 @@
   --radius-sm: 2px;
   --radius-full: 999px;
   --border-thin: 1px solid var(--color-line);
+  --shadow-sm: 0 1px 2px rgb(26 26 24 / 0.06); /* 16章§4: sticky要素の浮き(ヘッダー・Sticky CTA) */
+  --shadow-md: 0 8px 32px rgb(26 26 24 / 0.1); /* 16章§4: オーバーレイのみ(モバイルメニュー等) */
 
-  /* ============ 2.6 モーション ============ */
+  /* ============ 2.6 モーション(16章§9) ============ */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --duration-fast: 200ms; /* hover */
-  --duration-base: 350ms; /* 出現フェード */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 200ms; /* hover・押下・下線 */
+  --duration-base: 350ms; /* 出現フェード・テーマ切替 */
+  --duration-slow: 600ms; /* Heroの初回演出のみ */
+  --motion-distance: 16px; /* 出現時の移動量上限 */
 
   /* ============ レイアウト(実装用・追加値) ============ */
   --header-height-mobile: 64px;
   --header-height-desktop: 72px;
+}
+
+/* ============ ダークテーマ(16章§1.2) ============ */
+/* 純黒は使わない。ブロンズを一滴含む暖色系グレーで「温かい闇」を表現する。
+   html[data-theme='dark'] は c4(ThemeToggle)のJSが付与する。 */
+html[data-theme='dark'] {
+  --color-bg: #161513;
+  --color-bg-secondary: #1e1d1a;
+  --color-bg-tertiary: #262420;
+
+  --color-ink: #f2f0ec;
+  --color-ink-secondary: #c9c6bf;
+  --color-ink-tertiary: #98948b;
+
+  --color-accent: #c9a86e;
+  --color-accent-strong: #d8bc8a;
+
+  --color-line: #35332e;
+  --color-cta: #f2f0ec;
+  --color-cta-text: #161513;
+  --color-focus: #6f9dff;
+  --color-star: #d8b23a;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 8px 32px rgb(0 0 0 / 0.4);
+}
+
+html[data-theme='dark'] img:not(.no-dim) {
+  filter: brightness(0.92);
 }

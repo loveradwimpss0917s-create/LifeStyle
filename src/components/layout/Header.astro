@@ -6,6 +6,7 @@
  */
 import Icon from '@/components/base/Icon.astro';
 import MobileMenu from '@/components/island/MobileMenu.astro';
+import ThemeToggle from '@/components/base/ThemeToggle.astro';
 import { getPrimaryCategoryNav } from '@/lib/nav';
 
 const primaryCategoryNav = await getPrimaryCategoryNav();
@@ -31,6 +32,9 @@ const primaryCategoryNav = await getPrimaryCategoryNav();
       <a href="/search/" class="header__icon-link" aria-label="検索">
         <Icon name="search" size={20} />
       </a>
+      <div class="header__theme-toggle">
+        <ThemeToggle />
+      </div>
       <MobileMenu />
     </div>
   </div>
@@ -114,6 +118,18 @@ const primaryCategoryNav = await getPrimaryCategoryNav();
     height: 44px;
     color: var(--color-ink);
   }
+
+  /* テーマ切替はPC(≥1024px)ではヘッダー直置き、<1024pxではモバイルメニュー内
+     (MobileMenu.astro側)に配置する。17章§1.1。 */
+  .header__theme-toggle {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .header__theme-toggle {
+      display: block;
+    }
+  }
 </style>
 
 <script is:inline data-astro-rerun>
@@ -155,5 +171,59 @@ const primaryCategoryNav = await getPrimaryCategoryNav();
         }
       }, { passive: true });
     }
+  })();
+</script>
+
+<script is:inline data-astro-rerun>
+  // ThemeToggle制御(16章§1.3)。ページ内に複数存在しうる[data-theme-toggle]
+  // (PCヘッダー+MobileMenu内)をまとめて面倒を見る。HeaderがMobileMenuを
+  // 内包しレンダリングするため、このscriptタグの時点で両方のボタンが
+  // 既にDOMに存在していることが保証される。
+  // data-astro-rerun: View Transitions遷移後も新しいボタン要素に再バインドするため必須。
+  // IIFEで包む: 同じスクリプトの再実行時にトップレベルconst/letの再宣言エラーを避ける。
+  (function () {
+    var STORAGE_KEY = 'hibistack:theme';
+
+    function syncToggles(theme) {
+      var isDark = theme === 'dark';
+      var all = document.querySelectorAll('[data-theme-toggle]');
+      for (var i = 0; i < all.length; i++) {
+        all[i].setAttribute('aria-pressed', String(isDark));
+        all[i].setAttribute(
+          'aria-label',
+          isDark ? 'ライトモードに切り替え' : 'ダークモードに切り替え'
+        );
+      }
+    }
+
+    function updateThemeColorMeta(theme) {
+      var meta = document.getElementById('theme-color-meta');
+      if (meta) meta.setAttribute('content', theme === 'dark' ? '#161513' : '#ffffff');
+    }
+
+    var toggles = document.querySelectorAll('[data-theme-toggle]');
+    for (var j = 0; j < toggles.length; j++) {
+      var btn = toggles[j];
+      if (btn.dataset.themeBound) continue;
+      btn.dataset.themeBound = 'true';
+      btn.addEventListener('click', function () {
+        var root = document.documentElement;
+        var next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        root.classList.add('theme-transitioning');
+        root.dataset.theme = next;
+        try {
+          localStorage.setItem(STORAGE_KEY, next);
+        } catch (e) {
+          /* localStorageが使えない環境(プライベートモード等)では永続化を諦める */
+        }
+        syncToggles(next);
+        updateThemeColorMeta(next);
+        window.setTimeout(function () {
+          root.classList.remove('theme-transitioning');
+        }, 400);
+      });
+    }
+
+    syncToggles(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
   })();
 </script>

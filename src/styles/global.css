@@ -36,6 +36,22 @@ body {
   font-feature-settings: 'tnum';
 }
 
+/* ダークモード切替時のみ(16章§2.11)。常時付けるとページ遷移で色がにじむため、
+   ThemeToggleクリック時にJSがクラスを付与し、transitionend相当のタイマー後に外す。 */
+html.theme-transitioning,
+html.theme-transitioning body {
+  transition:
+    background-color var(--duration-base) var(--ease-out),
+    color var(--duration-base) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transitioning,
+  html.theme-transitioning body {
+    transition: none;
+  }
+}
+
 img,
 picture,
 svg,
