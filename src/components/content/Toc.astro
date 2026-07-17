@@ -1,0 +1,130 @@
+---
+/**
+ * Toc — 17章§5
+ * 記事本文のh2/h3から自動生成する目次。折りたたみ(<details>)で全画面幅共通の
+ * シンプルな実装とする(sticky sidebarはArticleLayoutの単一カラム構成を
+ * 大きく変更する必要があり、リスクに見合わないため見送り。19章の指示書に
+ * この判断を明記)。IntersectionObserverで現在読んでいる見出しをハイライトする。
+ * Props: headings(astro:contentのrender()が返すheadings配列)
+ */
+interface TocHeading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: TocHeading[];
+}
+
+const { headings } = Astro.props;
+const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+{items.length > 0 && (
+  <details class="toc" data-toc>
+    <summary class="toc__summary">目次</summary>
+    <nav aria-label="目次">
+      <ol role="list" class="toc__list">
+        {items.map((h) => (
+          <li class:list={['toc__item', `toc__item--h${h.depth}`]}>
+            <a href={`#${h.slug}`} data-toc-link={h.slug}>{h.text}</a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  </details>
+)}
+
+<style>
+  .toc {
+    margin-bottom: var(--space-6);
+    padding: var(--space-4) var(--space-5);
+    border: var(--border-thin);
+  }
+
+  .toc__summary {
+    cursor: pointer;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  .toc__list {
+    margin-top: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+  }
+
+  .toc__item--h3 {
+    padding-left: var(--space-4);
+  }
+
+  .toc__item a {
+    color: var(--color-ink-secondary);
+  }
+
+  .toc__item a:hover {
+    color: var(--color-ink);
+  }
+
+  .toc__item a.is-active {
+    color: var(--color-accent);
+    font-weight: 500;
+  }
+</style>
+
+<script is:inline data-astro-rerun>
+  // 目次の現在地ハイライト(17章§5)。IntersectionObserverで見出し要素を監視し、
+  // 対応するTOCリンクにis-activeを付与する。
+  // data-astro-rerun: View Transitions遷移後も新しいDOM要素で再設定するため必須。
+  // IIFEで包む: トップレベルconst/letの再宣言エラーを避ける。
+  //
+  // Tocは本文(Prose/Content)より前にDOM上へ描画されるため、初回ハードロード時は
+  // このscriptタグの実行時点でまだ見出し要素(h2/h3)がDOMに存在しない
+  // (inline scriptはHTMLパース中に出現順で即時実行されるため)。document.readyState
+  // で判定し、パース未完了ならDOMContentLoadedまで処理を遅延させる。VT遷移時は
+  // Astro側で既に新DOMへの差し替えが完了してからこのscriptが再実行されるため
+  // readyState は常に 'loading' 以外になり、即時実行される。
+  (function () {
+    function run() {
+      var toc = document.querySelector('[data-toc]');
+      if (!toc) return;
+      if (!('IntersectionObserver' in window)) return;
+
+      var links = Array.prototype.slice.call(toc.querySelectorAll('[data-toc-link]'));
+      var headingEls = links
+        .map(function (link) {
+          return document.getElementById(link.dataset.tocLink);
+        })
+        .filter(Boolean);
+      if (headingEls.length === 0) return;
+
+      var observer = new IntersectionObserver(
+        function (entries) {
+          for (var i = 0; i < entries.length; i++) {
+            var entry = entries[i];
+            if (!entry.isIntersecting) continue;
+            var id = entry.target.id;
+            for (var j = 0; j < links.length; j++) {
+              links[j].classList.toggle('is-active', links[j].dataset.tocLink === id);
+            }
+          }
+        },
+        { rootMargin: '-20% 0px -70% 0px' }
+      );
+
+      for (var k = 0; k < headingEls.length; k++) {
+        observer.observe(headingEls[k]);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run);
+    } else {
+      run();
+    }
+  })();
+</script>

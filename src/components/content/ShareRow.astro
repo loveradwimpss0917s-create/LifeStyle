@@ -1,0 +1,114 @@
+---
+/**
+ * ShareRow — 17章§5
+ * 記事末尾のSNSシェア行。X/LINE/リンクをコピー。追跡パラメータは付けない。
+ * モバイルでnavigator.shareが使える場合はネイティブ共有シートを優先する。
+ * ブランド商標のロゴは描かず(15章方針踏襲)、テキストラベルのみで構成する。
+ * Props: url(絶対URL), title
+ */
+interface Props {
+  url: string;
+  title: string;
+}
+
+const { url, title } = Astro.props;
+const xShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}`;
+---
+
+<div class="share-row" data-share data-share-url={url} data-share-title={title}>
+  <span class="share-row__label">この記事をシェア</span>
+  <div class="share-row__links" data-share-links>
+    <a href={xShareUrl} target="_blank" rel="noopener noreferrer" class="share-row__btn">X</a>
+    <a href={lineShareUrl} target="_blank" rel="noopener noreferrer" class="share-row__btn">LINE</a>
+    <button type="button" class="share-row__btn" data-share-copy>リンクをコピー</button>
+  </div>
+  <button type="button" class="share-row__btn share-row__native" data-share-native hidden>共有する</button>
+</div>
+
+<style>
+  .share-row {
+    margin-top: var(--space-7);
+    padding-top: var(--space-5);
+    border-top: var(--border-thin);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .share-row__label {
+    font-size: var(--text-sm);
+    color: var(--color-ink-tertiary);
+  }
+
+  .share-row__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .share-row__btn {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-2) var(--space-4);
+    border: var(--border-thin);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+    transition: color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+  }
+
+  .share-row__btn:hover {
+    color: var(--color-ink);
+    border-color: var(--color-ink-secondary);
+  }
+
+  .share-row__native[hidden] {
+    display: none;
+  }
+</style>
+
+<script is:inline data-astro-rerun>
+  // ShareRow制御(17章§5)。navigator.share対応時はネイティブ共有ボタンに切替、
+  // リンクコピーはClipboard APIで実装しコピー完了を一時的にラベル表示する。
+  // data-astro-rerun: View Transitions遷移後も新しいDOM要素に再バインドするため必須。
+  // IIFEで包む: トップレベルconst/letの再宣言エラーを避ける。
+  (function () {
+    var rows = document.querySelectorAll('[data-share]');
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      if (row.dataset.shareBound) continue;
+      row.dataset.shareBound = 'true';
+
+      var url = row.dataset.shareUrl;
+      var title = row.dataset.shareTitle;
+      var links = row.querySelector('[data-share-links]');
+      var nativeBtn = row.querySelector('[data-share-native]');
+      var copyBtn = row.querySelector('[data-share-copy]');
+
+      if (navigator.share && links && nativeBtn) {
+        links.hidden = true;
+        nativeBtn.hidden = false;
+        nativeBtn.addEventListener('click', function () {
+          navigator.share({ url: url, title: title }).catch(function () {
+            /* ユーザーがキャンセルした場合等は何もしない */
+          });
+        });
+      }
+
+      if (copyBtn) {
+        copyBtn.addEventListener('click', function () {
+          if (!navigator.clipboard) return;
+          navigator.clipboard.writeText(url).then(function () {
+            var original = copyBtn.textContent;
+            copyBtn.textContent = 'コピーしました';
+            setTimeout(function () {
+              copyBtn.textContent = original;
+            }, 2000);
+          });
+        });
+      }
+    }
+  })();
+</script>

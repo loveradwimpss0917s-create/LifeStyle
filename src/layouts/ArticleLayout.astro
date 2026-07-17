@@ -18,6 +18,9 @@ import ComparisonTable from '@/components/content/ComparisonTable.astro';
 import RankingItem from '@/components/content/RankingItem.astro';
 import RankingList from '@/components/content/RankingList.astro';
 import ArticleCard from '@/components/content/ArticleCard.astro';
+import Toc from '@/components/content/Toc.astro';
+import ReadingProgress from '@/components/content/ReadingProgress.astro';
+import ShareRow from '@/components/content/ShareRow.astro';
 import { formatDate } from '@/lib/format';
 import { getRelatedArticles } from '@/lib/related';
 import { getEmbeddedProductIds } from '@/lib/product-index';
@@ -52,9 +55,8 @@ const updatedLabel =
     ? formatDate(article.data.updatedAt)
     : undefined;
 
-const rankingToc = article.data.type === 'ranking' ? headings.filter((h) => h.depth === 2) : [];
-
 const description = article.data.seo.description ?? article.data.lead;
+const pageUrl = new URL(Astro.url.pathname, Astro.site).toString();
 
 const articleJsonLd = await buildArticleJsonLd(article, Astro.site!);
 const itemListJsonLd =
@@ -105,18 +107,11 @@ const jsonLd = itemListJsonLd ? [articleJsonLd, itemListJsonLd] : articleJsonLd;
   </div>
 
   <article class="article-body container-text">
-    {rankingToc.length > 0 && (
-      <nav aria-label="目次" class="article-toc">
-        <ol role="list">
-          {rankingToc.map((heading) => (
-            <li><a href={`#${heading.slug}`}>{heading.text}</a></li>
-          ))}
-        </ol>
-      </nav>
-    )}
+    <Toc headings={headings} />
     <Prose>
       <Content components={{ ProductEmbed, Callout, ComparisonTable, RankingItem, RankingList }} />
     </Prose>
+    <ShareRow url={pageUrl} title={article.data.title} />
   </article>
 
   {embeddedProducts.length > 0 && (
@@ -147,6 +142,8 @@ const jsonLd = itemListJsonLd ? [articleJsonLd, itemListJsonLd] : articleJsonLd;
       </div>
     </section>
   )}
+
+  <ReadingProgress />
 </BaseLayout>
 
 <style>
@@ -224,19 +221,6 @@ const jsonLd = itemListJsonLd ? [articleJsonLd, itemListJsonLd] : articleJsonLd;
 
   .article-body {
     margin-top: var(--space-7);
-  }
-
-  .article-toc {
-    margin-bottom: var(--space-6);
-    padding: var(--space-4) var(--space-5);
-    border: var(--border-thin);
-  }
-
-  .article-toc ol {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
   }
 
   .article-section {

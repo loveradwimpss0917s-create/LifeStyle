@@ -104,42 +104,50 @@ const resolved = resolveAffiliateLink(product, mall);
   // data-astro-rerun: View Transitions遷移後も新しいDOM要素・observerを再設定するため必須。
   // IIFEで包む: トップレベルconst/letの再宣言エラーを避ける。
   (function () {
-    var sticky = document.getElementById('sticky-cta');
-    var headerCta = document.getElementById('cta-header');
-    var footerCta = document.getElementById('cta-footer');
-    if (!sticky || !headerCta || !footerCta) return;
-    if (!('IntersectionObserver' in window)) return;
+    function run() {
+      var sticky = document.getElementById('sticky-cta');
+      var headerCta = document.getElementById('cta-header');
+      var footerCta = document.getElementById('cta-footer');
+      if (!sticky || !headerCta || !footerCta) return;
+      if (!('IntersectionObserver' in window)) return;
 
-    sticky.hidden = false;
+      sticky.hidden = false;
 
-    // headerPassed: ヘッダーCTAの下端がビューポート上端より上に出た(スクロールで
-    // 追い越した)状態。isIntersectingだけでは「まだ画面下方で見えていない」場合と
-    // 区別できない(ギャラリー画像が高くCTAが初期表示で画面外になるケースがあるため、
-    // boundingClientRectで方向を判定する)。
-    var headerPassed = false;
-    var footerReached = false;
+      // headerPassed: ヘッダーCTAの下端がビューポート上端より上に出た(スクロールで
+      // 追い越した)状態。isIntersectingだけでは「まだ画面下方で見えていない」場合と
+      // 区別できない(ギャラリー画像が高くCTAが初期表示で画面外になるケースがあるため、
+      // boundingClientRectで方向を判定する)。
+      var headerPassed = false;
+      var footerReached = false;
 
-    function update() {
-      sticky.classList.toggle('is-visible', headerPassed && !footerReached);
+      function update() {
+        sticky.classList.toggle('is-visible', headerPassed && !footerReached);
+      }
+
+      var headerObserver = new IntersectionObserver(
+        function (entries) {
+          var entry = entries[0];
+          headerPassed = !entry.isIntersecting && entry.boundingClientRect.bottom <= 0;
+          update();
+        },
+        { threshold: 0 }
+      );
+      var footerObserver = new IntersectionObserver(
+        function (entries) {
+          footerReached = entries[0].isIntersecting;
+          update();
+        },
+        { threshold: 0 }
+      );
+
+      headerObserver.observe(headerCta);
+      footerObserver.observe(footerCta);
     }
 
-    var headerObserver = new IntersectionObserver(
-      function (entries) {
-        var entry = entries[0];
-        headerPassed = !entry.isIntersecting && entry.boundingClientRect.bottom <= 0;
-        update();
-      },
-      { threshold: 0 }
-    );
-    var footerObserver = new IntersectionObserver(
-      function (entries) {
-        footerReached = entries[0].isIntersecting;
-        update();
-      },
-      { threshold: 0 }
-    );
-
-    headerObserver.observe(headerCta);
-    footerObserver.observe(footerCta);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run);
+    } else {
+      run();
+    }
   })();
 </script>
