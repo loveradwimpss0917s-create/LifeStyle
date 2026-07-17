@@ -29,11 +29,20 @@ const stars = [1, 2, 3, 4, 5] as const;
     gap: 2px;
   }
 
-  .rating-stars__star {
+  /*
+   * :global が必要な理由: rating-stars__star は <Icon> に class として渡され、
+   * Icon.astro側のsvgルート要素に付与される。Astroのスコープ付きCSSは
+   * 「このコンポーネントのテンプレートに直接書かれた要素」にのみ
+   * data-astro-cid-* を付与するため、子コンポーネントへclassとして
+   * 転送しただけの要素にはスコープ属性が付かずスコープ付きセレクタが
+   * マッチしない(is-filledの有無に関わらず全ての星が--color-ink-secondary
+   * 等の継承色になり、おすすめ度が常に同じ色で表示されてしまう不具合の原因)。
+   */
+  :global(.rating-stars__star) {
     color: var(--color-line);
   }
 
-  .rating-stars__star.is-filled {
+  :global(.rating-stars__star.is-filled) {
     color: var(--color-star);
   }
 

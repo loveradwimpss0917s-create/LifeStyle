@@ -43,7 +43,11 @@ const { points } = Astro.props;
     color: var(--color-ink-secondary);
   }
 
-  .points--good .points__icon {
+  /* :global が必要な理由: points__icon は子コンポーネント<Icon>のsvgルートへ
+     classとして渡っているだけで、このコンポーネントのdata-astro-cidが
+     付与されないためスコープ付きセレクタでは一致しない(RatingStars.astro
+     と同じ既知のAstroスコープの制約)。 */
+  .points--good :global(.points__icon) {
     flex-shrink: 0;
     margin-top: 2px;
     color: var(--color-accent);
