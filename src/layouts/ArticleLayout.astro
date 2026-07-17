@@ -176,8 +176,15 @@ const jsonLd = itemListJsonLd ? [articleJsonLd, itemListJsonLd] : articleJsonLd;
 
   .article-header__title {
     margin-top: var(--space-3);
-    font-size: var(--text-3xl);
+    font-size: var(--text-3xl-mobile);
     line-height: var(--leading-tight);
+    text-wrap: balance;
+  }
+
+  @media (min-width: 768px) {
+    .article-header__title {
+      font-size: var(--text-3xl);
+    }
   }
 
   .article-header__lead {

@@ -81,7 +81,8 @@ h4 {
 }
 
 h1 {
-  font-size: var(--text-3xl);
+  font-size: var(--text-3xl-mobile);
+  text-wrap: balance;
 }
 
 h2 {

@@ -80,7 +80,13 @@ const categoryRankings = (
   }
 
   .ranking-header__title {
-    font-size: var(--text-3xl);
+    font-size: var(--text-3xl-mobile);
+  }
+
+  @media (min-width: 768px) {
+    .ranking-header__title {
+      font-size: var(--text-3xl);
+    }
   }
 
   .ranking-header__updated {
