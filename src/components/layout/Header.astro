@@ -47,14 +47,27 @@ const primaryCategoryNav = await getPrimaryCategoryNav();
     z-index: 50;
     height: var(--header-height-mobile);
     background: var(--color-bg);
-    box-shadow: 0 1px 0 var(--color-line);
-    transition: transform var(--duration-fast) var(--ease-out);
+    border-bottom: 1px solid transparent;
+    transition:
+      transform var(--duration-fast) var(--ease-out),
+      background-color var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-fast) var(--ease-out);
   }
 
   @media (min-width: 768px) {
     .header {
       height: var(--header-height-desktop);
     }
+  }
+
+  /* 8pxスクロール後(17章§1.2): 下線+shadow-sm+半透明+blur */
+  .header.is-scrolled {
+    background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+    border-bottom-color: var(--color-line);
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
   .header.is-hidden {
@@ -64,6 +77,10 @@ const primaryCategoryNav = await getPrimaryCategoryNav();
   @media (prefers-reduced-motion: reduce) {
     .header.is-hidden {
       transform: none;
+    }
+
+    .header {
+      transition: none;
     }
   }
 
@@ -159,6 +176,8 @@ const primaryCategoryNav = await getPrimaryCategoryNav();
           } else {
             header.classList.remove('is-hidden');
           }
+          // 17章§1.2: 8pxスクロール後にblur+shadow+半透明の「scrolled」状態にする
+          header.classList.toggle('is-scrolled', currentY > 8);
         }
         lastY = currentY;
         ticking = false;
