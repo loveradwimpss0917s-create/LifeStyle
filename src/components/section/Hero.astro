@@ -63,4 +63,69 @@ const { image, alt, labelEn, tagline } = Astro.props;
     font-size: var(--text-lg);
     color: var(--color-ink-secondary);
   }
+
+  /*
+   * 初回ハードロード限定の入場演出(18章§2.2)。data-astro-rerunを付けない
+   * scriptで.is-enteredを1回だけ付与するため、View Transitions経由の再訪では
+   * 再生されない(スクリプト自体が再実行されないため)。
+   */
+  .hero__image {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+
+  .hero__label,
+  .hero__tagline {
+    opacity: 0;
+    transform: translateY(var(--motion-distance, 16px));
+  }
+
+  .hero.is-entered .hero__image {
+    opacity: 1;
+    transform: scale(1);
+    transition:
+      opacity var(--duration-slow) var(--ease-out),
+      transform var(--duration-slow) var(--ease-out);
+  }
+
+  .hero.is-entered .hero__label {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity var(--duration-base) var(--ease-out) 100ms,
+      transform var(--duration-base) var(--ease-out) 100ms;
+  }
+
+  .hero.is-entered .hero__tagline {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity var(--duration-base) var(--ease-out) 180ms,
+      transform var(--duration-base) var(--ease-out) 180ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__image,
+    .hero__label,
+    .hero__tagline {
+      opacity: 1;
+      transform: none;
+    }
+  }
 </style>
+
+<script is:inline>
+  // Hero入場演出(18章§2.2)。data-astro-rerunを付けないため初回ハードロードで
+  // 1度だけ実行される(View Transitions再訪ではこのscript自体が再実行されない
+  // ので、意図通り再生されない)。二重rAFで初期スタイルの描画を確定させてから
+  // is-enteredを付与し、transitionが確実に発火するようにする。
+  (function () {
+    var hero = document.querySelector('.hero');
+    if (!hero) return;
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        hero.classList.add('is-entered');
+      });
+    });
+  })();
+</script>

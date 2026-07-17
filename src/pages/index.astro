@@ -1,8 +1,8 @@
 ---
 /**
- * トップページ — 04章§4.1(8セクション)
+ * トップページ — 17章§3(10セクション。04章§4.1の8セクションにInstagram/Follow CTAを追加)
  * ①Hero ②最新の記事Journal ③編集部のおすすめEditor's Picks ④カテゴリExplore
- * ⑤⑥特集バンド(pinned) ⑦ランキングBest Picks ⑧About導線
+ * ⑤⑥特集バンド(pinned) ⑦ランキングBest Picks ⑧Instagram ⑨About導線 ⑩Follow CTA
  */
 import { getCollection, getEntry } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
@@ -15,6 +15,8 @@ import FeaturedArticle from '@/components/content/FeaturedArticle.astro';
 import CategoryCard from '@/components/content/CategoryCard.astro';
 import RankingList from '@/components/content/RankingList.astro';
 import AboutTeaser from '@/components/section/AboutTeaser.astro';
+import InstagramGrid from '@/components/section/InstagramGrid.astro';
+import FollowCta from '@/components/section/FollowCta.astro';
 import { getPublished } from '@/lib/content';
 import { getOverallRanking } from '@/lib/ranking';
 
@@ -109,9 +111,29 @@ const rankingItems = ranking.map((product, index) => ({
     </section>
   )}
 
+  {site?.data.instagram && (
+    <section class="container home-section reveal">
+      <SectionHeader labelEn="Instagram" labelJa="日々の記録" />
+      <InstagramGrid
+        handle={site.data.instagram.handle}
+        images={site.data.instagram.images}
+        url={site.data.sns.instagramHome ?? site.data.sns.instagramPhoto ?? '#'}
+      />
+    </section>
+  )}
+
   <div class="home-section reveal">
     <AboutTeaser />
   </div>
+
+  {site && (
+    <div class="home-section">
+      <FollowCta
+        instagramUrl={site.data.sns.instagramHome ?? site.data.sns.instagramPhoto ?? '#'}
+        threadsUrl={site.data.sns.threads ?? '#'}
+      />
+    </div>
+  )}
 </BaseLayout>
 
 <style>

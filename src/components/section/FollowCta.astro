@@ -1,0 +1,87 @@
+---
+/**
+ * FollowCta — 17章§3⑩
+ * 「日々の記録は、InstagramとThreadsで。」+SNSボタン2つ。
+ * NewsletterはV2据え置き(12章§6)のため、V1ではSNSフォローが唯一の登録系CTA。
+ * Props: instagramUrl, threadsUrl
+ */
+interface Props {
+  instagramUrl: string;
+  threadsUrl: string;
+}
+
+const { instagramUrl, threadsUrl } = Astro.props;
+---
+
+<section class="follow-cta">
+  <div class="container-text follow-cta__inner">
+    <p class="follow-cta__text">日々の記録は、Instagram と Threads で。</p>
+    <div class="follow-cta__actions">
+      <a href={instagramUrl} target="_blank" rel="noopener noreferrer" class="follow-cta__btn">
+        Instagramをフォロー
+      </a>
+      <a href={threadsUrl} target="_blank" rel="noopener noreferrer" class="follow-cta__btn follow-cta__btn--secondary">
+        Threadsをフォロー
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .container-text {
+    max-width: var(--container-text);
+    margin-inline: auto;
+    padding-inline: var(--outer-margin-mobile);
+  }
+
+  @media (min-width: 768px) {
+    .container-text {
+      padding-inline: var(--outer-margin);
+    }
+  }
+
+  .follow-cta {
+    padding-block: var(--space-7);
+    background: var(--color-bg-secondary);
+    text-align: center;
+  }
+
+  .follow-cta__text {
+    font-size: var(--text-lg);
+    color: var(--color-ink);
+  }
+
+  .follow-cta__actions {
+    margin-top: var(--space-5);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+
+  .follow-cta__btn {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-3) var(--space-5);
+    background: var(--color-cta);
+    color: var(--color-cta-text);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+
+  .follow-cta__btn:hover {
+    opacity: 0.92;
+  }
+
+  .follow-cta__btn--secondary {
+    background: transparent;
+    color: var(--color-ink);
+    border: var(--border-thin);
+  }
+
+  .follow-cta__btn--secondary:hover {
+    opacity: 1;
+    border-color: var(--color-ink-secondary);
+  }
+</style>

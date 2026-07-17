@@ -19,6 +19,17 @@
       "tiktok": "https://www.tiktok.com/",
       "threads": "https://www.threads.net/"
     },
+    "instagram": {
+      "handle": "@hibistack",
+      "images": [
+        { "src": "../assets/site/instagram/1.svg", "alt": "Instagram投稿の写真(placeholder)" },
+        { "src": "../assets/site/instagram/2.svg", "alt": "Instagram投稿の写真(placeholder)" },
+        { "src": "../assets/site/instagram/3.svg", "alt": "Instagram投稿の写真(placeholder)" },
+        { "src": "../assets/site/instagram/4.svg", "alt": "Instagram投稿の写真(placeholder)" },
+        { "src": "../assets/site/instagram/5.svg", "alt": "Instagram投稿の写真(placeholder)" },
+        { "src": "../assets/site/instagram/6.svg", "alt": "Instagram投稿の写真(placeholder)" }
+      ]
+    },
     "contactEmail": "hello@example.com",
     "editorsPicks": ["drip-kettle", "kids-stainless-bottle", "bath-towel", "nordic-paper-cord-dining-chair"],
     "pinned": {

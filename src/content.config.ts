@@ -142,6 +142,13 @@ const site = defineCollection({
         tiktok: z.url().optional(),
         threads: z.url().optional(),
       }),
+      /** トップページ⑧Instagramセクション(17章§3)。手動運用(6枚固定)。 */
+      instagram: z
+        .object({
+          handle: z.string(),
+          images: z.array(z.object({ src: image(), alt: z.string() })).length(6),
+        })
+        .optional(),
       newsletterUrl: z.url().optional(),
       contactEmail: z.email().optional(),
       editorsPicks: z.array(reference('products')).default([]),
