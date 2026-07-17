@@ -116,33 +116,44 @@ const primaryCategoryNav = await getPrimaryCategoryNav();
   }
 </style>
 
-<script>
+<script is:inline data-astro-rerun>
   // Headerスクロール隠し(12章§3)。1KB程度の軽量実装。reduced-motionでは無効化。
-  const header = document.getElementById('site-header');
-  const prefersReducedMotion = window.matchMedia(
-    '(prefers-reduced-motion: reduce)'
-  ).matches;
+  // data-astro-rerun: View Transitions遷移後も#site-headerを再取得するために必須。
+  // headerは毎回documentから最新の要素を取得し(古いheader参照を掴んだままにしない)、
+  // window側のscrollリスナーはグローバルに1つだけ登録する(遷移のたびに再実行されても
+  // 重複登録しないようwindowにフラグを立てる)。
+  // IIFEで包む: data-astro-rerunで同じスクリプトが再実行された際、トップレベルの
+  // const/letはグローバルスコープで再宣言エラーになるため関数スコープに閉じ込める。
+  (function () {
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
 
-  if (header && !prefersReducedMotion) {
-    let lastY = window.scrollY;
-    let ticking = false;
+    if (!prefersReducedMotion && !window.__headerScrollBound) {
+      window.__headerScrollBound = true;
+      let lastY = window.scrollY;
+      let ticking = false;
 
-    const onScroll = () => {
-      const currentY = window.scrollY;
-      if (currentY > lastY && currentY > 80) {
-        header.classList.add('is-hidden');
-      } else {
-        header.classList.remove('is-hidden');
-      }
-      lastY = currentY;
-      ticking = false;
-    };
+      const onScroll = () => {
+        const header = document.getElementById('site-header');
+        const currentY = window.scrollY;
+        if (header) {
+          if (currentY > lastY && currentY > 80) {
+            header.classList.add('is-hidden');
+          } else {
+            header.classList.remove('is-hidden');
+          }
+        }
+        lastY = currentY;
+        ticking = false;
+      };
 
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        requestAnimationFrame(onScroll);
-        ticking = true;
-      }
-    }, { passive: true });
-  }
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          requestAnimationFrame(onScroll);
+          ticking = true;
+        }
+      }, { passive: true });
+    }
+  })();
 </script>

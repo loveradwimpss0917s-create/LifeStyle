@@ -120,26 +120,31 @@ const allCategoryNav = await getAllCategoryNav();
   }
 </style>
 
-<script>
+<script is:inline data-astro-rerun>
   // MobileMenu: dialogパターン(focus trap, Esc close, aria-expanded)。
   // 767px超では起動しない(matchMediaガード)。
+  // data-astro-rerun: View Transitions遷移後もDOM要素とイベントリスナーを
+  // 再取得・再アタッチするために必須(無いと2回目以降の遷移でメニューが開かなくなる)。
+  // IIFEで包む: data-astro-rerunで同じスクリプトが再実行された際、トップレベルの
+  // const/letはグローバルスコープで再宣言エラーになるため関数スコープに閉じ込める。
+  (function () {
   const mq = window.matchMedia('(max-width: 767px)');
   const toggle = document.getElementById('mobile-menu-toggle');
   const dialog = document.getElementById('mobile-menu-dialog');
   const closeBtn = document.getElementById('mobile-menu-close');
 
   if (toggle && dialog && closeBtn) {
-    let lastFocused: HTMLElement | null = null;
+    let lastFocused = null;
 
     const getFocusable = () =>
       Array.from(
-        dialog.querySelectorAll<HTMLElement>(
+        dialog.querySelectorAll(
           'a[href], button:not([disabled])'
         )
       );
 
     const open = () => {
-      lastFocused = document.activeElement as HTMLElement;
+      lastFocused = document.activeElement;
       dialog.hidden = false;
       toggle.setAttribute('aria-expanded', 'true');
       document.body.style.overflow = 'hidden';
@@ -155,7 +160,7 @@ const allCategoryNav = await getAllCategoryNav();
       (lastFocused ?? toggle).focus();
     };
 
-    const onKeydown = (e: KeyboardEvent) => {
+    const onKeydown = (e) => {
       if (e.key === 'Escape') {
         close();
         return;
@@ -186,4 +191,5 @@ const allCategoryNav = await getAllCategoryNav();
       if (!e.matches && !dialog.hidden) close();
     });
   }
+  })();
 </script>
