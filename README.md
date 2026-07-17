@@ -161,4 +161,12 @@ V1実装は完了していますが、以下はオーナー本人の対応が必
 | 10 | [docs/10-seo-affiliate.md](docs/10-seo-affiliate.md) | SEO設計・アフィリエイト導線・計測設計 | 運用者 |
 | 11 | [docs/11-roadmap.md](docs/11-roadmap.md) | V1〜V4ロードマップ・工数見積・優先順位 | PM |
 | 12 | [docs/12-implementation-spec.md](docs/12-implementation-spec.md) | **Sonet向け実装指示書**(受け入れ基準付き) | 実装エージェント |
+| 13 | [docs/13-brand-identity.md](docs/13-brand-identity.md) | **HIBISTACKブランド設計**(ストーリー・理念・トーン・ライティングガイド) | 全員 |
+| 14 | [docs/14-logo-design.md](docs/14-logo-design.md) | ロゴ・favicon・OGPテンプレート・SVG仕様 | UI実装者 |
+| 15 | [docs/15-icon-system.md](docs/15-icon-system.md) | 統一アイコンシステム(造形ルール・一覧) | UI実装者 |
+| 16 | [docs/16-design-system-v2.md](docs/16-design-system-v2.md) | デザインシステムv2(ダークテーマ・トークン拡張) | UI実装者 |
+| 17 | [docs/17-ui-design-v2.md](docs/17-ui-design-v2.md) | UI設計v2(ヘッダー/フッター/トップ/商品/記事) | UI実装者 |
+| 18 | [docs/18-motion-design.md](docs/18-motion-design.md) | モーションデザイン(原則・カタログ・品質基準) | UI実装者 |
+| 19 | [docs/19-ai-image-prompts.md](docs/19-ai-image-prompts.md) | AI画像生成プロンプト集(写真素材用・運用ルール) | 運用者 |
+| 20 | [docs/20-sonnet-implementation-spec.md](docs/20-sonnet-implementation-spec.md) | **Sonnet向けv2実装指示書**(優先順位・コミット計画・受け入れ基準) | 実装エージェント |
 
