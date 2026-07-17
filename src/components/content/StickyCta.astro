@@ -1,0 +1,145 @@
+---
+/**
+ * StickyCta — 17章§4.2
+ * モバイル(<768px)専用。商品ヘッダーの主CTAが画面上方へ消えたら出現し、
+ * 文末CTAが見えたら再び隠れる(常に主CTAの代替表示であり、同時に2つ
+ * 見えることはないため「CTAは主1+文末1まで」の原則(13章§8)に反しない)。
+ * Props: product, mall(主要モール)
+ */
+import Button from '@/components/base/Button.astro';
+import PrLabel from '@/components/base/PrLabel.astro';
+import { resolveAffiliateLink, type Mall } from '@/lib/affiliate';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  product: CollectionEntry<'products'>;
+  mall: Mall;
+}
+
+const { product, mall } = Astro.props;
+const resolved = resolveAffiliateLink(product, mall);
+---
+
+{resolved && (
+  <div class="sticky-cta" id="sticky-cta" role="complementary" aria-label="購入リンク" hidden>
+    <div class="sticky-cta__inner">
+      <p class="sticky-cta__name">{product.data.name}</p>
+      <div class="sticky-cta__action">
+        <Button href={resolved.url} external rel="nofollow sponsored noopener" variant="primary" size="md" data-pos="product_sticky">
+          {resolved.label}
+        </Button>
+        <PrLabel />
+      </div>
+    </div>
+  </div>
+)}
+
+<style>
+  .sticky-cta {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    background: var(--color-bg);
+    border-top: var(--border-thin);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-3) var(--outer-margin-mobile);
+    padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+    transform: translateY(100%);
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .sticky-cta[hidden] {
+    display: block;
+    visibility: hidden;
+  }
+
+  .sticky-cta.is-visible {
+    transform: translateY(0);
+  }
+
+  @media (min-width: 768px) {
+    .sticky-cta {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sticky-cta {
+      transition: none;
+    }
+  }
+
+  .sticky-cta__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .sticky-cta__name {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sticky-cta__action {
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .sticky-cta__action :global(.pr-label) {
+    margin-top: 2px;
+    font-size: 10px;
+  }
+</style>
+
+<script is:inline data-astro-rerun>
+  // StickyCta制御(17章§4.2)。ヘッダーCTA(#cta-header)・文末CTA(#cta-footer)を
+  // IntersectionObserverで監視し、両方とも画面外の間だけsticky-ctaを表示する。
+  // data-astro-rerun: View Transitions遷移後も新しいDOM要素・observerを再設定するため必須。
+  // IIFEで包む: トップレベルconst/letの再宣言エラーを避ける。
+  (function () {
+    var sticky = document.getElementById('sticky-cta');
+    var headerCta = document.getElementById('cta-header');
+    var footerCta = document.getElementById('cta-footer');
+    if (!sticky || !headerCta || !footerCta) return;
+    if (!('IntersectionObserver' in window)) return;
+
+    sticky.hidden = false;
+
+    // headerPassed: ヘッダーCTAの下端がビューポート上端より上に出た(スクロールで
+    // 追い越した)状態。isIntersectingだけでは「まだ画面下方で見えていない」場合と
+    // 区別できない(ギャラリー画像が高くCTAが初期表示で画面外になるケースがあるため、
+    // boundingClientRectで方向を判定する)。
+    var headerPassed = false;
+    var footerReached = false;
+
+    function update() {
+      sticky.classList.toggle('is-visible', headerPassed && !footerReached);
+    }
+
+    var headerObserver = new IntersectionObserver(
+      function (entries) {
+        var entry = entries[0];
+        headerPassed = !entry.isIntersecting && entry.boundingClientRect.bottom <= 0;
+        update();
+      },
+      { threshold: 0 }
+    );
+    var footerObserver = new IntersectionObserver(
+      function (entries) {
+        footerReached = entries[0].isIntersecting;
+        update();
+      },
+      { threshold: 0 }
+    );
+
+    headerObserver.observe(headerCta);
+    footerObserver.observe(footerCta);
+  })();
+</script>

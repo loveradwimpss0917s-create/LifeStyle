@@ -16,6 +16,8 @@ import ReviewBlock from '@/components/content/ReviewBlock.astro';
 import SpecTable from '@/components/content/SpecTable.astro';
 import ArticleCard from '@/components/content/ArticleCard.astro';
 import ProductCard from '@/components/content/ProductCard.astro';
+import StickyCta from '@/components/content/StickyCta.astro';
+import ComparisonAuto from '@/components/content/ComparisonAuto.astro';
 import { formatPrice, formatUsagePeriod } from '@/lib/format';
 import { resolvePrimaryAffiliateLink } from '@/lib/affiliate';
 import { getRelatedProducts } from '@/lib/related';
@@ -73,7 +75,9 @@ const jsonLd = await buildProductJsonLd(product, brand, Astro.site!);
         </p>
       )}
       {primaryAffiliate && (
-        <AffiliateButton product={product} mall={primaryAffiliate.mall} position="product_header" />
+        <div id="cta-header">
+          <AffiliateButton product={product} mall={primaryAffiliate.mall} position="product_header" />
+        </div>
       )}
       {tags.length > 0 && (
         <div class="product-header__tags">
@@ -94,9 +98,18 @@ const jsonLd = await buildProductJsonLd(product, brand, Astro.site!);
     <SpecTable product={product} />
   </section>
 
+  {relatedProducts.length > 0 && (
+    <section class="container product-section product-section--narrow">
+      <h2 class="product-section__heading">同じカテゴリで比較</h2>
+      <ComparisonAuto product={product} related={relatedProducts} />
+    </section>
+  )}
+
   {primaryAffiliate && (
     <section class="container product-section product-section--narrow">
-      <AffiliateButton product={product} mall={primaryAffiliate.mall} position="product_footer" />
+      <div id="cta-footer">
+        <AffiliateButton product={product} mall={primaryAffiliate.mall} position="product_footer" />
+      </div>
     </section>
   )}
 
@@ -117,6 +130,8 @@ const jsonLd = await buildProductJsonLd(product, brand, Astro.site!);
       </div>
     </section>
   )}
+
+  {primaryAffiliate && <StickyCta product={product} mall={primaryAffiliate.mall} />}
 </BaseLayout>
 
 <style>

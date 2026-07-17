@@ -47,6 +47,32 @@
   margin-top: var(--space-2);
 }
 
+/*
+ * 17章§4.1(RecommendFor)。商品はplain Markdownのため本文にコンポーネントを
+ * 埋め込めない。「こんな人におすすめ/合わないかも」のような、見出し直後に
+ * 箇条書きが続く構成を汎用的にカード化することで、本文中の要点を視覚的に
+ * 目立たせる(商品名・見出し文言に依存しないためどの本文にも安全に適用できる)。
+ */
+.prose h2 + ul {
+  margin-top: var(--space-4);
+  list-style: none;
+  padding: var(--space-5);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
+}
+
+.prose h2 + ul li {
+  padding-left: 1.25em;
+  position: relative;
+}
+
+.prose h2 + ul li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--color-accent);
+}
+
 .prose figure {
   margin-top: var(--space-5);
 }

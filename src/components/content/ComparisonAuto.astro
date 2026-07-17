@@ -1,0 +1,114 @@
+---
+/**
+ * ComparisonAuto — 17章§4.1
+ * 同カテゴリ商品が2つ以上ある場合のみ商品ページに自動表示する比較表。
+ * ComparisonTable(MDX内で著者が手動指定するrows)と異なり、frontmatterの
+ * 構造化データ(評価/使用期間/参考価格/購入日)から行を自動生成する。
+ * Props: product(現在の商品), related(同カテゴリの関連商品。新着順)
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { formatPrice, formatDate, formatUsagePeriod } from '@/lib/format';
+
+interface Props {
+  product: CollectionEntry<'products'>;
+  related: CollectionEntry<'products'>[];
+}
+
+const { product, related } = Astro.props;
+// 現在の商品+関連最大2件=最大3列(17章§4.1「2〜3列」)
+const products = [product, ...related.slice(0, 2)];
+
+const rows = [
+  {
+    label: 'おすすめ度',
+    values: products.map((p) => `${p.data.rating}/5`),
+  },
+  {
+    label: '参考価格',
+    values: products.map((p) => formatPrice(p.data.price) ?? '—'),
+  },
+  {
+    label: '使用期間',
+    values: products.map((p) => formatUsagePeriod(p.data.usagePeriod)),
+  },
+  {
+    label: '購入日',
+    values: products.map((p) => formatDate(p.data.purchasedAt)),
+  },
+];
+---
+
+<div class="comparison-auto-wrap">
+  <table class="comparison-auto">
+    <thead>
+      <tr>
+        <th scope="col"></th>
+        {products.map((p) => (
+          <th scope="col">
+            <a href={`/products/${p.id}/`} class="comparison-auto__product">
+              <Image src={p.data.images[0].src} alt={p.data.images[0].alt} width={100} height={125} />
+              <span>{p.data.name}</span>
+            </a>
+          </th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          <th scope="row">{row.label}</th>
+          {row.values.map((value) => <td>{value}</td>)}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .comparison-auto-wrap {
+    margin-top: var(--space-5);
+    overflow-x: auto;
+    box-shadow: inset -8px 0 8px -8px rgba(0, 0, 0, 0.06);
+  }
+
+  .comparison-auto {
+    width: 100%;
+    min-width: 420px;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+
+  .comparison-auto th,
+  .comparison-auto td {
+    padding: var(--space-3);
+    border-bottom: var(--border-thin);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .comparison-auto__product {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  .comparison-auto__product img {
+    width: 72px;
+    height: 90px;
+    object-fit: cover;
+  }
+
+  .comparison-auto tbody th {
+    color: var(--color-ink-tertiary);
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  .comparison-auto td {
+    font-feature-settings: 'tnum';
+    color: var(--color-ink-secondary);
+  }
+</style>
