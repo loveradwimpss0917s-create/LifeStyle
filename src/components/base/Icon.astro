@@ -20,7 +20,25 @@ export type IconName =
   | 'check'
   | 'minus'
   | 'sun'
-  | 'moon';
+  | 'moon'
+  | 'home'
+  | 'article'
+  | 'product'
+  | 'travel'
+  | 'baby'
+  | 'camera'
+  | 'life'
+  | 'bookmark'
+  | 'category'
+  | 'tag'
+  | 'share'
+  | 'arrow-left'
+  | 'arrow-up'
+  | 'chevron-down'
+  | 'calendar'
+  | 'clock'
+  | 'review'
+  | 'ranking';
 
 interface Props {
   name: IconName;
@@ -119,4 +137,107 @@ const { name, size = 20, class: className } = Astro.props;
     </>
   )}
   {name === 'moon' && <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" />}
+  {name === 'home' && (
+    <>
+      <path d="M4 11 12 4l8 7" />
+      <rect x="5" y="11" width="14" height="8" rx="1" />
+      <path d="M12 19v-4" />
+    </>
+  )}
+  {name === 'article' && (
+    <>
+      <rect x="5" y="3" width="14" height="18" rx="2" />
+      <path d="M8 8h8M8 12h8M8 16h5" />
+    </>
+  )}
+  {name === 'product' && (
+    <>
+      <path d="M6 8h12l1 12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2Z" />
+      <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+    </>
+  )}
+  {name === 'travel' && (
+    <>
+      <path d="M9 6V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V6" />
+      <rect x="4" y="6" width="16" height="14" rx="2" />
+      <path d="M9 6v14M15 6v14" />
+    </>
+  )}
+  {name === 'baby' && (
+    <>
+      <rect x="10" y="2.5" width="4" height="3" rx="1.2" />
+      <rect x="7" y="6.5" width="10" height="14.5" rx="2.5" />
+      <path d="M7 13h10" />
+    </>
+  )}
+  {name === 'camera' && (
+    <>
+      <path d="M9 7 10 4.5h4L15 7" />
+      <rect x="3" y="7" width="18" height="13" rx="2.5" />
+      <circle cx="12" cy="13.5" r="4" />
+    </>
+  )}
+  {name === 'life' && (
+    <>
+      <path d="M5 9h11v7a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4Z" />
+      <path d="M16 11h2a2.5 2.5 0 0 1 0 5h-2" />
+      <path d="M9 5.5c0-1 1-1 1-2s-1-1-1-2" />
+    </>
+  )}
+  {name === 'bookmark' && <path d="M6 3h12v18l-6-4-6 4Z" />}
+  {name === 'category' && (
+    <>
+      <rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.5" />
+      <rect x="13" y="3.5" width="7.5" height="7.5" rx="1.5" />
+      <rect x="3.5" y="13" width="7.5" height="7.5" rx="1.5" />
+      <rect x="13" y="13" width="7.5" height="7.5" rx="1.5" />
+    </>
+  )}
+  {name === 'tag' && (
+    <g transform="rotate(45 12 12)">
+      <rect x="7" y="7" width="10" height="10" rx="2" />
+      <circle cx="9.5" cy="9.5" r="1" fill="currentColor" stroke="none" />
+    </g>
+  )}
+  {name === 'share' && (
+    <>
+      <circle cx="6" cy="12" r="2.2" />
+      <circle cx="18" cy="6" r="2.2" />
+      <circle cx="18" cy="18" r="2.2" />
+      <path d="M8 11l8-4M8 13l8 4" />
+    </>
+  )}
+  {name === 'arrow-left' && (
+    <g transform="scale(-1,1) translate(-24,0)">
+      <path d="M5 12h14" />
+      <path d="M13 6l6 6-6 6" />
+    </g>
+  )}
+  {name === 'arrow-up' && (
+    <g transform="rotate(-90 12 12)">
+      <path d="M5 12h14" />
+      <path d="M13 6l6 6-6 6" />
+    </g>
+  )}
+  {name === 'chevron-down' && <path d="M6 9l6 6 6-6" />}
+  {name === 'calendar' && (
+    <>
+      <rect x="3.5" y="5" width="17" height="15" rx="2" />
+      <path d="M8 3v4M16 3v4M3.5 10h17" />
+    </>
+  )}
+  {name === 'clock' && (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5v5l3.5 2" />
+    </>
+  )}
+  {name === 'review' && <path d="M4 20h4l11-11a2 2 0 0 0-3-3L5 17Z" />}
+  {name === 'ranking' && (
+    <>
+      <rect x="3.5" y="14" width="5" height="6.5" rx="1" />
+      <rect x="9.5" y="9" width="5" height="11.5" rx="1" />
+      <rect x="15.5" y="16" width="5" height="4.5" rx="1" />
+    </>
+  )}
 </svg>
