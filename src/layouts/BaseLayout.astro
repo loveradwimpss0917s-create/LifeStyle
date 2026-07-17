@@ -46,26 +46,44 @@ const jsonLdList = jsonLd
       ダークモード初期化(16章§1.3)。CSS読込前・head最上部付近で同期実行し、
       FOUC(一瞬ライトテーマが見えてから切り替わる現象)を防ぐ。theme-color-meta
       は直前で定義済みのためここで即座に更新できる。
-      data-astro-rerunは付けない: <html>要素自体はView Transitions遷移を
-      またいで保持されるため、data-theme属性は自然に引き継がれる
-      (再実行すると保存値の再読込になるだけで害はないが不要)。
+
+      重要: <html>要素自体はView Transitions遷移をまたいで保持される、という
+      当初の想定は誤りだった。Astroのswap処理は遷移先ページのSSR済みHTML
+      (data-theme属性を持たない、常にサーバー側では未知の値のため)を基準に
+      <html>の属性を再構築するため、data-astro-rerunなしではページ遷移の
+      たびにdata-theme属性が失われ、ダークモードが解除されて見える不具合が
+      発生していた(実機で確認)。
+      修正: astro:before-swapイベントで遷移先ドキュメントへ現在のテーマを
+      明示的にコピーする(Astro公式の推奨パターン)。このリスナーは
+      documentに対して1回だけ登録すればよく、document自体はView Transitions
+      をまたいで存在し続けるため、script自体にdata-astro-rerunは不要。
     -->
     <script is:inline>
       (function () {
-        try {
-          var stored = localStorage.getItem('hibistack:theme');
-          var theme =
-            stored === 'dark' || stored === 'light'
-              ? stored
-              : window.matchMedia('(prefers-color-scheme: dark)').matches
-                ? 'dark'
-                : 'light';
+        function applyTheme(theme) {
           document.documentElement.dataset.theme = theme;
           var meta = document.getElementById('theme-color-meta');
           if (meta) meta.setAttribute('content', theme === 'dark' ? '#161513' : '#ffffff');
-        } catch (e) {
-          /* localStorage/matchMedia が使えない環境ではライト既定のまま */
         }
+
+        function resolveTheme() {
+          try {
+            var stored = localStorage.getItem('hibistack:theme');
+            if (stored === 'dark' || stored === 'light') return stored;
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          } catch (e) {
+            return 'light';
+          }
+        }
+
+        applyTheme(resolveTheme());
+
+        document.addEventListener('astro:before-swap', function (event) {
+          var theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+          event.newDocument.documentElement.dataset.theme = theme;
+          var newMeta = event.newDocument.getElementById('theme-color-meta');
+          if (newMeta) newMeta.setAttribute('content', theme === 'dark' ? '#161513' : '#ffffff');
+        });
       })();
     </script>
 
