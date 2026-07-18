@@ -1,0 +1,27 @@
+{
+  "model": "claude-sonnet-5",
+  "temperature": 0.4,
+  "maxTokens": 4096,
+  "retry": {
+    "maxAttempts": 3,
+    "initialDelayMs": 1000,
+    "backoffMultiplier": 2
+  },
+  "stages": {
+    "analyze": {
+      "temperature": 0.2
+    },
+    "composeProduct": {
+      "temperature": 0.5
+    },
+    "editorialJudge": {
+      "temperature": 0.2
+    },
+    "deriveSns": {
+      "temperature": 0.6
+    },
+    "seoMeta": {
+      "temperature": 0.2
+    }
+  }
+}
