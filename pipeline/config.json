@@ -14,9 +14,6 @@
     "composeProduct": {
       "temperature": 0.5
     },
-    "editorialJudge": {
-      "temperature": 0.2
-    },
     "deriveSns": {
       "temperature": 0.6
     },
