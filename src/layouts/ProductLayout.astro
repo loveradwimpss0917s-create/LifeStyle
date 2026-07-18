@@ -10,6 +10,7 @@ import Breadcrumb from '@/components/base/Breadcrumb.astro';
 import RatingStars from '@/components/base/RatingStars.astro';
 import Badge from '@/components/base/Badge.astro';
 import TagChip from '@/components/base/TagChip.astro';
+import { getPublished } from '@/lib/content';
 import Gallery from '@/components/island/Gallery.astro';
 import FavoriteButton from '@/components/island/FavoriteButton.astro';
 import AffiliateButton from '@/components/content/AffiliateButton.astro';
@@ -40,6 +41,18 @@ const tags = product.data.tags.length
 
 const relatedArticles = await getArticlesForProduct(product.id);
 const relatedProducts = await getRelatedProducts(product);
+
+// 26章c10: 「このカテゴリのタグ」チップ行(商品↔タグの相互導線強化)。
+// 同カテゴリの全published商品が持つタグを重複なく集約する。
+const sameCategoryProducts = (await getPublished('products')).filter(
+  (p) => p.data.category.id === category.id
+);
+const categoryTagIds = Array.from(
+  new Set(sameCategoryProducts.flatMap((p) => p.data.tags.map((t) => t.id)))
+);
+const categoryTags = (
+  await Promise.all(categoryTagIds.map((id) => getEntry('tags', id)))
+).filter((t): t is NonNullable<typeof t> => t !== undefined);
 
 const price = formatPrice(product.data.price);
 const usagePeriodLabel = formatUsagePeriod(product.data.usagePeriod);
@@ -135,6 +148,15 @@ const jsonLd = await buildProductJsonLd(product, brand, Astro.site!);
       <h2 class="product-section__heading">同じカテゴリの商品</h2>
       <div class="product-section__grid product-section__grid--4">
         {relatedProducts.map((related) => <ProductCard product={related} />)}
+      </div>
+    </section>
+  )}
+
+  {categoryTags.length > 0 && (
+    <section class="container product-section product-section--narrow">
+      <h2 class="product-section__heading">{category.data.nameJa}のタグ</h2>
+      <div class="product-category-tags">
+        {categoryTags.map((tag) => <TagChip tag={tag} size="sm" />)}
       </div>
     </section>
   )}
@@ -240,5 +262,11 @@ const jsonLd = await buildProductJsonLd(product, brand, Astro.site!);
     .product-section__grid--4 {
       grid-template-columns: repeat(4, 1fr);
     }
+  }
+
+  .product-category-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
   }
 </style>

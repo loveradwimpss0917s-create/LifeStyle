@@ -1,12 +1,16 @@
 ---
 /**
- * タグページ — 04章§4.9
+ * タグページ — 04章§4.9 / 26章c10
+ * 件数表示+カテゴリ横断の人気(editorsPicks)セクションで行き止まりを防ぐ
+ * (該当コンテンツが0〜少数のタグでも次の導線が必ずある状態にする)。
  */
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Breadcrumb from '@/components/base/Breadcrumb.astro';
+import SectionHeader from '@/components/base/SectionHeader.astro';
 import ArticleCard from '@/components/content/ArticleCard.astro';
 import ProductCard from '@/components/content/ProductCard.astro';
+import ProductGrid from '@/components/section/ProductGrid.astro';
 import { getPublished } from '@/lib/content';
 
 export async function getStaticPaths() {
@@ -19,16 +23,28 @@ export async function getStaticPaths() {
 
 const { tag } = Astro.props;
 
-const [articles, products] = await Promise.all([getPublished('articles'), getPublished('products')]);
+const [articles, products, site] = await Promise.all([
+  getPublished('articles'),
+  getPublished('products'),
+  getEntry('site', 'main'),
+]);
 const taggedArticles = articles.filter((a) => a.data.tags.some((t) => t.id === tag.id));
 const taggedProducts = products.filter((p) => p.data.tags.some((t) => t.id === tag.id));
 const isEmpty = taggedArticles.length === 0 && taggedProducts.length === 0;
+const totalCount = taggedArticles.length + taggedProducts.length;
+
+const editorsPicks = site
+  ? (await Promise.all(site.data.editorsPicks.map((ref) => getEntry(ref))))
+      .filter((p): p is NonNullable<typeof p> => p !== undefined)
+      .filter((p) => !taggedProducts.some((tp) => tp.id === p.id))
+  : [];
 ---
 
 <BaseLayout title={`#${tag.data.name}`} description={`「${tag.data.name}」に関する記事・商品一覧`}>
   <div class="container">
     <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: `#${tag.data.name}` }]} />
     <h1 class="page-heading">#{tag.data.name}</h1>
+    <p class="tag-count">{totalCount}件のコンテンツ</p>
 
     {isEmpty ? (
       <p class="tag-empty">このタグに該当するコンテンツはまだありません。</p>
@@ -38,6 +54,13 @@ const isEmpty = taggedArticles.length === 0 && taggedProducts.length === 0;
         {taggedArticles.map((article) => <ArticleCard article={article} />)}
         {taggedProducts.map((product) => <ProductCard product={product} />)}
       </div>
+    )}
+
+    {editorsPicks.length > 0 && (
+      <section class="tag-section">
+        <SectionHeader labelEn="Editor's Picks" labelJa="編集部のおすすめ" />
+        <ProductGrid items={editorsPicks} columns={4} />
+      </section>
     )}
   </div>
 </BaseLayout>
@@ -53,6 +76,12 @@ const isEmpty = taggedArticles.length === 0 && taggedProducts.length === 0;
     .page-heading {
       font-size: var(--text-3xl);
     }
+  }
+
+  .tag-count {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-ink-tertiary);
   }
 
   .tag-empty {
@@ -71,5 +100,9 @@ const isEmpty = taggedArticles.length === 0 && taggedProducts.length === 0;
     .tag-grid {
       grid-template-columns: repeat(3, 1fr);
     }
+  }
+
+  .tag-section {
+    margin-top: var(--section-gap);
   }
 </style>
