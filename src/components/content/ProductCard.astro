@@ -7,6 +7,7 @@
 import { getEntry, type CollectionEntry } from 'astro:content';
 import { Image } from 'astro:assets';
 import RatingStars from '@/components/base/RatingStars.astro';
+import FavoriteButton from '@/components/island/FavoriteButton.astro';
 import { formatPrice } from '@/lib/format';
 
 interface Props {
@@ -29,6 +30,9 @@ const price = formatPrice(product.data.price);
       height={500}
       class="product-card__image"
     />
+    <div class="product-card__favorite">
+      <FavoriteButton product={product} size="sm" />
+    </div>
   </div>
   <div class="product-card__body">
     {brand && <p class="product-card__brand">{brand.data.name}</p>}
@@ -46,9 +50,17 @@ const price = formatPrice(product.data.price);
   }
 
   .product-card__media {
+    position: relative;
     aspect-ratio: 4 / 5;
     overflow: hidden;
     background: var(--color-bg-secondary);
+  }
+
+  .product-card__favorite {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    z-index: 2;
   }
 
   .product-card__image {

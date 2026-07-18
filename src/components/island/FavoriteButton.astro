@@ -1,0 +1,159 @@
+---
+/**
+ * FavoriteButton — 04章§4.8 / 26章c6
+ * localStorage "hibistack:favorites"(productId配列)でお気に入り状態を管理する。
+ * ProductCard(グリッド上の小型ボタン)とProductLayout(商品ヘッダー)の両方に
+ * 配置されるため、挙動は共有スクリプト側でdata-favorite-button属性を持つ
+ * 全ボタンに対して一括バインドする(同一商品が同じページに複数回出ても状態が揃う)。
+ */
+import Icon from '@/components/base/Icon.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  product: CollectionEntry<'products'>;
+  size?: 'sm' | 'md';
+}
+
+const { product, size = 'sm' } = Astro.props;
+---
+
+<button
+  type="button"
+  class={`favorite-button favorite-button--${size}`}
+  data-favorite-button
+  data-product-id={product.id}
+  data-product-name={product.data.name}
+  aria-pressed="false"
+  aria-label={`${product.data.name}をお気に入りに追加`}
+>
+  <span class="favorite-button__icon favorite-button__icon--outline">
+    <Icon name="heart" size={size === 'sm' ? 18 : 22} />
+  </span>
+  <span class="favorite-button__icon favorite-button__icon--filled">
+    <Icon name="heart-filled" size={size === 'sm' ? 18 : 22} />
+  </span>
+</button>
+
+<style>
+  .favorite-button {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--color-ink-tertiary);
+    background: var(--color-bg);
+    border-radius: 999px;
+    border: var(--border-thin);
+  }
+
+  .favorite-button--sm {
+    width: 36px;
+    height: 36px;
+  }
+
+  .favorite-button--md {
+    width: 44px;
+    height: 44px;
+  }
+
+  .favorite-button__icon {
+    position: absolute;
+    display: flex;
+    transition: opacity var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+  }
+
+  .favorite-button__icon--filled {
+    opacity: 0;
+    color: var(--color-accent);
+    transform: scale(0.8);
+  }
+
+  .favorite-button[aria-pressed='true'] .favorite-button__icon--outline {
+    opacity: 0;
+  }
+
+  .favorite-button[aria-pressed='true'] .favorite-button__icon--filled {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .favorite-button__icon {
+      transition: none;
+    }
+  }
+</style>
+
+<script is:inline data-astro-rerun>
+  // FavoriteButton制御(26章c6)。data-astro-rerun: View Transitions遷移後も
+  // 新しいDOM上のボタンを再バインドするため必須。IIFEで包み、トップレベル
+  // const/letの再宣言エラー(data-astro-rerunスクリプトの再実行時)を避ける。
+  (function () {
+    function run() {
+      var STORAGE_KEY = 'hibistack:favorites';
+
+      function readFavorites() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          var parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function writeFavorites(ids) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+        } catch (e) {
+          // プライベートモード等でlocalStorageが使えない場合は何もしない
+        }
+      }
+
+      function syncButton(button, favorites) {
+        var id = button.dataset.productId;
+        var name = button.dataset.productName || '';
+        var isFavorite = favorites.indexOf(id) !== -1;
+        button.setAttribute('aria-pressed', String(isFavorite));
+        button.setAttribute('aria-label', isFavorite ? name + 'をお気に入りから外す' : name + 'をお気に入りに追加');
+      }
+
+      // 多重バインド防止: data-astro-rerunにより同一スクリプトが再実行されても、
+      // 既にバインド済みのボタン(data-favorite-bound)は対象から除外する。
+      var buttons = document.querySelectorAll('[data-favorite-button]:not([data-favorite-bound])');
+      if (buttons.length === 0) return;
+
+      var favorites = readFavorites();
+
+      buttons.forEach(function (button) {
+        button.setAttribute('data-favorite-bound', 'true');
+        syncButton(button, favorites);
+
+        button.addEventListener('click', function (event) {
+          event.preventDefault();
+          var id = button.dataset.productId;
+          var current = readFavorites();
+          var index = current.indexOf(id);
+          if (index === -1) {
+            current.push(id);
+          } else {
+            current.splice(index, 1);
+          }
+          writeFavorites(current);
+
+          document.querySelectorAll('[data-favorite-button][data-product-id="' + id + '"]').forEach(function (el) {
+            syncButton(el, current);
+          });
+        });
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run);
+    } else {
+      run();
+    }
+  })();
+</script>

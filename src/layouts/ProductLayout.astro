@@ -11,6 +11,7 @@ import RatingStars from '@/components/base/RatingStars.astro';
 import Badge from '@/components/base/Badge.astro';
 import TagChip from '@/components/base/TagChip.astro';
 import Gallery from '@/components/island/Gallery.astro';
+import FavoriteButton from '@/components/island/FavoriteButton.astro';
 import AffiliateButton from '@/components/content/AffiliateButton.astro';
 import ReviewBlock from '@/components/content/ReviewBlock.astro';
 import SpecTable from '@/components/content/SpecTable.astro';
@@ -73,6 +74,7 @@ const jsonLd = await buildProductJsonLd(product, brand, Astro.site!);
       <div class="product-header__meta">
         <RatingStars rating={product.data.rating} showNumber />
         <Badge label={usagePeriodLabel} />
+        <FavoriteButton product={product} size="md" />
       </div>
       <p class="product-header__summary">{product.data.summary}</p>
       {price && (
@@ -182,6 +184,10 @@ const jsonLd = await buildProductJsonLd(product, brand, Astro.site!);
     display: flex;
     align-items: center;
     gap: var(--space-3);
+  }
+
+  .product-header__meta :global(.favorite-button) {
+    margin-left: auto;
   }
 
   .product-header__summary {
