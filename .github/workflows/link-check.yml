@@ -1,0 +1,32 @@
+name: Link Check
+
+on:
+  schedule:
+    # 毎週月曜 09:00 JST(00:00 UTC)
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check links (26章c14・アフィリエイトURL+内部リンクの生死確認)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LINK_CHECK_SITE_URL: https://lifestyle-ako.pages.dev
+        run: node scripts/check-links.mjs
