@@ -231,6 +231,34 @@ const jsonLd = itemListJsonLd ? [articleJsonLd, itemListJsonLd] : articleJsonLd;
     margin-top: var(--space-7);
   }
 
+  /*
+   * 26章c9: ≥1024pxはTocをaside配置のsticky sidebarにする。
+   * 本文の可読幅(680px)はそのまま保ち、TOC分(240px+gap)だけ全体の
+   * max-widthを広げる(680+48+240=968px)ことで、本文自体のリフロー・
+   * レイアウトシフトを起こさない。TocはDOM上でProse/ShareRowより前にある
+   * ため、明示的にgrid-column:2を指定しないと自動配置で1列目に来てしまう。
+   * Prose/ShareRowは無指定のままgrid-row:1に自動配置されるため、行の高さは
+   * 本文の高さに揃い、sticky sidebarが本文の高さ分だけ追従できる。
+   */
+  @media (min-width: 1024px) {
+    .article-body.container-text {
+      max-width: 968px;
+      display: grid;
+      grid-template-columns: 1fr 240px;
+      column-gap: var(--space-6);
+      align-items: start;
+    }
+
+    .article-body :global(.toc) {
+      grid-column: 2;
+      grid-row: 1;
+      align-self: start;
+      position: sticky;
+      top: calc(var(--header-height-desktop) + var(--space-6));
+      margin-bottom: 0;
+    }
+  }
+
   .article-section {
     margin-top: var(--section-gap);
   }

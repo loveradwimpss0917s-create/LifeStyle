@@ -1,10 +1,12 @@
 ---
 /**
- * Toc — 17章§5
- * 記事本文のh2/h3から自動生成する目次。折りたたみ(<details>)で全画面幅共通の
- * シンプルな実装とする(sticky sidebarはArticleLayoutの単一カラム構成を
- * 大きく変更する必要があり、リスクに見合わないため見送り。19章の指示書に
- * この判断を明記)。IntersectionObserverで現在読んでいる見出しをハイライトする。
+ * Toc — 17章§5 / 26章c9
+ * 記事本文のh2/h3から自動生成する目次。detailsタグは1つのまま、CSSと
+ * スクリプトで幅による出し分けを行う: 1024px未満は折りたたみ式(従来通り、
+ * クリックで開閉)。1024px以上はArticleLayout側でgridの第2カラムに配置され、
+ * sticky sidebarとして常に展開表示(スクリプトでopen=trueを強制し、
+ * summaryの開閉操作も無効化する)。IntersectionObserverで現在読んでいる
+ * 見出しをハイライトする。
  * Props: headings(astro:contentのrender()が返すheadings配列)
  */
 interface TocHeading {
@@ -74,6 +76,20 @@ const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
     color: var(--color-accent);
     font-weight: 500;
   }
+
+  /* 26章c9: ≥1024pxはArticleLayout側のgridでsticky sidebar化される。
+     常に展開表示するため開閉トグル(summary)の見た目上の操作性を消す。 */
+  @media (min-width: 1024px) {
+    .toc summary {
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .toc summary::marker,
+    .toc summary::-webkit-details-marker {
+      display: none;
+    }
+  }
 </style>
 
 <script is:inline data-astro-rerun>
@@ -92,6 +108,13 @@ const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
     function run() {
       var toc = document.querySelector('[data-toc]');
       if (!toc) return;
+
+      // 26章c9: ≥1024pxはsticky sidebarとして常に展開表示する
+      // (MobileMenu.astroと同じmatchMediaガードの慣習に倣う)。
+      if (window.matchMedia('(min-width: 1024px)').matches) {
+        toc.open = true;
+      }
+
       if (!('IntersectionObserver' in window)) return;
 
       var links = Array.prototype.slice.call(toc.querySelectorAll('[data-toc-link]'));
