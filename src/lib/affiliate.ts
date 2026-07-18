@@ -4,6 +4,11 @@
  *
  * URLが未設定のモールは null を返す(呼び出し側で非描画にする)。
  * URLにはクエリを付与しない(Yahoo規約リスク回避。内部計測はV3の /go/ で実施)。
+ *
+ * 26章c12: 実際にCTAボタンのhrefに使うのは resolveAffiliateLink().url
+ * (実URL、存在チェック・ラベル取得用)ではなく buildGoUrl() が返す
+ * /go/{productId}/{mall} 形式のURL。実URLはfunctions/go/[[route]].tsが
+ * src/pages/api/affiliate-map.json.ts経由で解決する(26章c11)。
  */
 import type { CollectionEntry } from 'astro:content';
 
@@ -17,6 +22,12 @@ const MALL_LABEL: Record<Mall, string> = {
 };
 
 export type ResolvedAffiliateLink = { url: string; label: string };
+
+/** /go/リダイレクト経由のURLを構築する(26章c12: 全クリックを計測面に乗せる) */
+export function buildGoUrl(productId: string, mall: Mall, position: string): string {
+  const params = new URLSearchParams({ pos: position });
+  return `/go/${productId}/${mall}?${params.toString()}`;
+}
 
 export function resolveAffiliateLink(
   product: CollectionEntry<'products'>,

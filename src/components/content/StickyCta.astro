@@ -1,14 +1,16 @@
 ---
 /**
- * StickyCta — 17章§4.2
+ * StickyCta — 17章§4.2 / 26章c12
  * モバイル(<768px)専用。商品ヘッダーの主CTAが画面上方へ消えたら出現し、
  * 文末CTAが見えたら再び隠れる(常に主CTAの代替表示であり、同時に2つ
  * 見えることはないため「CTAは主1+文末1まで」の原則(13章§8)に反しない)。
+ * hrefは実URLではなく/go/{productId}/{mall}?pos=product_sticky
+ * (クリック計測経由・26章c11)。
  * Props: product, mall(主要モール)
  */
 import Button from '@/components/base/Button.astro';
 import PrLabel from '@/components/base/PrLabel.astro';
-import { resolveAffiliateLink, type Mall } from '@/lib/affiliate';
+import { resolveAffiliateLink, buildGoUrl, type Mall } from '@/lib/affiliate';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -18,14 +20,15 @@ interface Props {
 
 const { product, mall } = Astro.props;
 const resolved = resolveAffiliateLink(product, mall);
+const goUrl = resolved ? buildGoUrl(product.id, mall, 'product_sticky') : null;
 ---
 
-{resolved && (
+{resolved && goUrl && (
   <div class="sticky-cta" id="sticky-cta" role="complementary" aria-label="購入リンク" hidden>
     <div class="sticky-cta__inner">
       <p class="sticky-cta__name">{product.data.name}</p>
       <div class="sticky-cta__action">
-        <Button href={resolved.url} external rel="nofollow sponsored noopener" variant="primary" size="md" data-pos="product_sticky">
+        <Button href={goUrl} external rel="nofollow sponsored noopener" variant="primary" size="md" data-pos="product_sticky">
           {resolved.label}
         </Button>
         <PrLabel />
