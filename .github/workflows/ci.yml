@@ -27,7 +27,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Content integrity check (07章§7・警告のみ)
+      - name: Content integrity check (07章§7・収益化率を含む・警告のみ)
         run: npm run check:content
 
       - name: Lighthouse CI (01章§4.3・Perf/A11y/BP/SEO 95以上)

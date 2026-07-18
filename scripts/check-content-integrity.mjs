@@ -18,7 +18,7 @@
  * (content.config.tsのZodスキーマと二重管理になる項目もあるが、警告レベルの
  * 軽量チェックに留めているため許容している)
  */
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { load as parseYaml } from 'js-yaml';
 
@@ -55,14 +55,21 @@ const warn = (message) => warnings.push(message);
 const publishedProducts = products.filter((p) => p.data.status === 'published');
 const publishedArticles = articles.filter((a) => a.data.status === 'published');
 
-// --- 3. affiliate URL未設定のpublished商品 ---
+// --- 3. affiliate URL未設定のpublished商品(26章c5: 収益化率として集計) ---
+let monetizedCount = 0;
 for (const product of publishedProducts) {
   const affiliate = product.data.affiliate ?? {};
   const hasAnyLink = Object.values(affiliate).some((entry) => entry && entry.url);
-  if (!hasAnyLink) {
+  if (hasAnyLink) {
+    monetizedCount++;
+  } else {
     warn(`[affiliate-missing] 商品 "${product.id}" にアフィリエイトリンクが1件も設定されていません`);
   }
 }
+const monetizationRate = `${monetizedCount}/${publishedProducts.length}`;
+const monetizationPercent = publishedProducts.length
+  ? Math.round((monetizedCount / publishedProducts.length) * 100)
+  : 0;
 
 // --- 4. checkedAtが180日超のaffiliateリンク ---
 const STALE_DAYS = 180;
@@ -116,11 +123,33 @@ for (const article of publishedArticles) {
 }
 
 // --- レポート出力 ---
+console.log(`[check-content-integrity] 収益化率: ${monetizationRate}(${monetizationPercent}%) — アフィリエイトリンクが設定されているpublished商品の割合`);
+
 if (warnings.length === 0) {
   console.log('[check-content-integrity] 警告なし。すべてのコンテンツが整合しています。');
 } else {
   console.warn(`[check-content-integrity] ${warnings.length}件の警告があります(ビルドは失敗させません):`);
   for (const w of warnings) console.warn('  - ' + w);
+}
+
+// 26章c5: GitHub Actions実行時はStep Summaryにも収益化率を表示し、
+// PRやワークフロー実行画面から一目で運営状況を確認できるようにする
+const summaryPath = process.env.GITHUB_STEP_SUMMARY;
+if (summaryPath) {
+  const lines = [
+    '## コンテンツ整合性チェック',
+    '',
+    `**収益化率: ${monetizationRate}(${monetizationPercent}%)** — アフィリエイトリンクが設定されているpublished商品の割合`,
+    '',
+  ];
+  if (warnings.length === 0) {
+    lines.push('警告なし。すべてのコンテンツが整合しています。');
+  } else {
+    lines.push(`${warnings.length}件の警告(ビルドは失敗させません):`, '');
+    for (const w of warnings) lines.push(`- ${w}`);
+  }
+  lines.push('');
+  writeFileSync(summaryPath, lines.join('\n'), { flag: 'a' });
 }
 
 // 警告のみで exit code は常に 0(07章§7: これらはビルド失敗対象ではない)
