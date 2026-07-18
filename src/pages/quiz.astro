@@ -1,0 +1,373 @@
+---
+/**
+ * おすすめ診断 /quiz/ — 26章c15
+ * 「AI診断」の見せ方でブランド演出するが、実体は静的決定木(質問の選択肢が
+ * 持つweightsを合算してpublished商品をスコアリングするだけ)であり、
+ * 追加のAPI呼び出しやサーバー処理は一切発生しない(高速・コストゼロ)。
+ * 質問・商品データはビルド時にこのページのJSONへ埋め込み、採点ロジックは
+ * 全てクライアントJSで完結する(既定のis:inline data-astro-rerunパターン)。
+ * SEOページとして育てる想定のためnoindexは付けない(22章A評価)。
+ */
+import { getEntry } from 'astro:content';
+import { getImage } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/base/Breadcrumb.astro';
+import { getPublished } from '@/lib/content';
+
+const quiz = await getEntry('quiz', 'main');
+const questions = quiz?.data.questions ?? [];
+
+const products = await getPublished('products');
+const productData = await Promise.all(
+  products.map(async (product) => {
+    const optimized = await getImage({ src: product.data.images[0].src, width: 400 });
+    return {
+      id: product.id,
+      name: product.data.name,
+      image: optimized.src,
+      alt: product.data.images[0].alt,
+      rating: product.data.rating,
+      summary: product.data.summary,
+      categoryId: product.data.category.id,
+      tagIds: product.data.tags.map((t) => t.id),
+    };
+  })
+);
+
+// scriptタグ内での</script>混入を避けるためのエスケープ(埋め込みJSONの定石)
+const quizDataJson = JSON.stringify({ questions, products: productData }).replace(/</g, '\\u003c');
+---
+
+<BaseLayout title="おすすめ診断" description="いくつかの質問に答えるだけで、あなたに合う商品を編集部の基準でおすすめします。">
+  <div class="container quiz">
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'おすすめ診断' }]} />
+    <h1 class="page-heading">おすすめ診断</h1>
+    <p class="quiz-intro">{questions.length}つの質問に答えると、あなたに合いそうな商品をご紹介します。</p>
+
+    <p id="quiz-progress" class="quiz-progress" aria-live="polite"></p>
+
+    <div id="quiz-questions" class="quiz-questions">
+      {questions.map((q, qIndex) => (
+        <fieldset class="quiz-question" data-quiz-question={qIndex} hidden={qIndex !== 0}>
+          <legend class="quiz-question__text">{q.text}</legend>
+          <div class="quiz-options">
+            {q.options.map((opt) => (
+              <button type="button" class="quiz-option" data-quiz-option data-question={qIndex} data-option={opt.id}>
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      ))}
+    </div>
+
+    <div id="quiz-result" class="quiz-result" hidden>
+      <h2 class="quiz-result__heading">あなたへのおすすめ</h2>
+      <div id="quiz-result-list" class="quiz-result-list"></div>
+      <p class="quiz-result__note">※この診断は編集部の選定基準に基づいて商品を提示しています。</p>
+      <button type="button" id="quiz-retry" class="quiz-retry">もう一度診断する</button>
+    </div>
+  </div>
+</BaseLayout>
+
+<script type="application/json" id="quiz-data" set:html={quizDataJson} is:inline />
+<script is:inline data-astro-rerun>
+  (function () {
+    function run() {
+      var dataEl = document.getElementById('quiz-data');
+      var questionsEl = document.getElementById('quiz-questions');
+      var progressEl = document.getElementById('quiz-progress');
+      var resultEl = document.getElementById('quiz-result');
+      var resultListEl = document.getElementById('quiz-result-list');
+      var retryBtn = document.getElementById('quiz-retry');
+      if (!dataEl || !questionsEl || !resultEl || !resultListEl) return;
+
+      var quizData;
+      try {
+        quizData = JSON.parse(dataEl.textContent);
+      } catch (e) {
+        return;
+      }
+      var questions = quizData.questions || [];
+      var products = quizData.products || [];
+      if (questions.length === 0) return;
+
+      var questionEls = Array.prototype.slice.call(questionsEl.querySelectorAll('[data-quiz-question]'));
+      var answers = {};
+
+      function updateProgress(index) {
+        if (!progressEl) return;
+        progressEl.textContent = index < questions.length ? (index + 1) + ' / ' + questions.length + '問目' : '';
+      }
+
+      function showQuestion(index) {
+        for (var i = 0; i < questionEls.length; i++) {
+          questionEls[i].hidden = i !== index;
+        }
+        updateProgress(index);
+      }
+
+      function findOption(questionIndex, optionId) {
+        var question = questions[questionIndex];
+        if (!question) return null;
+        for (var i = 0; i < question.options.length; i++) {
+          if (question.options[i].id === optionId) return question.options[i];
+        }
+        return null;
+      }
+
+      function computeScore(product) {
+        var score = 0;
+        Object.keys(answers).forEach(function (questionIndex) {
+          var option = findOption(Number(questionIndex), answers[questionIndex]);
+          if (!option) return;
+          var weights = option.weights || {};
+          var categoryWeights = weights.categories || {};
+          var tagWeights = weights.tags || {};
+          if (categoryWeights[product.categoryId]) {
+            score += categoryWeights[product.categoryId];
+          }
+          (product.tagIds || []).forEach(function (tagId) {
+            if (tagWeights[tagId]) {
+              score += tagWeights[tagId];
+            }
+          });
+        });
+        return score;
+      }
+
+      function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+
+      function showResult() {
+        var scored = products
+          .map(function (p) {
+            return { product: p, score: computeScore(p) };
+          })
+          .sort(function (a, b) {
+            if (b.score !== a.score) return b.score - a.score;
+            if (b.product.rating !== a.product.rating) return b.product.rating - a.product.rating;
+            return a.product.id < b.product.id ? -1 : 1;
+          })
+          .slice(0, 3);
+
+        resultListEl.innerHTML = scored
+          .map(function (entry) {
+            var p = entry.product;
+            return (
+              '<article class="quiz-result-card">' +
+              '<a href="/products/' + p.id + '/" class="quiz-result-card__media">' +
+              '<img src="' + p.image + '" alt="' + escapeHtml(p.alt) + '" loading="lazy" width="400" height="500" />' +
+              '</a>' +
+              '<div class="quiz-result-card__body">' +
+              '<h3 class="quiz-result-card__name"><a href="/products/' + p.id + '/">' + escapeHtml(p.name) + '</a></h3>' +
+              '<p class="quiz-result-card__summary">' + escapeHtml(p.summary) + '</p>' +
+              '<p class="quiz-result-card__rating">評価 ' + p.rating + ' / 5</p>' +
+              '</div>' +
+              '</article>'
+            );
+          })
+          .join('');
+
+        questionsEl.hidden = true;
+        if (progressEl) progressEl.hidden = true;
+        resultEl.hidden = false;
+      }
+
+      function handleOptionClick(event) {
+        var button = event.currentTarget;
+        var questionIndex = Number(button.dataset.question);
+        var optionId = button.dataset.option;
+        answers[questionIndex] = optionId;
+
+        var nextIndex = questionIndex + 1;
+        if (nextIndex < questions.length) {
+          showQuestion(nextIndex);
+        } else {
+          showResult();
+        }
+      }
+
+      questionsEl.querySelectorAll('[data-quiz-option]').forEach(function (button) {
+        button.addEventListener('click', handleOptionClick);
+      });
+
+      if (retryBtn) {
+        retryBtn.addEventListener('click', function () {
+          answers = {};
+          resultEl.hidden = true;
+          questionsEl.hidden = false;
+          if (progressEl) progressEl.hidden = false;
+          showQuestion(0);
+        });
+      }
+
+      showQuestion(0);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run);
+    } else {
+      run();
+    }
+  })();
+</script>
+
+<style>
+  .page-heading {
+    margin-top: var(--space-4);
+    font-size: var(--text-3xl-mobile);
+  }
+
+  @media (min-width: 768px) {
+    .page-heading {
+      font-size: var(--text-3xl);
+    }
+  }
+
+  .quiz-intro {
+    margin-top: var(--space-3);
+    color: var(--color-ink-secondary);
+  }
+
+  .quiz-progress {
+    margin-top: var(--space-5);
+    font-size: var(--text-sm);
+    color: var(--color-ink-tertiary);
+  }
+
+  .quiz-question {
+    margin-top: var(--space-6);
+    border: 0;
+    padding: 0;
+    animation: quiz-fade-in var(--duration-base, 200ms) var(--ease-out, ease-out);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quiz-question {
+      animation: none;
+    }
+  }
+
+  @keyframes quiz-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .quiz-question__text {
+    font-size: var(--text-xl);
+    padding: 0;
+  }
+
+  .quiz-options {
+    margin-top: var(--space-4);
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .quiz-option {
+    padding: var(--space-4);
+    border: var(--border-thin);
+    background: var(--color-bg);
+    color: var(--color-ink);
+    text-align: left;
+    transition: border-color var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out);
+  }
+
+  .quiz-option:hover {
+    border-color: var(--color-accent);
+    background: var(--color-bg-secondary);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quiz-option {
+      transition: none;
+    }
+  }
+
+  .quiz-result {
+    margin-top: var(--space-7);
+  }
+
+  .quiz-result__heading {
+    font-size: var(--text-2xl);
+  }
+
+  .quiz-result-list {
+    margin-top: var(--space-5);
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .quiz-result-list {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .quiz-result-list :global(.quiz-result-card) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .quiz-result-list :global(.quiz-result-card__media) {
+    display: block;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--color-bg-secondary);
+  }
+
+  .quiz-result-list :global(.quiz-result-card__media img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .quiz-result-list :global(.quiz-result-card__body) {
+    margin-top: var(--space-3);
+  }
+
+  .quiz-result-list :global(.quiz-result-card__name a) {
+    font-size: var(--text-base);
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  .quiz-result-list :global(.quiz-result-card__summary) {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+  }
+
+  .quiz-result-list :global(.quiz-result-card__rating) {
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-ink-tertiary);
+    font-feature-settings: 'tnum';
+  }
+
+  .quiz-result__note {
+    margin-top: var(--space-5);
+    font-size: var(--text-xs);
+    color: var(--color-ink-tertiary);
+  }
+
+  .quiz-retry {
+    margin-top: var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+</style>

@@ -156,4 +156,33 @@ const site = defineCollection({
     }),
 });
 
-export const collections = { products, articles, categories, brands, tags, site };
+/**
+ * おすすめ診断(26章c15)。単一ファイル `content/quiz.json` を file() ローダーで
+ * 読み込む(siteと同じ `{ "main": {...} } ` 形式)。質問ごとの選択肢が持つ
+ * weightsを回答時に合算し、published商品をスコアリングする(実体は静的決定木)。
+ */
+const quiz = defineCollection({
+  loader: file('./src/content/quiz.json'),
+  schema: z.object({
+    questions: z.array(
+      z.object({
+        id: z.string(),
+        text: z.string(),
+        options: z.array(
+          z.object({
+            id: z.string(),
+            label: z.string(),
+            weights: z
+              .object({
+                categories: z.record(z.string(), z.number()).default({}),
+                tags: z.record(z.string(), z.number()).default({}),
+              })
+              .default({ categories: {}, tags: {} }),
+          })
+        ),
+      })
+    ),
+  }),
+});
+
+export const collections = { products, articles, categories, brands, tags, site, quiz };

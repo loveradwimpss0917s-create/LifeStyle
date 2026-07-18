@@ -1,0 +1,98 @@
+{
+  "main": {
+    "questions": [
+      {
+        "id": "who",
+        "text": "どなたのために選びますか?",
+        "options": [
+          {
+            "id": "self",
+            "label": "自分用に",
+            "weights": { "categories": {}, "tags": { "asa-no-shukan": 1, "shumatsu": 1 } }
+          },
+          {
+            "id": "partner",
+            "label": "パートナーと一緒に",
+            "weights": { "categories": {}, "tags": { "futari-tabi": 2 } }
+          },
+          {
+            "id": "kids",
+            "label": "子どもと一緒に",
+            "weights": { "categories": { "parenting": 3 }, "tags": { "kozure-ryoko": 2, "shussan-junbi": 1 } }
+          },
+          {
+            "id": "home",
+            "label": "暮らし全体を整えたい",
+            "weights": { "categories": { "living": 2, "daily-goods": 2 }, "tags": { "hokuo-interior": 1 } }
+          }
+        ]
+      },
+      {
+        "id": "scene",
+        "text": "今、気になっているシーンは?",
+        "options": [
+          {
+            "id": "morning",
+            "label": "朝の時間を整えたい",
+            "weights": { "categories": { "coffee": 2 }, "tags": { "asa-no-shukan": 2, "coffee-time": 2 } }
+          },
+          {
+            "id": "bath",
+            "label": "お風呂・リラックスタイム",
+            "weights": { "categories": { "daily-goods": 2 }, "tags": { "ofuro-goods": 3 } }
+          },
+          {
+            "id": "travel",
+            "label": "お出かけ・旅行の準備",
+            "weights": {
+              "categories": { "travel": 3 },
+              "tags": { "futari-tabi": 1, "kozure-ryoko": 1, "suitou": 2 }
+            }
+          },
+          {
+            "id": "storage",
+            "label": "収納・整理整頓",
+            "weights": { "categories": {}, "tags": { "shuno": 3 } }
+          }
+        ]
+      },
+      {
+        "id": "priority",
+        "text": "重視するポイントは?",
+        "options": [
+          {
+            "id": "design",
+            "label": "見た目・インテリア",
+            "weights": { "categories": { "living": 1 }, "tags": { "hokuo-interior": 3 } }
+          },
+          {
+            "id": "function",
+            "label": "実用性・使いやすさ",
+            "weights": { "categories": { "daily-goods": 1, "appliances": 1 }, "tags": {} }
+          },
+          {
+            "id": "record",
+            "label": "写真・記録に残したい",
+            "weights": { "categories": { "photography": 3 }, "tags": {} }
+          }
+        ]
+      },
+      {
+        "id": "timing",
+        "text": "どんな時間に使いたいですか?",
+        "options": [
+          {
+            "id": "weekday",
+            "label": "忙しい平日の時短に",
+            "weights": { "categories": {}, "tags": { "asa-no-shukan": 1 } }
+          },
+          {
+            "id": "weekend",
+            "label": "ゆったり週末に",
+            "weights": { "categories": {}, "tags": { "shumatsu": 3 } }
+          }
+        ]
+      }
+    ]
+  }
+}
