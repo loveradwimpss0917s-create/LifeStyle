@@ -19,8 +19,11 @@ import InstagramGrid from '@/components/section/InstagramGrid.astro';
 import FollowCta from '@/components/section/FollowCta.astro';
 import { getPublished } from '@/lib/content';
 import { getOverallRanking } from '@/lib/ranking';
+import { buildSiteJsonLd } from '@/lib/seo';
 
 const site = await getEntry('site', 'main');
+const homeDescription = site?.data.description ?? '日々の暮らしを、少しだけ豊かにする。';
+const jsonLd = buildSiteJsonLd(Astro.site!, homeDescription);
 
 const articles = (await getPublished('articles')).sort(
   (a, b) => (b.data.publishedAt?.getTime() ?? 0) - (a.data.publishedAt?.getTime() ?? 0)
@@ -61,7 +64,8 @@ const rankingItems = ranking.map((product, index) => ({
 
 <BaseLayout
   title="HIBISTACK"
-  description={site?.data.description ?? '日々の暮らしを、少しだけ豊かにする。'}
+  description={homeDescription}
+  jsonLd={jsonLd}
 >
   {site && (
     <Hero

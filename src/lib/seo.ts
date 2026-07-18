@@ -7,6 +7,41 @@ import type { CollectionEntry } from 'astro:content';
 
 const SITE_NAME = 'HIBISTACK';
 
+/**
+ * WebSite+Organization JSON-LD(26章c3)。トップページのみで出力する。
+ * SearchActionはPagefindのUIをそのまま利用できるURL構造(/search/?q=...)に合わせる。
+ * Organization.logoは14章のブランドシンボルをラスタ化したicon-512.png(正方形)を使う。
+ */
+export function buildSiteJsonLd(site: URL, description: string) {
+  const siteUrl = site.toString();
+  const searchUrlTemplate = `${new URL('/search/', site).toString()}?q={search_term_string}`;
+
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: SITE_NAME,
+      url: siteUrl,
+      description,
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: searchUrlTemplate,
+        },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: SITE_NAME,
+      url: siteUrl,
+      logo: new URL('/icons/icon-512.png', site).toString(),
+    },
+  ];
+}
+
 export type BreadcrumbInput = { label: string; href?: string };
 
 export function buildBreadcrumbJsonLd(items: BreadcrumbInput[], site: URL) {
