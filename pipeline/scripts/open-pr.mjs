@@ -33,11 +33,18 @@ import { parseIntake } from '../lib/parse-intake.mjs';
 import { runAnalyze } from './analyze.mjs';
 import { runComposeProduct } from './compose-product.mjs';
 import { generateSeoMeta, suggestRelatedArticles } from './seo-meta.mjs';
+import { runDeriveSns, buildSnsFiles } from './derive-sns.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PRODUCTS_DIR = path.join(__dirname, '../../src/content/products');
 const PR_TEMPLATE_PATH = path.join(__dirname, '../../.github/PULL_REQUEST_TEMPLATE/content.md');
+const SITE_JSON_PATH = path.join(__dirname, '../../src/content/site.json');
 const BASE_BRANCH = 'main';
+
+function getSiteUrl() {
+  const site = JSON.parse(readFileSync(SITE_JSON_PATH, 'utf-8'));
+  return site.main.url;
+}
 
 function stripHtmlComments(text) {
   return text.replace(/<!--[\s\S]*?-->/g, '');
@@ -200,6 +207,28 @@ export async function runOpenPr(issueNumber) {
     });
   }
 
+  // Stage4(derive-sns・26章c23): サイトのビルド対象外のcontent-hub/sns/へSNS派生を同梱する
+  const productUrl = `${getSiteUrl()}/products/${slug}/`;
+  const snsResult = await runDeriveSns(
+    {
+      name: composeResult.frontmatter.name,
+      summary: composeResult.frontmatter.summary,
+      goodPoints: composeResult.frontmatter.goodPoints,
+      concernPoints: composeResult.frontmatter.concernPoints,
+      body: composeResult.body,
+    },
+    productUrl
+  );
+  const snsFiles = buildSnsFiles(slug, snsResult);
+  for (const file of snsFiles) {
+    await createOrUpdateFile({
+      path: file.path,
+      content: Buffer.from(file.content, 'utf-8').toString('base64'),
+      message: `content: ${composeResult.frontmatter.name}のSNS派生を追加(#${issueNumber})`,
+      branch: branchName,
+    });
+  }
+
   const prBody = renderPrBody({
     productName: composeResult.frontmatter.name,
     category: analyzeResult.category.value,
@@ -210,6 +239,7 @@ export async function runOpenPr(issueNumber) {
       `- 参考SEO description: ${seoMeta.description}`,
       `- rating(AI推測): ${analyzeResult.rating.value}(confidence: ${analyzeResult.rating.confidence})`,
       `- usagePeriod(AI推測): ${analyzeResult.usagePeriod.value}(confidence: ${analyzeResult.usagePeriod.confidence})`,
+      `- SNS派生(content-hub/sns/${slug}/): ig-feed / ig-reel / ig-story / threads / tiktok / yt-shorts の6ファイルを同梱`,
     ].join('\n'),
     relatedArticlesList:
       relatedArticles.length > 0
