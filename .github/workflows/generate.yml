@@ -1,0 +1,47 @@
+name: Generate Content
+
+on:
+  issues:
+    types: [labeled]
+
+# 26章c22「同時実行1」: グローバルに1本のグループへ固定し、複数Issueが
+# 同時にラベル付けされても生成ジョブは常に1つずつ順番に実行される
+# (cancel-in-progress: false = 先行ジョブを打ち切らずキューで待つ)。
+concurrency:
+  group: generate-content
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    if: github.event.label.name == 'intake'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: "Generate content (26章c18〜c21: analyze→compose-product→seo-meta→open-pr)"
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node pipeline/scripts/open-pr.mjs "${{ github.event.issue.number }}"
+
+      - name: Report failure to Issue (intakeは失われない・09章§7)
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >
+          node pipeline/scripts/report-failure.mjs "${{ github.event.issue.number }}"
+          "生成ステージ(analyze/compose-product/seo-meta/open-pr)のいずれかで失敗しました。Actionsのログを確認してください。"
