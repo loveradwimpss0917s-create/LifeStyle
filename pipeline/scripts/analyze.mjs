@@ -19,13 +19,18 @@ const PROMPT_PATH = path.join(__dirname, '../prompts/analyze.md');
 const VOICE_PATH = path.join(__dirname, '../../src/content/brand/voice.md');
 
 const CATEGORY_IDS = ['appliances', 'coffee', 'daily-goods', 'living', 'parenting', 'photography', 'travel'];
+const USAGE_PERIOD_IDS = ['under1m', '1-3m', '3-6m', '6-12m', 'over1y', 'over3y'];
+const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const confidenceSchema = z.enum(['high', 'medium', 'low']);
 
 export const analyzeResultSchema = z.object({
   name: z.object({ value: z.string().min(1), confidence: confidenceSchema }),
+  slug: z.object({ value: z.string().regex(SLUG_PATTERN), confidence: confidenceSchema }),
   category: z.object({ value: z.enum(CATEGORY_IDS), confidence: confidenceSchema }),
   brand: z.object({ value: z.string().nullable(), confidence: confidenceSchema }),
   priceRange: z.object({ value: z.string().min(1), confidence: confidenceSchema }),
+  rating: z.object({ value: z.number().int().min(1).max(5), confidence: confidenceSchema }),
+  usagePeriod: z.object({ value: z.enum(USAGE_PERIOD_IDS), confidence: confidenceSchema }),
   tags: z.array(z.object({ value: z.string().min(1), confidence: confidenceSchema })),
   images: z.array(z.object({ alt: z.string().min(1) })),
   overallConfidence: confidenceSchema,

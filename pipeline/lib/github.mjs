@@ -83,3 +83,45 @@ export async function createPullRequest({ title, body, head, base = 'main' }) {
   }
   return res.json();
 }
+
+/** ブランチ(refs/heads/{branch})のHEADコミットSHAを取得する(新規ブランチ作成の起点に使う) */
+export async function getBranchSha(branch) {
+  const res = await fetch(`${apiBase()}/git/ref/heads/${encodeURIComponent(branch)}`, { headers: headers() });
+  if (!res.ok) {
+    throw new Error(`[pipeline/lib/github.mjs] ブランチ ${branch} の取得に失敗しました(status ${res.status})`);
+  }
+  const data = await res.json();
+  return data.object.sha;
+}
+
+/** 26章c21: Stage6(open-pr)がbaseブランチの最新コミットから新しい作業ブランチを作る際に使う */
+export async function createBranch(branchName, fromSha) {
+  const res = await fetch(`${apiBase()}/git/refs`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ ref: `refs/heads/${branchName}`, sha: fromSha }),
+  });
+  if (!res.ok) {
+    const errBody = await res.text();
+    throw new Error(`[pipeline/lib/github.mjs] ブランチ ${branchName} の作成に失敗しました(status ${res.status}): ${errBody}`);
+  }
+  return res.json();
+}
+
+/**
+ * ファイルを指定ブランチへコミットする(新規作成・更新どちらも可)。
+ * contentはUTF-8テキスト・バイナリいずれもBase64文字列で渡すこと
+ * (画像などバイナリはBufferの `.toString('base64')`)。
+ */
+export async function createOrUpdateFile({ path: filePath, content, message, branch }) {
+  const res = await fetch(`${apiBase()}/contents/${encodeURIComponent(filePath).replace(/%2F/g, '/')}`, {
+    method: 'PUT',
+    headers: headers(),
+    body: JSON.stringify({ message, content, branch }),
+  });
+  if (!res.ok) {
+    const errBody = await res.text();
+    throw new Error(`[pipeline/lib/github.mjs] ファイル ${filePath} のコミットに失敗しました(status ${res.status}): ${errBody}`);
+  }
+  return res.json();
+}
