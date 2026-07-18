@@ -1,0 +1,91 @@
+---
+/**
+ * NewsletterCta — 26章c24(00章P-12・12章§6からV3で繰り延べ実装)
+ * Buttondownの静的フォーム埋め込み。外部JSは一切読み込まず、素のHTML
+ * <form method="post"> のみで完結させる(CSP的に外部スクリプトゼロを維持)。
+ * target="_blank" で送信後の確認画面を別タブに開くのみで、インラインJS
+ * (onsubmit等)も使わない。
+ * newsletterUrl(site.jsonのButtondown埋め込みaction URL)が未設定の場合は
+ * 何も描画しない(Astro側でセクションごと出し分ける)。
+ * Props: actionUrl(例: https://buttondown.email/api/emails/embed-subscribe/{username})
+ */
+interface Props {
+  actionUrl: string;
+}
+
+const { actionUrl } = Astro.props;
+---
+
+<section class="newsletter-cta">
+  <div class="container-text newsletter-cta__inner">
+    <p class="newsletter-cta__heading">メールでも、少しだけ。</p>
+    <p class="newsletter-cta__lead">新しい記事やおすすめ商品を、月に数回ほどメールでお届けします。</p>
+    <form action={actionUrl} method="post" target="_blank" class="newsletter-cta__form">
+      <label for="newsletter-email" class="visually-hidden">メールアドレス</label>
+      <input type="email" name="email" id="newsletter-email" placeholder="メールアドレス" required class="newsletter-cta__input" />
+      <input type="hidden" value="1" name="embed" />
+      <button type="submit" class="newsletter-cta__submit">登録する</button>
+    </form>
+  </div>
+</section>
+
+<style>
+  .container-text {
+    max-width: var(--container-text);
+    margin-inline: auto;
+    padding-inline: var(--outer-margin-mobile);
+  }
+
+  @media (min-width: 768px) {
+    .container-text {
+      padding-inline: var(--outer-margin);
+    }
+  }
+
+  .newsletter-cta {
+    padding-block: var(--space-7);
+    text-align: center;
+  }
+
+  .newsletter-cta__heading {
+    font-size: var(--text-lg);
+    color: var(--color-ink);
+  }
+
+  .newsletter-cta__lead {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+  }
+
+  .newsletter-cta__form {
+    margin-top: var(--space-5);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+
+  .newsletter-cta__input {
+    flex: 1 1 240px;
+    max-width: 320px;
+    padding: var(--space-3) var(--space-4);
+    border: var(--border-thin);
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-size: var(--text-sm);
+  }
+
+  .newsletter-cta__submit {
+    padding: var(--space-3) var(--space-5);
+    background: var(--color-cta);
+    color: var(--color-cta-text);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+
+  .newsletter-cta__submit:hover {
+    opacity: 0.92;
+  }
+</style>

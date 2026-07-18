@@ -16,6 +16,7 @@ import CategoryCard from '@/components/content/CategoryCard.astro';
 import RankingList from '@/components/content/RankingList.astro';
 import AboutTeaser from '@/components/section/AboutTeaser.astro';
 import InstagramGrid from '@/components/section/InstagramGrid.astro';
+import NewsletterCta from '@/components/section/NewsletterCta.astro';
 import FollowCta from '@/components/section/FollowCta.astro';
 import { getPublished } from '@/lib/content';
 import { getOverallRanking } from '@/lib/ranking';
@@ -129,6 +130,12 @@ const rankingItems = ranking.map((product, index) => ({
   <div class="home-section reveal">
     <AboutTeaser />
   </div>
+
+  {site?.data.newsletterUrl && (
+    <div class="home-section">
+      <NewsletterCta actionUrl={site.data.newsletterUrl} />
+    </div>
+  )}
 
   {site && (
     <div class="home-section">
