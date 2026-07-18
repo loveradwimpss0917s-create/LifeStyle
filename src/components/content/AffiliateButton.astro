@@ -1,14 +1,18 @@
 ---
 /**
- * AffiliateButton — 06章§6.2 / 26章c12
- * Props: product, mall, position(計測用ラベル。data-pos属性+/go/の?pos=に使う)
+ * AffiliateButton — 06章§6.2 / 26章c12・c13
+ * Props: product, mall(主モール), position(計測用ラベル。data-pos属性+/go/の?pos=に使う)
  * 挙動: URL未設定のモールは何も描画しない。rel="nofollow sponsored noopener"を必ず付与。
  * hrefは実URLではなく/go/{productId}/{mall}?pos={position}(クリック計測経由・26章c11)。
  * 直下に必ずPrLabelを描画する(12章§0不変条件2)。
+ * mall以外に設定済みのモールがあれば、ボタン下に小さいテキストリンク行として
+ * 主従関係(23章§2.3: mallが常に主)を保ったまま追加表示する(26章c13。
+ * Amazon/楽天導入前の現状では1モールのみの商品が大半のため、その場合は
+ * この行自体が描画されず既存の見た目と完全に同一)。
  */
 import Button from '@/components/base/Button.astro';
 import PrLabel from '@/components/base/PrLabel.astro';
-import { resolveAffiliateLink, buildGoUrl, type Mall } from '@/lib/affiliate';
+import { resolveAffiliateLink, resolveSecondaryAffiliateLinks, buildGoUrl, type Mall } from '@/lib/affiliate';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -21,6 +25,7 @@ interface Props {
 const { product, mall, position, fullWidth = true } = Astro.props;
 const resolved = resolveAffiliateLink(product, mall);
 const goUrl = resolved ? buildGoUrl(product.id, mall, position) : null;
+const secondaryLinks = resolved ? resolveSecondaryAffiliateLinks(product, mall, position) : [];
 ---
 
 {resolved && goUrl && (
@@ -37,5 +42,35 @@ const goUrl = resolved ? buildGoUrl(product.id, mall, position) : null;
       {resolved.label}
     </Button>
     <PrLabel />
+    {secondaryLinks.length > 0 && (
+      <p class="affiliate-button__secondary">
+        {secondaryLinks.map((link, index) => (
+          <>
+            {index > 0 && ' / '}
+            <a href={link.url} rel="nofollow sponsored noopener" target="_blank" data-pos={position}>
+              {link.label}
+            </a>
+          </>
+        ))}
+      </p>
+    )}
   </div>
 )}
+
+<style>
+  .affiliate-button__secondary {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+  }
+
+  .affiliate-button__secondary a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .affiliate-button__secondary a:hover {
+    color: var(--color-ink);
+  }
+</style>

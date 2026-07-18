@@ -14,6 +14,9 @@ import type { CollectionEntry } from 'astro:content';
 
 export type Mall = 'yahooShopping' | 'yahooTravel' | 'amazon' | 'rakuten';
 
+/** 主従関係の優先順(23章§2.3): Yahoo!系を常に主とする */
+const MALL_PRIORITY: Mall[] = ['yahooShopping', 'yahooTravel', 'amazon', 'rakuten'];
+
 const MALL_LABEL: Record<Mall, string> = {
   yahooShopping: 'Yahoo!ショッピングで見る',
   yahooTravel: 'Yahoo!トラベルで見る',
@@ -42,10 +45,30 @@ export function resolveAffiliateLink(
 export function resolvePrimaryAffiliateLink(
   product: CollectionEntry<'products'>
 ): (ResolvedAffiliateLink & { mall: Mall }) | null {
-  const priority: Mall[] = ['yahooShopping', 'yahooTravel', 'amazon', 'rakuten'];
-  for (const mall of priority) {
+  for (const mall of MALL_PRIORITY) {
     const resolved = resolveAffiliateLink(product, mall);
     if (resolved) return { ...resolved, mall };
   }
   return null;
+}
+
+/**
+ * primaryMall以外で設定済みのモールをテキストリンク行用に返す(26章c13)。
+ * Amazon/楽天導入(Phase3)の受け皿。1モールしか設定されていない商品では
+ * 常に空配列を返すため、既存の見た目に一切影響しない。
+ */
+export function resolveSecondaryAffiliateLinks(
+  product: CollectionEntry<'products'>,
+  primaryMall: Mall,
+  position: string
+): (ResolvedAffiliateLink & { mall: Mall })[] {
+  const result: (ResolvedAffiliateLink & { mall: Mall })[] = [];
+  for (const mall of MALL_PRIORITY) {
+    if (mall === primaryMall) continue;
+    const resolved = resolveAffiliateLink(product, mall);
+    if (resolved) {
+      result.push({ ...resolved, mall, url: buildGoUrl(product.id, mall, position) });
+    }
+  }
+  return result;
 }
