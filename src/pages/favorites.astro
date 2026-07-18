@@ -1,0 +1,232 @@
+---
+/**
+ * お気に入り — 04章§4.8 / 26章c7
+ * localStorage(hibistack:favorites)のIDを、ビルド時生成の静的商品インデックス
+ * (/api/products-index.json)と突き合わせてクライアント側で描画する。
+ * サーバー側では中身が確定しないため noindex。空状態はハートの使い方説明+
+ * ランキングへの導線を表示し、行き止まりにしない(02章§6)。
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/base/Breadcrumb.astro';
+import Icon from '@/components/base/Icon.astro';
+import Button from '@/components/base/Button.astro';
+---
+
+<BaseLayout title="お気に入り" description="保存した商品をまとめて確認できます。" noindex>
+  <div class="container">
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'お気に入り' }]} />
+    <h1 class="page-heading">お気に入り</h1>
+
+    <div id="favorites-empty" class="favorites-empty" hidden>
+      <Icon name="heart" size={32} />
+      <p class="favorites-empty__text">
+        商品ページのハートボタンでお気に入りに追加すると、ここに一覧表示されます。
+      </p>
+      <Button href="/ranking/" variant="secondary" size="md">ランキングを見る</Button>
+    </div>
+
+    <div id="favorites-list" class="favorites-list" hidden></div>
+  </div>
+</BaseLayout>
+
+<script is:inline data-astro-rerun>
+  // /favorites/ の描画制御(26章c7)。data-astro-rerun: ソフトナビゲーションで
+  // このページに戻るたびlocalStorageの最新状態で再描画するため必須。
+  (function () {
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function run() {
+      var listEl = document.getElementById('favorites-list');
+      var emptyEl = document.getElementById('favorites-empty');
+      if (!listEl || !emptyEl) return;
+
+      var STORAGE_KEY = 'hibistack:favorites';
+
+      function readIds() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          var parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function writeIds(ids) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+        } catch (e) {
+          // プライベートモード等でlocalStorageが使えない場合は何もしない
+        }
+      }
+
+      function showEmpty() {
+        listEl.hidden = true;
+        listEl.innerHTML = '';
+        emptyEl.hidden = false;
+      }
+
+      var ids = readIds();
+      if (ids.length === 0) {
+        showEmpty();
+        return;
+      }
+
+      fetch('/api/products-index.json')
+        .then(function (res) {
+          if (!res.ok) throw new Error('failed to load products index');
+          return res.json();
+        })
+        .then(function (products) {
+          var byId = {};
+          products.forEach(function (p) {
+            byId[p.id] = p;
+          });
+          var matched = ids.map(function (id) { return byId[id]; }).filter(Boolean);
+
+          if (matched.length === 0) {
+            showEmpty();
+            return;
+          }
+
+          listEl.innerHTML = matched
+            .map(function (p) {
+              return (
+                '<article class="favorites-card">' +
+                '<a href="/products/' + p.id + '/" class="favorites-card__media">' +
+                '<img src="' + p.image + '" alt="' + escapeHtml(p.alt) + '" loading="lazy" width="400" height="500" />' +
+                '</a>' +
+                '<div class="favorites-card__body">' +
+                '<p class="favorites-card__category">' + escapeHtml(p.category) + '</p>' +
+                '<h2 class="favorites-card__name"><a href="/products/' + p.id + '/">' + escapeHtml(p.name) + '</a></h2>' +
+                '<button type="button" class="favorites-card__remove" data-remove-id="' + p.id + '">お気に入りから外す</button>' +
+                '</div>' +
+                '</article>'
+              );
+            })
+            .join('');
+
+          listEl.hidden = false;
+          emptyEl.hidden = true;
+
+          listEl.querySelectorAll('[data-remove-id]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var id = btn.getAttribute('data-remove-id');
+              ids = ids.filter(function (existing) {
+                return existing !== id;
+              });
+              writeIds(ids);
+              var card = btn.closest('.favorites-card');
+              if (card) card.remove();
+              if (ids.length === 0) showEmpty();
+            });
+          });
+        })
+        .catch(showEmpty);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run);
+    } else {
+      run();
+    }
+  })();
+</script>
+
+<style>
+  .page-heading {
+    margin-top: var(--space-4);
+    font-size: var(--text-3xl-mobile);
+  }
+
+  @media (min-width: 768px) {
+    .page-heading {
+      font-size: var(--text-3xl);
+    }
+  }
+
+  /*
+   * [hidden]属性はUAスタイルシートのdisplay:noneで隠れるが、同一詳細度の
+   * authorスタイル(.favorites-empty { display: flex })はorigin優先度で
+   * UAスタイルシートに勝ってしまい、hidden指定時も表示され続けるバグが
+   * あった(Playwrightで発覚)。:not([hidden])に限定して回避する。
+   */
+  .favorites-empty:not([hidden]) {
+    margin-top: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-4);
+    padding: var(--space-8) var(--space-4);
+    color: var(--color-ink-tertiary);
+  }
+
+  .favorites-empty__text {
+    max-width: 32em;
+    color: var(--color-ink-secondary);
+  }
+
+  .favorites-list:not([hidden]) {
+    margin-top: var(--space-6);
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .favorites-list:not([hidden]) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .favorites-list :global(.favorites-card) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .favorites-list :global(.favorites-card__media) {
+    display: block;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--color-bg-secondary);
+  }
+
+  .favorites-list :global(.favorites-card__media img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .favorites-list :global(.favorites-card__body) {
+    margin-top: var(--space-3);
+  }
+
+  .favorites-list :global(.favorites-card__category) {
+    font-size: var(--text-xs);
+    color: var(--color-ink-tertiary);
+  }
+
+  .favorites-list :global(.favorites-card__name) {
+    margin-top: 2px;
+    font-size: var(--text-base);
+    font-weight: 500;
+    line-height: var(--leading-tight);
+  }
+
+  .favorites-list :global(.favorites-card__name a) {
+    color: var(--color-ink);
+  }
+
+  .favorites-list :global(.favorites-card__remove) {
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-ink-tertiary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+</style>
