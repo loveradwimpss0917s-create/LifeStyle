@@ -77,7 +77,13 @@ const jsonLd = itemListJsonLd ? [articleJsonLd, itemListJsonLd] : articleJsonLd;
   jsonLd={jsonLd}
   noindex={article.data.seo.noindex}
 >
-  <div class="container" data-pagefind-meta="type:記事">
+  <div
+    class="container"
+    data-pagefind-meta="type:記事"
+    data-filter-type="記事"
+    data-filter-category={category.data.nameJa}
+    data-pagefind-filter="種類[data-filter-type], カテゴリ[data-filter-category]"
+  >
     <Breadcrumb
       items={[
         { label: 'Home', href: '/' },

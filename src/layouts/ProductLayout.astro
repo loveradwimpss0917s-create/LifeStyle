@@ -47,7 +47,13 @@ const jsonLd = await buildProductJsonLd(product, brand, Astro.site!);
 ---
 
 <BaseLayout title={product.data.name} description={product.data.summary} jsonLd={jsonLd} ogImage={`/og/products/${product.id}.png`}>
-  <div class="container" data-pagefind-meta="type:商品">
+  <div
+    class="container"
+    data-pagefind-meta="type:商品"
+    data-filter-type="商品"
+    data-filter-category={category.data.nameJa}
+    data-pagefind-filter="種類[data-filter-type], カテゴリ[data-filter-category]"
+  >
     <Breadcrumb
       items={[
         { label: 'Home', href: '/' },

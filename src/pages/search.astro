@@ -19,6 +19,11 @@ const categories = (await getCollection('categories')).sort((a, b) => a.data.ord
     <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: '検索' }]} />
     <h1 class="page-heading">検索</h1>
 
+    <div class="search-ui__placeholder" data-search-placeholder aria-hidden="true">
+      <div class="search-ui__placeholder-bar"></div>
+      <div class="search-ui__placeholder-row"></div>
+      <div class="search-ui__placeholder-row"></div>
+    </div>
     <div id="search-ui" class="search-ui"></div>
 
     <section class="search-discover">
@@ -52,7 +57,15 @@ const categories = (await getCollection('categories')).sort((a, b) => a.data.ord
       showImages: false,
       showSubResults: false,
       translations: { placeholder: '商品名・カテゴリ・気分で探す' },
+      // 26章c4: 種類(商品/記事)・カテゴリで絞り込み。コンテンツ量が少ないうちは
+      // 既定の「6件以下のみ自動展開」だと畳まれがちなため、常に開いた状態にする。
+      // (ProductLayout/ArticleLayoutのdata-pagefind-filterはインライン形式を
+      //  連結できないため`種類[data-filter-type], カテゴリ[data-filter-category]`
+      //  という属性参照形式で2キーを1要素にまとめている)
+      openFilters: ['種類', 'カテゴリ'],
     });
+
+    document.querySelector('[data-search-placeholder]')?.remove();
 
     const params = new URLSearchParams(location.search);
     const initialQuery = params.get('q');
@@ -99,6 +112,31 @@ const categories = (await getCollection('categories')).sort((a, b) => a.data.ord
     --pagefind-ui-image-border-radius: 0;
     --pagefind-ui-image-box-ratio: 4 / 5;
     --pagefind-ui-font: var(--font-ja);
+  }
+
+  /*
+   * PagefindUI初期化前の静的プレースホルダー(18章§2.12: スケルシマー禁止・
+   * bg-secondaryの矩形のみ)。new PagefindUI()は#search-uiの中身を置き換えず
+   * 追記する仕様のため、プレースホルダーは#search-uiの外(兄弟要素)に置き、
+   * 初期化スクリプト側で明示的に削除する。
+   */
+  .search-ui__placeholder {
+    margin-top: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .search-ui__placeholder-bar {
+    height: 48px;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-sm);
+  }
+
+  .search-ui__placeholder-row {
+    height: 72px;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-sm);
   }
 
   .search-discover {
