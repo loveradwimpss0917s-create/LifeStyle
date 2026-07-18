@@ -4,6 +4,8 @@ dist/
 .astro/
 # Lighthouse CI local run output
 .lighthouseci/
+# wrangler pages dev local state(26章c11: functions/検証用)
+.wrangler/
 
 # dependencies
 node_modules/

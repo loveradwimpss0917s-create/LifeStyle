@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
+    "@cloudflare/workers-types": "^5.20260718.1",
     "@types/js-yaml": "^4.0.9",
     "js-yaml": "^5.2.1",
     "typescript": "^6.0.3"
