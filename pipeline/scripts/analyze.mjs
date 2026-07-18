@@ -10,6 +10,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import { callClaude } from '../lib/claude.mjs';
+import { renderTemplate } from '../lib/template.mjs';
+
+export { renderTemplate };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROMPT_PATH = path.join(__dirname, '../prompts/analyze.md');
@@ -27,24 +30,6 @@ export const analyzeResultSchema = z.object({
   images: z.array(z.object({ alt: z.string().min(1) })),
   overallConfidence: confidenceSchema,
 });
-
-/**
- * テンプレート先頭等のHTMLコメント(`<!-- -->`)は開発者向けドキュメントであり、
- * APIに送る実際のプロンプトには含めない。コメント内にたまたま `{{memo}}` の
- * ような記法が書かれていた場合でも変数展開の対象にしないための必須処理
- * (実際にこの順序を守らずコメント内の{{memo}}まで展開してしまい、
- * <intake_memo>デリミタより前でメモ本文が展開される=プロンプト
- * インジェクション対策が無効化されるバグが発覚したため、変数展開より
- * 必ず先にコメントを除去する)。
- */
-function stripHtmlComments(template) {
-  return template.replace(/<!--[\s\S]*?-->/g, '');
-}
-
-export function renderTemplate(template, vars) {
-  const withoutComments = stripHtmlComments(template);
-  return withoutComments.replace(/\{\{(\w+)\}\}/g, (_, key) => (key in vars ? String(vars[key]) : ''));
-}
 
 /** data URI・ホスティングURLどちらもClaude Messages APIのimageコンテンツブロックへ変換する */
 export function toImageContentBlock(url) {
