@@ -33,6 +33,11 @@ const jsonLdList = jsonLd
     ? jsonLd
     : [jsonLd]
   : [];
+
+// Cloudflare Web Analytics(26章c1)。トークン未設定ならビーコンを一切出力しない
+// (フォーク・ローカルビルドを壊さない)。トークンはCloudflareダッシュボード
+// [Analytics & Logs > Web Analytics] で取得し、Pagesの環境変数に設定する(README参照)。
+const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
 ---
 
 <!doctype html>
@@ -128,6 +133,15 @@ const jsonLdList = jsonLd
     {jsonLdList.map((entry) => (
       <script type="application/ld+json" set:html={JSON.stringify(entry)} is:inline />
     ))}
+
+    {cfBeaconToken && (
+      <script
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={JSON.stringify({ token: cfBeaconToken, spa: true })}
+        is:inline
+      />
+    )}
 
     <ClientRouter />
   </head>

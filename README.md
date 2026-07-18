@@ -139,12 +139,13 @@ npx wrangler pages deploy dist --project-name=hibistack
 V1・V2(ブランド刷新・ダークモード等)ともに実装は完了していますが、以下はオーナー本人の対応が必要です(12章§7・20章§11)。
 
 1. **サイト名の確定** — 完了。サイト名は「HIBISTACK」に確定し、`src/content/site.json` の `siteName` 等、`src/layouts/BaseLayout.astro`・`src/lib/seo.ts` の定数、ロゴ表示箇所を含め全箇所を更新済み
-2. **独自ドメインの取得・Cloudflare Pages接続** — 取得後、`astro.config.mjs` の `site` と `src/content/site.json` の `url` を実ドメインに変更(現在は仮ドメイン `https://lifestack.pages.dev`。なお実際のデプロイ先は `https://lifestyle-ako.pages.dev` になっており、この仮ドメイン表記との食い違いも本対応時にあわせて解消してください)
+2. **独自ドメインの取得・Cloudflare Pages接続** — サイトURLは実デプロイ先 `https://lifestyle-ako.pages.dev` に統一済み(canonical/OGP/sitemap/robots.txtすべてここから導出)。独自ドメイン取得後は `astro.config.mjs` の `site`・`src/content/site.json` の `url`・`public/robots.txt` の `Sitemap:` 行の3箇所を実ドメインに変更する
 3. **Yahoo!アフィリエイト登録・各商品へのURL貼り付け** — 各商品Markdownの `affiliate.yahooShopping.url` / `affiliate.yahooTravel.url` に実際のリンクを追加(`checkedAt` も併せて設定)。未設定の間はAffiliateButton・PrLabelは自動的に非表示になる
 4. **サンプル写真から実写真への差し替え** — `src/assets/products/` `src/assets/articles/` `src/assets/categories/` `src/assets/site/`(`instagram/` 配下6枚を含む)のプレースホルダーSVGを実写真(JPEG/PNG)に差し替え、各商品・記事・`site.json` の画像パスを更新。AI生成画像を使う場合は19章の運用ルール(`ai-` プレフィックス・alt明記)に従うこと
 5. **About・Privacy・Disclosureの文面確認** — `src/pages/about.astro` `src/pages/privacy.astro` `src/pages/disclosure.astro` はドラフトです。特にdisclosure(景表法ステマ規制対応)は法的文面のため、最終的に本人確認のうえ必要に応じて修正してください
 6. **Instagram/Threadsのフォロー導線URL確認** — `site.json` の `sns.instagramHome` / `sns.threads` 等は仮のプレースホルダーURL(`https://www.instagram.com/` 等)のままです。トップページのInstagramセクション・Follow CTAで実際に使われるため、公開前に実アカウントのURLへ差し替えてください
 7. **ダークモードの見た目の最終確認** — ヘッダー右上(PC)またはメニュー内(モバイル)のアイコンで切り替え可能。実写真差し替え後、写真がダーク背景で浮いて見えないか改めて目視確認することを推奨します(現状は `img { filter: brightness(.92) }` で軽く減光済み)
+8. **Cloudflare Web Analyticsの有効化** — 実装は組み込み済み(26章c1)。Cloudflareダッシュボード > **Analytics & Logs > Web Analytics** でサイト(`lifestyle-ako.pages.dev`)を追加してトークンを取得し、Pagesプロジェクトの **Settings > Environment variables** に `PUBLIC_CF_BEACON_TOKEN` として設定 → 再デプロイで計測開始。未設定の間はビーコンが出力されないだけでサイトは正常動作(`.env.example` 参照)
 
 ## 設計書の読み方
 

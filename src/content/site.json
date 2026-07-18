@@ -4,7 +4,7 @@
     "tagline": "日々の暮らしを、少しだけ豊かにする。",
     "taglineEn": "Stacking better days.",
     "description": "旅・子育て・暮らしの記録から生まれた、小さなライフスタイルマガジン。",
-    "url": "https://lifestack.pages.dev",
+    "url": "https://lifestyle-ako.pages.dev",
     "heroImage": "../assets/site/hero.svg",
     "heroAlt": "HIBISTACK — placeholder hero image",
     "author": {
@@ -30,7 +30,7 @@
         { "src": "../assets/site/instagram/6.svg", "alt": "Instagram投稿の写真(placeholder)" }
       ]
     },
-    "contactEmail": "hello@example.com",
+    "contactEmail": "sucreet.web@gmail.com",
     "editorsPicks": ["drip-kettle", "kids-stainless-bottle", "bath-towel", "nordic-paper-cord-dining-chair"],
     "pinned": {
       "coffee": "drip-kettle-half-year-review",
