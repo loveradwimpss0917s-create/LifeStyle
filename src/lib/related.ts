@@ -25,7 +25,38 @@ export async function getRelatedProducts(
 }
 
 /**
- * 記事の関連記事(12章§3): ①frontmatter related → ②同カテゴリ新着 → ③同タグ新着 の順で不足分補完。
+ * 関連記事スコアリング(26章c8): タグ一致数×3 + カテゴリ一致×2 + 公開90日以内ボーナス1。
+ * 同点は新着順。手動related指定なしで残り枠を埋める際、タグ/カテゴリが1つも
+ * 一致しない記事でも新着ボーナスにより最下位で候補に残るため、「全く関連しない
+ * 記事すら見つからず枠が余る」旧実装の穴も自然に解消される。
+ */
+const RELATED_TAG_WEIGHT = 3;
+const RELATED_CATEGORY_WEIGHT = 2;
+const RELATED_RECENCY_BONUS = 1;
+const RELATED_RECENCY_WINDOW_DAYS = 90;
+
+function scoreRelatedArticle(
+  candidate: CollectionEntry<'articles'>,
+  current: CollectionEntry<'articles'>,
+  currentTagIds: Set<string>
+): number {
+  const tagMatches = candidate.data.tags.filter((t) => currentTagIds.has(t.id)).length;
+  const categoryMatch = candidate.data.category.id === current.data.category.id ? 1 : 0;
+  const ageDays = candidate.data.publishedAt
+    ? (Date.now() - candidate.data.publishedAt.getTime()) / (1000 * 60 * 60 * 24)
+    : Infinity;
+  const isRecent = ageDays <= RELATED_RECENCY_WINDOW_DAYS;
+
+  return (
+    tagMatches * RELATED_TAG_WEIGHT +
+    categoryMatch * RELATED_CATEGORY_WEIGHT +
+    (isRecent ? RELATED_RECENCY_BONUS : 0)
+  );
+}
+
+/**
+ * 記事の関連記事(12章§3・26章c8): ①frontmatter related(常に最優先・既存挙動維持)
+ * → ②残り枠をスコア降順(同点は新着順)で補完。
  */
 export async function getRelatedArticles(
   current: CollectionEntry<'articles'>,
@@ -45,23 +76,16 @@ export async function getRelatedArticles(
     if (result.length >= limit) return result;
   }
 
-  const sameCategory = pool
-    .filter((a) => a.data.category.id === current.data.category.id && !seen.has(a.id))
-    .sort(byPublishedAtDesc);
-  for (const article of sameCategory) {
-    result.push(article);
-    seen.add(article.id);
-    if (result.length >= limit) return result;
-  }
-
   const currentTagIds = new Set(current.data.tags.map((t) => t.id));
-  const sameTag = pool
-    .filter((a) => !seen.has(a.id) && a.data.tags.some((t) => currentTagIds.has(t.id)))
-    .sort(byPublishedAtDesc);
-  for (const article of sameTag) {
+  const scored = pool
+    .filter((a) => !seen.has(a.id))
+    .map((article) => ({ article, score: scoreRelatedArticle(article, current, currentTagIds) }))
+    .sort((a, b) => (b.score !== a.score ? b.score - a.score : byPublishedAtDesc(a.article, b.article)));
+
+  for (const { article } of scored) {
     result.push(article);
     seen.add(article.id);
-    if (result.length >= limit) return result;
+    if (result.length >= limit) break;
   }
 
   return result;
