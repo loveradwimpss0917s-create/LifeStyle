@@ -28,6 +28,7 @@ const images = product.data.images;
         data-index={index}
         loading={index === 0 ? 'eager' : 'lazy'}
         priority={index === 0}
+        transition:name={index === 0 ? `product-image-${product.id}` : undefined}
       />
     ))}
   </div>

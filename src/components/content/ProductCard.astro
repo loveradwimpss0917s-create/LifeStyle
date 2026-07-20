@@ -19,6 +19,18 @@ interface Props {
 const { product, showRating = true, showPrice = false } = Astro.props;
 const brand = product.data.brand ? await getEntry(product.data.brand) : undefined;
 const price = formatPrice(product.data.price);
+
+/**
+ * View Transitionsのtransition:nameはページ内で一意である必要がある。
+ * 同じ商品がホームページ(Editor's Picks + カテゴリ帯)等、1ページ内の
+ * 複数箇所に重複表示されるケースがあるため、Astro.locals(ページ単位で
+ * リセットされる)にレンダリング済みIDを記録し、最初の1箇所にのみ
+ * transition:nameを付与する(2箇所目以降は通常のクロスフェードに委ねる)。
+ */
+const locals = Astro.locals as { productTransitionIds?: Set<string> };
+locals.productTransitionIds ??= new Set();
+const canMorph = !locals.productTransitionIds.has(product.id);
+if (canMorph) locals.productTransitionIds.add(product.id);
 ---
 
 <article class="product-card">
@@ -29,6 +41,7 @@ const price = formatPrice(product.data.price);
       width={400}
       height={500}
       class="product-card__image"
+      transition:name={canMorph ? `product-image-${product.id}` : undefined}
     />
     <div class="product-card__favorite">
       <FavoriteButton product={product} size="sm" />
