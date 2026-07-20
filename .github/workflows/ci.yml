@@ -33,5 +33,5 @@ jobs:
       - name: Image rule check (26章c28・20章§10/19章§3・警告のみ)
         run: npm run check:images
 
-      - name: Lighthouse CI (01章§4.3・Perf/A11y/BP/SEO 95以上)
+      - name: Lighthouse CI (01章§4.3・A11y/BP/SEO 95以上・Perf個別設定はlighthouserc.json参照)
         run: npx @lhci/cli@0.13.x autorun
