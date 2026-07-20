@@ -114,14 +114,31 @@ const { image, alt, labelEn, tagline } = Astro.props;
   }
 </style>
 
-<script is:inline>
-  // Hero入場演出(18章§2.2)。data-astro-rerunを付けないため初回ハードロードで
-  // 1度だけ実行される(View Transitions再訪ではこのscript自体が再実行されない
-  // ので、意図通り再生されない)。二重rAFで初期スタイルの描画を確定させてから
-  // is-enteredを付与し、transitionが確実に発火するようにする。
+<script is:inline data-astro-rerun>
+  // Hero入場演出(18章§2.2)。
+  //
+  // 実バグ修正: 以前はdata-astro-rerunを付けず「初回ハードロードで1度だけ
+  // 実行される」設計だったが、View TransitionsのDOMスワップは.hero要素自体を
+  // サーバーレンダリング済みの新しいマークアップ(is-enteredクラスを含まない)
+  // に置き換えるため、ソフトナビゲーションでトップページに再訪すると
+  // is-enteredが二度と付与されず、.hero__imageがopacity:0のまま永久に
+  // 表示されなくなっていた(ホームへ戻ると画像が真っ暗になる不具合)。
+  //
+  // data-astro-rerunを付けて毎回このscriptを再実行させることで再訪時も
+  // is-enteredを確実に付与しつつ、window.__heroEnteredOnce(ページ遷移を
+  // 跨いで保持されるwindowオブジェクトに立てるフラグ)で「フェードインの
+  // アニメーション演出は最初の1回だけ」という元の意図は維持する
+  // (2回目以降は遅延なく即座に表示する)。
   (function () {
     var hero = document.querySelector('.hero');
     if (!hero) return;
+
+    if (window.__heroEnteredOnce) {
+      hero.classList.add('is-entered');
+      return;
+    }
+    window.__heroEnteredOnce = true;
+
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         hero.classList.add('is-entered');
