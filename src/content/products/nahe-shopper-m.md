@@ -15,12 +15,10 @@ goodPoints:
 concernPoints:
   - "使い始めて間もないため、耐久性はまだ未知数"
 images:
-  - src: "../../assets/products/nahe-shopper-m/01.svg"
-    alt: "ネーエ ショッパー Mの正面写真(placeholder)"
-  - src: "../../assets/products/nahe-shopper-m/02.svg"
-    alt: "外側のメッシュポケット部分のディテール写真(placeholder)"
-  - src: "../../assets/products/nahe-shopper-m/03.svg"
-    alt: "荷物を入れた状態の写真(placeholder)"
+  - src: "../../assets/products/nahe-shopper-m/01.jpg"
+    alt: "ネーエ ショッパー Mの商品写真(カラー: オレンジ)"
+  - src: "../../assets/products/nahe-shopper-m/02.jpg"
+    alt: "ネーエ ショッパー Mに荷物を収納した商品写真(カラー: グリーン)"
 tags:
   - eco-bag
   - kattekyokatta
