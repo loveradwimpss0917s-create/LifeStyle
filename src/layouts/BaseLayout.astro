@@ -8,7 +8,7 @@ import Header from '@/components/layout/Header.astro';
 import Footer from '@/components/layout/Footer.astro';
 import ScrollReveal from '@/components/island/ScrollReveal.astro';
 import '@/styles/global.css';
-import fontsCssUrl from '@/styles/fonts.css?url';
+import fontsCssText from '@/styles/fonts.css?inline';
 import cormorantLatinWoff2 from '@fontsource-variable/cormorant-garamond/files/cormorant-garamond-latin-wght-normal.woff2?url';
 
 interface Props {
@@ -123,12 +123,15 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
 
     <!--
       フォント宣言(@font-face)。詳細は src/styles/fonts.css のコメント参照。
-      レンダーブロッキングを避けるため非同期読み込みにしている。
+      以前はmedia=print+onload切替による非同期読み込みだったが、Lighthouseの
+      render-blocking-resources監査はこの手法を使ってもなお当該linkを
+      render-blocking扱いにするため、@font-faceルール数が6個(1.8KB)まで
+      削減済み(コメント参照)であることを踏まえてインライン<style>に変更し、
+      外部リクエスト自体をなくした(26章c29 Lighthouse実測での気づき)。
       preloadは付けない(実測で、大きなWOFF2ファイルのフェッチ優先度が上がり
       LCP対象の画像と帯域を奪い合ってLCPが悪化する挙動を確認したため)。
     -->
-    <link rel="stylesheet" href={fontsCssUrl} media="print" onload="this.media='all'" />
-    <noscript><link rel="stylesheet" href={fontsCssUrl} /></noscript>
+    <style set:html={fontsCssText} />
 
     {jsonLdList.map((entry) => (
       <script type="application/ld+json" set:html={JSON.stringify(entry)} is:inline />
