@@ -120,6 +120,16 @@ const goUrl = resolved ? buildGoUrl(product.id, mall, 'product_sticky') : null;
       // 追い越した)状態。isIntersectingだけでは「まだ画面下方で見えていない」場合と
       // 区別できない(ギャラリー画像が高くCTAが初期表示で画面外になるケースがあるため、
       // boundingClientRectで方向を判定する)。
+      //
+      // 実バグ修正: footerReachedを「文末CTAが現在ビューポート内にあるか」でその都度
+      // 更新していたため、文末CTAを通り過ぎてさらに下(関連記事・関連商品・タグなどの
+      // セクション)までスクロールすると文末CTAがビューポート上端から外れて
+      // isIntersecting=falseに戻り、footerReachedがfalseへ逆戻りしていた。これにより
+      // headerPassed=trueのままsticky-ctaが再び表示され、ページ最下部付近で本来無関係な
+      // 後続セクションの上に商品名(狭幅で省略され「北...」等になる)とボタンが再出現し、
+      // 内容と噛み合わない表示になっていた(バグ報告: 商品ページ下部の意味不明な表示)。
+      // 一度文末CTAに到達したら以降は表示しない(ラッチ)ことで、「主CTA1+文末CTA1まで」
+      // の導線に戻す。
       var headerPassed = false;
       var footerReached = false;
 
@@ -137,8 +147,11 @@ const goUrl = resolved ? buildGoUrl(product.id, mall, 'product_sticky') : null;
       );
       var footerObserver = new IntersectionObserver(
         function (entries) {
-          footerReached = entries[0].isIntersecting;
-          update();
+          if (entries[0].isIntersecting) {
+            footerReached = true;
+            footerObserver.disconnect();
+            update();
+          }
         },
         { threshold: 0 }
       );
