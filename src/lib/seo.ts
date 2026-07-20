@@ -4,8 +4,18 @@
  */
 import { getImage } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
+import type { ImageMetadata } from 'astro';
 
 const SITE_NAME = 'HIBISTACK';
+
+/**
+ * 著者Personの正規@id(26章c27・E-E-A-T)。/about/ページで実体(buildPersonJsonLd)を
+ * 定義し、記事のauthorはこの@idで参照する(同一実体であることを検索エンジンに
+ * 一貫して伝えるため、ページをまたいでも同じURLフラグメントを使う)。
+ */
+function personId(site: URL) {
+  return `${new URL('/about/', site).toString()}#person`;
+}
 
 /**
  * WebSite+Organization JSON-LD(26章c3)。トップページのみで出力する。
@@ -40,6 +50,32 @@ export function buildSiteJsonLd(site: URL, description: string) {
       logo: new URL('/icons/icon-512.png', site).toString(),
     },
   ];
+}
+
+/**
+ * Person構造化データ(26章c27・E-E-A-T)。/about/ページのみで出力する。
+ * sameAsはsite.jsonのSNS実URLのうち設定済みのものだけを含める(プレースホルダー
+ * URLのままでも壊れないが、公開前にオーナーが実URLへ差し替える運用は変わらない)。
+ */
+export async function buildPersonJsonLd(
+  site: URL,
+  author: { name: string; bio: string; image: ImageMetadata },
+  sns: { instagramPhoto?: string; instagramHome?: string; youtube?: string; tiktok?: string; threads?: string }
+) {
+  const optimized = await getImage({ src: author.image, width: 400 });
+  const imageUrl = new URL(optimized.src, site).toString();
+  const sameAs = Array.from(new Set(Object.values(sns).filter((url): url is string => Boolean(url))));
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': personId(site),
+    name: author.name,
+    description: author.bio,
+    image: imageUrl,
+    url: new URL('/about/', site).toString(),
+    ...(sameAs.length > 0 ? { sameAs } : {}),
+  };
 }
 
 export type BreadcrumbInput = { label: string; href?: string };
@@ -105,7 +141,7 @@ export async function buildArticleJsonLd(article: CollectionEntry<'articles'>, s
     ...(article.data.updatedAt
       ? { dateModified: article.data.updatedAt.toISOString().slice(0, 10) }
       : {}),
-    author: { '@type': 'Person', name: SITE_NAME },
+    author: { '@id': personId(site) },
     publisher: { '@type': 'Organization', name: SITE_NAME },
   };
 }
