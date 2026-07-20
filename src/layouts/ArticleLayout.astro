@@ -216,13 +216,26 @@ const jsonLd = itemListJsonLd ? [articleJsonLd, itemListJsonLd] : articleJsonLd;
     margin-top: var(--space-4);
   }
 
+  /*
+   * 実バグ修正: aspect-ratioをimg要素自身に指定すると、img自身が持つ
+   * width/height HTML属性(Astro Imageが常に出力する)の影響で高さの
+   * auto計算がaspect-ratioより属性値のheightを優先してしまい、
+   * 幅だけコンテナに収まって高さは属性値のまま(=極端に縦長)になる
+   * 不具合があった(モバイル幅で顕在化)。サイト内の他の画像
+   * (ArticleCard/ProductCard/Hero.astro等)は例外なく「ラッパー要素に
+   * aspect-ratio、imgはwidth/height100%+object-fit:cover」という
+   * パターンで実装されており問題が起きていなかったため、同じパターンに
+   * 統一した。
+   */
   .article-hero {
     margin-top: var(--space-6);
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
   }
 
   .article-hero img {
     width: 100%;
-    aspect-ratio: 3 / 2;
+    height: 100%;
     object-fit: cover;
   }
 
