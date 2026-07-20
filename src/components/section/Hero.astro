@@ -22,7 +22,16 @@ const { image, alt, labelEn, tagline } = Astro.props;
 <section class="hero">
   <div class="container-wide">
     <div class="hero__media">
-      <Image src={image} alt={alt} width={1920} height={1080} priority class="hero__image" />
+      <Image
+        src={image}
+        alt={alt}
+        width={1920}
+        height={1080}
+        widths={[640, 960, 1280, 1920]}
+        sizes="(min-width: 1440px) 1350px, (min-width: 768px) 90vw, 100vw"
+        priority
+        class="hero__image"
+      />
     </div>
     <div class="hero__text">
       <h1 class="hero__label">{labelEn}</h1>
