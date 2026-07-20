@@ -72,6 +72,8 @@ const { rank, product, comment, compact = false } = Astro.props;
   .ranking-item__name a {
     font-weight: 500;
     color: var(--color-ink);
+    word-break: keep-all;
+    overflow-wrap: anywhere;
   }
 
   .ranking-item__comment {

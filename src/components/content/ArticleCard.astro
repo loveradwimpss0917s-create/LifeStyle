@@ -93,7 +93,8 @@ const dateLabel = article.data.publishedAt ? formatDate(article.data.publishedAt
     font-size: var(--text-lg);
     line-height: var(--leading-tight);
     color: var(--color-ink);
-    overflow-wrap: break-word;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
