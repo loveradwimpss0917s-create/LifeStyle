@@ -15,7 +15,13 @@ const { category } = Astro.props;
 
 <a href={`/categories/${category.id}/`} class="category-card">
   <div class="category-card__media">
-    <Image src={category.data.image} alt="" width={480} height={320} class="category-card__image" />
+    <Image
+      src={category.data.image}
+      alt={category.data.imageAlt}
+      width={480}
+      height={320}
+      class="category-card__image"
+    />
   </div>
   <div class="category-card__body">
     <p class="category-card__en">{category.data.nameEn}</p>

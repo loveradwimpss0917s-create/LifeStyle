@@ -2,6 +2,7 @@
   "nameJa": "暮らし",
   "nameEn": "Living",
   "lead": "毎日の家事や部屋づくりを、少し楽に、心地よく。",
-  "image": "../../assets/categories/living.svg",
+  "image": "../../assets/categories/ai-living.jpg",
+  "imageAlt": "暮らしのイメージ写真(AI生成)",
   "order": 3
 }

@@ -93,6 +93,7 @@ const categories = defineCollection({
       nameEn: z.string(),
       lead: z.string().max(100),
       image: image(),
+      imageAlt: z.string(),
       order: z.number().int(),
     }),
 });

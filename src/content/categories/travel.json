@@ -2,6 +2,7 @@
   "nameJa": "旅行",
   "nameEn": "Travel",
   "lead": "旅先で出会った宿・道具・過ごし方の記録。",
-  "image": "../../assets/categories/travel.svg",
+  "image": "../../assets/categories/ai-travel.jpg",
+  "imageAlt": "旅行のイメージ写真(AI生成)",
   "order": 1
 }

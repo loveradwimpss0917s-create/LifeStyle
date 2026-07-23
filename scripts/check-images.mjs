@@ -87,6 +87,13 @@ function collectAiImageAlts() {
   register(siteData.author?.image, CONTENT_DIR, siteData.author?.imageAlt);
   for (const img of siteData.instagram?.images ?? []) register(img.src, CONTENT_DIR, img.alt);
 
+  const categoriesDir = path.join(CONTENT_DIR, 'categories');
+  for (const f of readdirSync(categoriesDir).filter((name) => name.endsWith('.json'))) {
+    const filePath = path.join(categoriesDir, f);
+    const data = JSON.parse(readFileSync(filePath, 'utf-8'));
+    register(data.image, categoriesDir, data.imageAlt);
+  }
+
   return altsByAbsPath;
 }
 

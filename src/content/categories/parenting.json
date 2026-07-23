@@ -2,6 +2,7 @@
   "nameJa": "子育て",
   "nameEn": "Family",
   "lead": "子どもとの暮らしで見つけた、使ってよかったもの。",
-  "image": "../../assets/categories/parenting.svg",
+  "image": "../../assets/categories/ai-parenting.jpg",
+  "imageAlt": "子育てのイメージ写真(AI生成)",
   "order": 2
 }

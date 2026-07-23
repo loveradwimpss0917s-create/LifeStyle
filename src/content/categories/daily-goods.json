@@ -2,6 +2,7 @@
   "nameJa": "日用品",
   "nameEn": "Essentials",
   "lead": "消耗品や小さな道具こそ、丁寧に選びたい。",
-  "image": "../../assets/categories/daily-goods.svg",
+  "image": "../../assets/categories/ai-daily-goods.jpg",
+  "imageAlt": "日用品のイメージ写真(AI生成)",
   "order": 4
 }

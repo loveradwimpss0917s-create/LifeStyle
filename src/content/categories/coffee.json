@@ -3,5 +3,6 @@
   "nameEn": "Coffee",
   "lead": "朝の一杯と、それを支える道具のこと。",
   "image": "../../assets/categories/coffee.svg",
+  "imageAlt": "コーヒーのイメージ(プレースホルダー)",
   "order": 6
 }

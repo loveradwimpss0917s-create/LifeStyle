@@ -56,7 +56,7 @@ const relatedTags = relatedTagIds.size
 
   <header class="category-header container">
     <div class="category-header__media">
-      <Image src={category.data.image} alt="" width={1440} height={480} priority />
+      <Image src={category.data.image} alt={category.data.imageAlt} width={1440} height={480} priority />
     </div>
     <p class="category-header__en">{category.data.nameEn}</p>
     <h1 class="category-header__ja">{category.data.nameJa}</h1>

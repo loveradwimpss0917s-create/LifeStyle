@@ -3,5 +3,6 @@
   "nameEn": "Photography",
   "lead": "日常を切り取るための、少しの道具と考え方。",
   "image": "../../assets/categories/photography.svg",
+  "imageAlt": "写真のイメージ(プレースホルダー)",
   "order": 7
 }
