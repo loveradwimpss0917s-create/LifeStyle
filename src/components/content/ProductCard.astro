@@ -33,7 +33,7 @@ const canMorph = !locals.productTransitionIds.has(product.id);
 if (canMorph) locals.productTransitionIds.add(product.id);
 ---
 
-<article class="product-card">
+<article class="product-card" data-category={product.data.category.id}>
   <div class="product-card__media">
     <Image
       src={product.data.images[0].src}

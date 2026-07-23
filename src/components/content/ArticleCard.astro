@@ -17,7 +17,7 @@ const category = await getEntry(article.data.category);
 const dateLabel = article.data.publishedAt ? formatDate(article.data.publishedAt) : undefined;
 ---
 
-<article class:list={['article-card', `article-card--${variant}`]}>
+<article class:list={['article-card', `article-card--${variant}`]} data-category={category.id}>
   {variant !== 'compact' && (
     <div class="article-card__media">
       <Image

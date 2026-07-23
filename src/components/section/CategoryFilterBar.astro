@@ -1,0 +1,144 @@
+---
+/**
+ * CategoryFilterBar — 商品一覧・記事一覧限定の軽量カテゴリ絞り込み(22章優先順位表)
+ * 全文検索(/search/)を持ち出さず、クライアント側でdata-category属性を持つ
+ * カード(ProductCard/ArticleCard)の表示/非表示を切り替えるだけの軽量実装。
+ * URLの?categoryと同期する(共有・再読み込みでも絞り込み状態を保てる)。
+ * Props: categories(全カテゴリ), items(絞り込み対象。カテゴリ別件数の算出用), emptyLabel
+ */
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  categories: CollectionEntry<'categories'>[];
+  items: { data: { category: { id: string } } }[];
+  emptyLabel: string;
+}
+
+const { categories, items, emptyLabel } = Astro.props;
+
+const counts = new Map<string, number>();
+for (const item of items) {
+  const id = item.data.category.id;
+  counts.set(id, (counts.get(id) ?? 0) + 1);
+}
+const availableCategories = categories
+  .filter((c) => (counts.get(c.id) ?? 0) > 0)
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+{availableCategories.length > 1 && (
+  <div class="category-filter" data-category-filter role="group" aria-label="カテゴリで絞り込み">
+    <button type="button" class="category-filter__chip is-active" data-filter-value="" aria-pressed="true">
+      すべて({items.length})
+    </button>
+    {availableCategories.map((c) => (
+      <button type="button" class="category-filter__chip" data-filter-value={c.id} aria-pressed="false">
+        {c.data.nameJa}({counts.get(c.id)})
+      </button>
+    ))}
+  </div>
+)}
+<p class="category-filter__empty" data-category-filter-empty hidden>{emptyLabel}</p>
+
+<style>
+  .category-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+  }
+
+  .category-filter__chip {
+    display: inline-flex;
+    align-items: center;
+    padding-inline: var(--space-3);
+    padding-block: var(--space-1);
+    background: var(--color-bg-tertiary);
+    color: var(--color-ink-secondary);
+    font-size: var(--text-sm);
+    border-radius: var(--radius-sm);
+    transition:
+      background-color var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) var(--ease-out);
+  }
+
+  .category-filter__chip:hover {
+    color: var(--color-ink);
+  }
+
+  .category-filter__chip.is-active {
+    background: var(--color-ink);
+    color: var(--color-bg);
+  }
+
+  .category-filter__empty {
+    margin-top: var(--space-6);
+    color: var(--color-ink-tertiary);
+  }
+</style>
+
+<script is:inline data-astro-rerun>
+  // CategoryFilterBar制御。IIFEで包む: data-astro-rerun再実行時のトップレベル
+  // const/let再宣言エラーを避ける。[data-category-filter]自体にbindフラグを立て、
+  // View Transitions遷移のたびに重複登録しないようにする。
+  (function () {
+    // 実バグ修正: このscriptタグはCategoryFilterBar自身の出力直後に置かれるが、
+    // フィルタ対象のカード(ProductGrid/ArticleGrid)はページ内でこのコンポーネントより
+    // 後に続くマークアップにある。is:inlineスクリプトはdefer/module指定がなく
+    // パース時点で同期実行されるため、DOMContentLoaded前に実行すると
+    // document.querySelectorAll('[data-category]')が0件を返し、「該当する
+    // 商品/記事がありません」という空状態メッセージが誤って表示されていた。
+    // 初回ロード時はDOMContentLoadedまで待ち、View Transitions再実行時
+    // (readyStateは既にcomplete)はそのまま実行する。
+    function run() {
+      var filter = document.querySelector('[data-category-filter]');
+      if (!filter || filter.dataset.bound) return;
+      filter.dataset.bound = 'true';
+
+      var chips = filter.querySelectorAll('[data-filter-value]');
+      var emptyMsg = document.querySelector('[data-category-filter-empty]');
+
+      function applyFilter(value) {
+        var cards = document.querySelectorAll('[data-category]');
+        var visibleCount = 0;
+        for (var i = 0; i < cards.length; i++) {
+          var match = !value || cards[i].dataset.category === value;
+          cards[i].hidden = !match;
+          if (match) visibleCount++;
+        }
+        for (var j = 0; j < chips.length; j++) {
+          var isActive = chips[j].dataset.filterValue === value;
+          chips[j].classList.toggle('is-active', isActive);
+          chips[j].setAttribute('aria-pressed', String(isActive));
+        }
+        if (emptyMsg) emptyMsg.hidden = visibleCount > 0;
+      }
+
+      for (var k = 0; k < chips.length; k++) {
+        chips[k].addEventListener('click', function () {
+          var value = this.dataset.filterValue;
+          var url = new URL(location.href);
+          if (value) {
+            url.searchParams.set('category', value);
+          } else {
+            url.searchParams.delete('category');
+          }
+          history.replaceState({}, '', url);
+          applyFilter(value);
+        });
+      }
+
+      var initial = new URLSearchParams(location.search).get('category') || '';
+      if (initial && !filter.querySelector('[data-filter-value="' + initial + '"]')) {
+        initial = '';
+      }
+      applyFilter(initial);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run);
+    } else {
+      run();
+    }
+  })();
+</script>

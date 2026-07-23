@@ -2,14 +2,17 @@
 /**
  * 記事一覧 — 02章§2
  */
+import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Breadcrumb from '@/components/base/Breadcrumb.astro';
 import ArticleGrid from '@/components/section/ArticleGrid.astro';
+import CategoryFilterBar from '@/components/section/CategoryFilterBar.astro';
 import { getPublished } from '@/lib/content';
 
 const articles = (await getPublished('articles')).sort(
   (a, b) => (b.data.publishedAt?.getTime() ?? 0) - (a.data.publishedAt?.getTime() ?? 0)
 );
+const categories = await getCollection('categories');
 ---
 
 <BaseLayout title="記事一覧" description="旅・子育て・暮らしの記録記事一覧です。">
@@ -17,10 +20,13 @@ const articles = (await getPublished('articles')).sort(
     <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: '記事一覧' }]} />
     <h1 class="page-heading">記事一覧</h1>
     {articles.length > 0 ? (
-      <div class="page-grid">
-        <h2 class="visually-hidden">記事一覧</h2>
-        <ArticleGrid items={articles} columns={3} />
-      </div>
+      <>
+        <CategoryFilterBar categories={categories} items={articles} emptyLabel="該当する記事がありません。" />
+        <div class="page-grid">
+          <h2 class="visually-hidden">記事一覧</h2>
+          <ArticleGrid items={articles} columns={3} />
+        </div>
+      </>
     ) : (
       <p class="page-empty">まだ記事がありません。</p>
     )}

@@ -2,14 +2,17 @@
 /**
  * 商品一覧 — 02章§2
  */
+import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Breadcrumb from '@/components/base/Breadcrumb.astro';
 import ProductGrid from '@/components/section/ProductGrid.astro';
+import CategoryFilterBar from '@/components/section/CategoryFilterBar.astro';
 import { getPublished } from '@/lib/content';
 
 const products = (await getPublished('products')).sort(
   (a, b) => (b.data.publishedAt?.getTime() ?? 0) - (a.data.publishedAt?.getTime() ?? 0)
 );
+const categories = await getCollection('categories');
 ---
 
 <BaseLayout title="商品一覧" description="実際に購入して使った商品の一覧です。">
@@ -17,10 +20,13 @@ const products = (await getPublished('products')).sort(
     <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: '商品一覧' }]} />
     <h1 class="page-heading">商品一覧</h1>
     {products.length > 0 ? (
-      <div class="page-grid">
-        <h2 class="visually-hidden">商品一覧</h2>
-        <ProductGrid items={products} columns={4} />
-      </div>
+      <>
+        <CategoryFilterBar categories={categories} items={products} emptyLabel="該当する商品がありません。" />
+        <div class="page-grid">
+          <h2 class="visually-hidden">商品一覧</h2>
+          <ProductGrid items={products} columns={4} />
+        </div>
+      </>
     ) : (
       <p class="page-empty">まだ商品がありません。</p>
     )}
