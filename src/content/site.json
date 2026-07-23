@@ -10,7 +10,8 @@
     "author": {
       "name": "HIBISTACK",
       "bio": "写真とふたつの暮らしのアカウントを中心に、旅・子育て・暮らしの記録を発信しています。実際に使ったものだけを、良かった点も気になった点も正直に書いています。",
-      "image": "../assets/site/author.svg"
+      "image": "../assets/site/ai-author.jpg",
+      "imageAlt": "HIBISTACK運営者のイメージ写真(AI生成)"
     },
     "sns": {
       "instagramPhoto": "https://www.instagram.com/",

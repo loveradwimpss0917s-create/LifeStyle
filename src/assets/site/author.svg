@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
-  <title>About — placeholder</title>
-  <rect width="800" height="1000" fill="#F7F6F4"/>
-  <rect x="0.5" y="0.5" width="799" height="999" fill="none" stroke="#E5E2DC"/>
-  <circle cx="400" cy="420" r="120" fill="none" stroke="#8B887F" stroke-width="1.5"/>
-  <text x="400" y="640" font-family="sans-serif" font-size="20" fill="#8B887F" text-anchor="middle">About — placeholder image(実写真に差し替え予定)</text>
-</svg>

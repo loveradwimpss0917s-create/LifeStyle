@@ -84,6 +84,7 @@ function collectAiImageAlts() {
 
   const siteData = JSON.parse(readFileSync(path.join(CONTENT_DIR, 'site.json'), 'utf-8')).main ?? {};
   register(siteData.heroImage, CONTENT_DIR, siteData.heroAlt);
+  register(siteData.author?.image, CONTENT_DIR, siteData.author?.imageAlt);
   for (const img of siteData.instagram?.images ?? []) register(img.src, CONTENT_DIR, img.alt);
 
   return altsByAbsPath;

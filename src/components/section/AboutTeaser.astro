@@ -12,7 +12,12 @@ const site = await getEntry('site', 'main');
 {site && (
   <section class="about-teaser container">
     <div class="about-teaser__media">
-      <Image src={site.data.author.image} alt="" width={480} height={480} />
+      <Image
+        src={site.data.author.image}
+        alt={site.data.author.imageAlt}
+        width={480}
+        height={480}
+      />
     </div>
     <div class="about-teaser__body">
       <p class="about-teaser__label">About</p>

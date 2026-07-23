@@ -29,9 +29,19 @@ const jsonLd = site ? await buildPersonJsonLd(Astro.site!, site.data.author, sit
         <p class="about-hero__tagline">{site.data.tagline}</p>
       </section>
 
-      <section class="about-section container-text">
-        <h2>わたしについて</h2>
-        <p>{site.data.author.bio}</p>
+      <section class="about-section container-text about-profile">
+        <div class="about-profile__media">
+          <Image
+            src={site.data.author.image}
+            alt={site.data.author.imageAlt}
+            width={200}
+            height={200}
+          />
+        </div>
+        <div class="about-profile__body">
+          <h2>わたしについて</h2>
+          <p>{site.data.author.bio}</p>
+        </div>
       </section>
 
       <section class="about-section container-text">
@@ -114,6 +124,41 @@ const jsonLd = site ? await buildPersonJsonLd(Astro.site!, site.data.author, sit
   .about-section p {
     margin-top: var(--space-4);
     color: var(--color-ink-secondary);
+  }
+
+  .about-profile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    align-items: flex-start;
+  }
+
+  @media (min-width: 768px) {
+    .about-profile {
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-6);
+    }
+  }
+
+  .about-profile__media {
+    flex: none;
+    width: 120px;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius-full);
+  }
+
+  @media (min-width: 768px) {
+    .about-profile__media {
+      width: 160px;
+    }
+  }
+
+  .about-profile__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .about-promises {

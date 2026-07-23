@@ -134,6 +134,7 @@ const site = defineCollection({
         name: z.string(),
         bio: z.string(),
         image: image(),
+        imageAlt: z.string(),
       }),
       sns: z.object({
         instagramPhoto: z.url().optional(),
