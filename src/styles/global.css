@@ -202,7 +202,7 @@ h3 {
 /* ============ ScrollReveal(06章§6.5・演出・任意) ============ */
 .reveal {
   opacity: 0;
-  transform: translateY(12px);
+  transform: translateY(16px);
   transition: opacity var(--duration-base) var(--ease-out),
     transform var(--duration-base) var(--ease-out);
 }
@@ -212,8 +212,57 @@ h3 {
   transform: translateY(0);
 }
 
+/*
+ * 実装ギャップ修正: 18章§2.1は「兄弟要素を80ms刻みで階段状に(最大3つまで)」
+ * fadeさせる仕様だが、従来は.reveal(セクション全体)にしかopacity/transformを
+ * 掛けておらず、内部のカードグリッドが1枚の塊としてパッと切り替わるだけで、
+ * 段差が体感できなかった。.reveal内のカードグリッドの直接の子要素にも
+ * 個別のfade+16→24px移動+段差delayを重ね掛けし、セクションが現れると同時に
+ * カードが1枚ずつ追って現れるようにする。
+ */
+.reveal .product-grid > *,
+.reveal .article-grid > *,
+.reveal .home-categories > *,
+.reveal .ranking-list > *,
+.reveal .instagram-grid__photos > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out);
+}
+
+.reveal.is-visible .product-grid > *,
+.reveal.is-visible .article-grid > *,
+.reveal.is-visible .home-categories > *,
+.reveal.is-visible .ranking-list > *,
+.reveal.is-visible .instagram-grid__photos > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal .product-grid > :nth-child(2),
+.reveal .article-grid > :nth-child(2),
+.reveal .home-categories > :nth-child(2),
+.reveal .ranking-list > :nth-child(2),
+.reveal .instagram-grid__photos > :nth-child(2) {
+  transition-delay: 80ms;
+}
+
+.reveal .product-grid > :nth-child(n + 3),
+.reveal .article-grid > :nth-child(n + 3),
+.reveal .home-categories > :nth-child(n + 3),
+.reveal .ranking-list > :nth-child(n + 3),
+.reveal .instagram-grid__photos > :nth-child(n + 3) {
+  transition-delay: 160ms;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .reveal {
+  .reveal,
+  .reveal .product-grid > *,
+  .reveal .article-grid > *,
+  .reveal .home-categories > *,
+  .reveal .ranking-list > *,
+  .reveal .instagram-grid__photos > * {
     opacity: 1;
     transform: none;
   }
