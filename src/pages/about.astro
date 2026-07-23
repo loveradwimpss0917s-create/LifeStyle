@@ -60,14 +60,6 @@ const jsonLd = site ? await buildPersonJsonLd(Astro.site!, site.data.author, sit
       </section>
 
       <section class="about-section container-text">
-        <h2>撮影について</h2>
-        <p>
-          写真アカウントとして活動していますが、機材紹介をメインにはしていません。
-          日常の光や暮らしの空気をできるだけそのまま残すことを大切にしています。
-        </p>
-      </section>
-
-      <section class="about-section container-text">
         <h2>お問い合わせ</h2>
         {site.data.contactEmail && (
           <p><a href={`mailto:${site.data.contactEmail}`}>{site.data.contactEmail}</a></p>
