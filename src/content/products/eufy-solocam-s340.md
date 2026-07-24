@@ -2,6 +2,7 @@
 name: "eufy SoloCam S340(屋外ソーラー防犯カメラ)"
 category: appliances
 brand: eufy
+price: 24990
 purchasedAt: 2024-12-16
 usagePeriod: over1y
 rating: 5

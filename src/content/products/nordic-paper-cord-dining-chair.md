@@ -1,6 +1,7 @@
 ---
 name: "北欧ペーパーコードダイニングチェア"
 category: living
+price: 16919
 purchasedAt: 2026-07-01
 usagePeriod: under1m
 rating: 4

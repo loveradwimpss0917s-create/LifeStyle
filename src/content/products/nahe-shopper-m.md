@@ -2,6 +2,7 @@
 name: "ネーエ ショッパー M"
 category: daily-goods
 brand: hightide
+price: 1210
 purchasedAt: 2026-07-17
 usagePeriod: under1m
 rating: 5

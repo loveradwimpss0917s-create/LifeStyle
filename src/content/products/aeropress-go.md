@@ -2,6 +2,7 @@
 name: "AeroPress Go コーヒーメーカー(国内正規品)"
 category: coffee
 brand: aeropress
+price: 8039
 purchasedAt: 2026-07-13
 usagePeriod: under1m
 rating: 5
