@@ -13,13 +13,15 @@ interface Props {
 const { variant } = Astro.props;
 const site = await getEntry('site', 'main');
 
-type SocialLink = { name: IconName; label: string; url: string };
+type SocialLink = { name: IconName; label: string; shortLabel?: string; url: string };
 
 const links: SocialLink[] = [];
 if (site) {
   const { sns } = site.data;
-  if (sns.instagramPhoto) links.push({ name: 'instagram', label: 'Instagram(写真)', url: sns.instagramPhoto });
-  if (sns.instagramHome) links.push({ name: 'instagram', label: 'Instagram(暮らし)', url: sns.instagramHome });
+  if (sns.instagramPhoto)
+    links.push({ name: 'instagram', label: 'Instagram(写真)', shortLabel: '写真', url: sns.instagramPhoto });
+  if (sns.instagramHome)
+    links.push({ name: 'instagram', label: 'Instagram(暮らし)', shortLabel: '暮らし', url: sns.instagramHome });
   if (sns.youtube) links.push({ name: 'youtube', label: 'YouTube', url: sns.youtube });
   if (sns.tiktok) links.push({ name: 'tiktok', label: 'TikTok', url: sns.tiktok });
   if (sns.threads) links.push({ name: 'threads', label: 'Threads', url: sns.threads });
@@ -32,6 +34,9 @@ if (site) {
       <li>
         <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={link.label}>
           <Icon name={link.name} size={20} />
+          {link.shortLabel && (
+            <span class="social-links__sublabel" aria-hidden="true">{link.shortLabel}</span>
+          )}
         </a>
       </li>
     ))}
@@ -46,14 +51,22 @@ if (site) {
 
   .social-links a {
     display: inline-flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    gap: 2px;
+    min-width: 40px;
+    min-height: 40px;
     color: var(--color-ink-secondary);
   }
 
   .social-links a:hover {
     color: var(--color-ink);
+  }
+
+  .social-links__sublabel {
+    font-size: 10px;
+    line-height: 1;
+    color: var(--color-ink-tertiary);
   }
 </style>
