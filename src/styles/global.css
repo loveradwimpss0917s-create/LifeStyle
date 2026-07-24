@@ -60,6 +60,19 @@ video {
   max-width: 100%;
 }
 
+/*
+ * 実バグ修正: widthのみをmax-width:100%で縮小し、heightを明示的に
+ * autoにしていなかったため、width/height HTML属性を持つimg
+ * (astro:assets Imageが常に出力)が、幅だけコンテナ幅に収まり
+ * 高さは属性値のまま(=極端に縦長)になっていた。本文中に直接
+ * <Image>を埋め込むケース(記事本文のfigure等)でのみ顕在化する
+ * (他のコンポーネントは個別にwidth/height:100%+object-fit:coverを
+ * 指定しているため、より詳細度の高いそちらが優先され影響を受けない)。
+ */
+img {
+  height: auto;
+}
+
 ul[role='list'],
 ol[role='list'] {
   list-style: none;
