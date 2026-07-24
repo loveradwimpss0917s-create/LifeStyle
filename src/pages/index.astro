@@ -1,8 +1,12 @@
 ---
 /**
- * トップページ — 17章§3(10セクション。04章§4.1の8セクションにInstagram/Follow CTAを追加)
+ * トップページ — 17章§3がベース(10セクション: 04章§4.1の8セクションに
+ * Instagram/Follow CTAを追加)だが、Instagramセクションは実運用の投稿画像が
+ * 揃うまで一時非表示(オーナー判断・再開検討中)。InstagramGrid.astro/
+ * site.jsonのinstagramデータ自体は残しており、再開時はこの直前に
+ * セクションを復元するだけでよい。
  * ①Hero ②最新の記事Journal ③編集部のおすすめEditor's Picks ④カテゴリExplore
- * ⑤⑥特集バンド(pinned) ⑦ランキングBest Picks ⑧Instagram ⑨About導線 ⑩Follow CTA
+ * ⑤⑥特集バンド(pinned) ⑦ランキングBest Picks ⑧About導線 ⑨Follow CTA
  */
 import { getCollection, getEntry } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
@@ -15,7 +19,6 @@ import FeaturedArticle from '@/components/content/FeaturedArticle.astro';
 import CategoryCard from '@/components/content/CategoryCard.astro';
 import RankingList from '@/components/content/RankingList.astro';
 import AboutTeaser from '@/components/section/AboutTeaser.astro';
-import InstagramGrid from '@/components/section/InstagramGrid.astro';
 import NewsletterCta from '@/components/section/NewsletterCta.astro';
 import FollowCta from '@/components/section/FollowCta.astro';
 import { getPublished } from '@/lib/content';
@@ -113,17 +116,6 @@ const rankingItems = ranking.map((product, index) => ({
     <section class="container home-section reveal">
       <SectionHeader labelEn="Best Picks" labelJa="ランキング" href="/ranking/" />
       <RankingList items={rankingItems} compact />
-    </section>
-  )}
-
-  {site?.data.instagram && (
-    <section class="container home-section reveal">
-      <SectionHeader labelEn="Instagram" labelJa="日々の記録" />
-      <InstagramGrid
-        handle={site.data.instagram.handle}
-        images={site.data.instagram.images}
-        url={site.data.sns.instagramPhoto ?? site.data.sns.instagramHome ?? '#'}
-      />
     </section>
   )}
 
