@@ -18,6 +18,10 @@ pipeline/scripts/open-pr.mjsが {{mustache}} 変数を実データで置換し�
 
 {{relatedArticlesList}}
 
+## 記事化の提案(Stage3・参考・採否は任意)
+
+{{editorialJudgment}}
+
 ## 確認チェックリスト(マージ前に必ず確認)
 
 - [ ] 名称は正しいか

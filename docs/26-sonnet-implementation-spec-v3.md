@@ -243,5 +243,13 @@ c1〜c29はすべて実装・検証・pushが完了した(V1・V2に続きV3も�
 
 上記修正後もサイト全体(favorites以外の全ページ)がLighthouse desktopプリセットの厳格な採点カーブで概ね0.92〜0.94(実測・複数回のCI実行で確認)に収まり、0.95には届かなかった。個別ページへの対症療法的な閾値追加ではなく、実測値に基づき`lighthouserc.json`の閾値を「favorites以外は0.90以上・favoritesは既存の0.75以上」に整理した(Accessibility/Best Practices/SEOは全ページ0.95以上を維持)。当初の「全ページ0.95以上」という受け入れ基準(01章§4.3)から実測に基づき緩和した形になるため、将来的にさらなる性能改善(JS削減・クリティカルCSS抽出等)に取り組む場合は`lighthouserc.json`の閾値を再度引き上げることを検討すること。
 
+## 5. 追加実装(c30後)
+
+**c31. Stage3: editorial-judge(記事判断)**
+- 目的: 09章§4で設計されていたが、当初の30コミット計画(ブロックD)には含まれず未実装だったギャップの解消。商品下書きごとに「単独記事化/既存まとめ記事への追記/記事化見送り」をAIが提案し、記事作成の要否判断にかかる人手を減らす
+- 変更: `pipeline/prompts/editorial-judge.md`(新規) `pipeline/scripts/editorial-judge.mjs`(新規) `pipeline/scripts/open-pr.mjs`(呼び出し追加・`formatEditorialJudgment()`) `pipeline/config.json`(`stages.editorialJudge.temperature: 0.3`) `.github/PULL_REQUEST_TEMPLATE/content.md`(「記事化の提案」セクション追加)
+- 実装: 09章の設計どおり、このステージは提案(判断+理由)をPR本文に記載するところまでが責務であり、記事の生成そのものは行わない(承認された場合は人間が別PRで執筆する)。`roundup-append`判断時はAIが同カテゴリ・公開済みのroundup記事一覧(`listRoundupCandidates()`)から1件を選ぶ契約とし、候補に存在しないIDを返した場合はエラーにする(捏造・幻覚の防止)。独立したworkflowステップにはせず、Stage4(derive-sns)と同様にopen-pr.mjs内部から呼び出す構成にした(generate.ymlは単一ステップ構成のため)
+- 完了: モックしたClaude APIレスポンスで(1)存在しないroundupArticleIdを返した場合にエラーになること (2)standalone判断の正常系 (3)roundup-append判断の正常系(PR本文フォーマット含む)の3パターンを手動検証。`astro check`は既存0エラーを維持(pipeline/はAstroのビルド対象外)
+
 ---
 *Sonnet Implementation Specification V3 / 戦略: 21〜25章 / 30コミットは番号順に実装し、ブロック境界で戦略側(Fable)へ進捗報告すること。*

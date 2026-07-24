@@ -2,6 +2,9 @@
  * Stage6: open-pr(PR作成) — 26章c21(09章§4 Stage6)
  * Stage1(analyze)〜Stage5(seo-meta)の結果を統合し、ブランチ作成→
  * products/*.md・画像のコミット→PR作成までを行う承認フローの最終ステージ。
+ * Stage3(editorial-judge・09章§4)・Stage4(derive-sns・26章c23)も
+ * このステージ内から呼び出す(独立したworkflowステップにはしない。
+ * generate.ymlは単一ステップでopen-pr.mjsを実行する構成のため)。
  *
  * 実装上の補足(統合作業で判明したギャップ):
  * - content.config.tsのproducts collectionスキーマは rating/usagePeriod が
@@ -32,6 +35,7 @@ import {
 import { parseIntake } from '../lib/parse-intake.mjs';
 import { runAnalyze } from './analyze.mjs';
 import { runComposeProduct } from './compose-product.mjs';
+import { runEditorialJudge } from './editorial-judge.mjs';
 import { generateSeoMeta, suggestRelatedArticles } from './seo-meta.mjs';
 import { runDeriveSns, buildSnsFiles } from './derive-sns.mjs';
 
@@ -75,6 +79,23 @@ export function parsePriceRange(priceRangeText) {
 
 function yamlString(value) {
   return JSON.stringify(value);
+}
+
+const EDITORIAL_JUDGMENT_LABEL = {
+  standalone: '単独記事を書くことを推奨',
+  'roundup-append': '既存のまとめ記事への追記を推奨',
+  skip: '記事化は見送りを推奨',
+};
+
+/** Stage3(editorial-judge)の結果をPR本文用のMarkdownに整形する */
+export function formatEditorialJudgment(judgment) {
+  const lines = [`- 判断: ${EDITORIAL_JUDGMENT_LABEL[judgment.judgment]}`, `- 理由: ${judgment.reasoning}`];
+  if (judgment.judgment === 'roundup-append') {
+    const target = judgment.roundupCandidates.find((c) => c.id === judgment.roundupArticleId);
+    lines.push(`- 追記先候補: [${target.title}](/articles/${target.id}/)`);
+  }
+  lines.push('', '(この提案は参考情報です。記事の作成・追記の要否は人間が判断し、別PRで実行してください)');
+  return lines.join('\n');
 }
 
 /**
@@ -159,6 +180,17 @@ export async function runOpenPr(issueNumber) {
     );
     return { status: 'needs_confirmation', reason: composeResult.confirmationReason };
   }
+
+  // Stage3(editorial-judge・09章§4): 記事化すべきかの提案をPR本文用に生成する。
+  // このステージは提案のみを行い、記事そのものは生成しない(承認後に人間が別途執筆する)。
+  const editorialJudgment = await runEditorialJudge({
+    name: composeResult.frontmatter.name,
+    category: analyzeResult.category.value,
+    summary: composeResult.frontmatter.summary,
+    goodPoints: composeResult.frontmatter.goodPoints,
+    concernPoints: composeResult.frontmatter.concernPoints,
+    body: composeResult.body,
+  });
 
   const slug = resolveUniqueSlug(analyzeResult.slug.value);
 
@@ -245,6 +277,7 @@ export async function runOpenPr(issueNumber) {
       relatedArticles.length > 0
         ? relatedArticles.map((a) => `- [${a.title}](${a.path})`).join('\n')
         : '(提案できる関連記事がありませんでした)',
+    editorialJudgment: formatEditorialJudgment(editorialJudgment),
   });
 
   const pr = await createPullRequest({
