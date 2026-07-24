@@ -89,7 +89,7 @@ const jsonLd = await buildProductJsonLd(product, brand, Astro.site!);
       <h1 class="product-header__name">{product.data.name}</h1>
       <div class="product-header__meta">
         <RatingStars rating={product.data.rating} showNumber />
-        <Badge label={usagePeriodLabel} />
+        {category.id !== 'travel' && <Badge label={usagePeriodLabel} />}
         <FavoriteButton product={product} size="md" />
       </div>
       <p class="product-header__summary">{product.data.summary}</p>

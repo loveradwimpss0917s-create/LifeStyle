@@ -15,12 +15,17 @@ const category = await getEntry(product.data.category);
 const brand = product.data.brand ? await getEntry(product.data.brand) : undefined;
 const price = formatPrice(product.data.price);
 
+// 旅行(宿泊)カテゴリは「購入した物品」ではなく一度の滞在のため、
+// 「購入日」→「宿泊日」に読み替え、物品の継続使用を前提とする
+// 「使用期間」行は表示しない(文言のみの調整・スキーマは変更しない)。
+const isTravel = category.id === 'travel';
+
 const rows = [
   ...(brand ? [{ label: 'ブランド', value: brand.data.name }] : []),
   { label: 'カテゴリ', value: category.data.nameJa },
   ...(price ? [{ label: '参考価格', value: price }] : []),
-  { label: '購入日', value: formatDate(product.data.purchasedAt) },
-  { label: '使用期間', value: formatUsagePeriod(product.data.usagePeriod) },
+  { label: isTravel ? '宿泊日' : '購入日', value: formatDate(product.data.purchasedAt) },
+  ...(isTravel ? [] : [{ label: '使用期間', value: formatUsagePeriod(product.data.usagePeriod) }]),
 ];
 ---
 
