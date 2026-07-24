@@ -32,10 +32,7 @@
       ]
     },
     "contactEmail": "sucreet.web@gmail.com",
-    "editorsPicks": ["drip-kettle", "kids-stainless-bottle", "bath-towel", "nordic-paper-cord-dining-chair"],
-    "pinned": {
-      "coffee": "drip-kettle-half-year-review",
-      "travel": "okinawa-family-trip-first-time"
-    }
+    "editorsPicks": ["nordic-paper-cord-dining-chair"],
+    "pinned": {}
   }
 }
