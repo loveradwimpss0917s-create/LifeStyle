@@ -5,8 +5,8 @@
       "numberOfRuns": 5,
       "url": [
         "http://localhost/index.html",
-        "http://localhost/products/drip-kettle/index.html",
-        "http://localhost/articles/drip-kettle-half-year-review/index.html",
+        "http://localhost/products/aeropress-go/index.html",
+        "http://localhost/articles/aeropress-go-review/index.html",
         "http://localhost/quiz/index.html",
         "http://localhost/favorites/index.html",
         "http://localhost/ranking/index.html"
