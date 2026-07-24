@@ -56,7 +56,6 @@ const categoryTags = (
 ).filter((t): t is NonNullable<typeof t> => t !== undefined);
 
 const pageUrl = new URL(Astro.url.pathname, Astro.site).toString();
-const ogImageUrl = new URL(`/og/products/${product.id}.png`, Astro.site).toString();
 const price = formatPrice(product.data.price);
 const usagePeriodLabel = formatUsagePeriod(product.data.usagePeriod);
 const primaryAffiliate = resolvePrimaryAffiliateLink(product);
@@ -116,7 +115,7 @@ const jsonLd = await buildProductJsonLd(product, brand, Astro.site!);
     <ReviewBlock product={product}>
       <Content />
     </ReviewBlock>
-    <ShareRow url={pageUrl} title={product.data.name} imageUrl={ogImageUrl} />
+    <ShareRow url={pageUrl} title={product.data.name} />
   </section>
 
   <section class="container product-section product-section--narrow">
@@ -140,7 +139,9 @@ const jsonLd = await buildProductJsonLd(product, brand, Astro.site!);
 
   {relatedArticles.length > 0 && (
     <section class="container product-section">
-      <h2 class="product-section__heading">この商品が登場する記事</h2>
+      <h2 class="product-section__heading">
+        {category.id === 'travel' ? 'この宿が登場する記事' : 'この商品が登場する記事'}
+      </h2>
       <div class="product-section__grid">
         {relatedArticles.map((article) => <ArticleCard article={article} />)}
       </div>

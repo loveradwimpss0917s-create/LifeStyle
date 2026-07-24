@@ -26,8 +26,20 @@
   line-height: var(--leading-tight);
 }
 
+/*
+ * 実バグ修正: 見出し(global.css h1-h4)と同じ「ブラウザのデフォルト改行位置が
+ * カタカナ語の途中に来て読みにくい」問題が本文でも報告された(例:
+ * 「アップグレード」が「アッ」/「プグレード」で分割)。見出しの修正時は
+ * 「本文は句読点のない長い一文がoverflow-wrap無しのkeep-allだと横あふれ
+ * しうる」という理由で対象外にしていたが、overflow-wrap: anywhereを
+ * 保険として併用すれば、通常は句読点由来の改行位置を使いつつ、
+ * 他に改行位置が無い場合のみ最終手段として任意の文字位置で折り返すため、
+ * 横あふれのリスクを負わずに本文にも適用できる。
+ */
 .prose p {
   line-height: var(--leading-body);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 .prose ul,

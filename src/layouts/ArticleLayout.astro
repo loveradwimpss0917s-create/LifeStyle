@@ -45,6 +45,12 @@ const embeddedProducts = embeddedProductIds.length
       await Promise.all(embeddedProductIds.map((id) => getEntry('products', id)))
     ).filter((p): p is NonNullable<typeof p> => p !== undefined)
   : [];
+// 宿泊(travel)は物品の「商品」ではないため、埋め込まれた商品が全て宿泊の場合は
+// 見出しを「登場した宿泊先」に読み替える(文言のみの調整)。
+const embeddedProductsHeading =
+  embeddedProducts.length > 0 && embeddedProducts.every((p) => p.data.category.id === 'travel')
+    ? 'この記事に登場した宿泊先'
+    : 'この記事に登場した商品';
 
 const related = await getRelatedArticles(article, 4);
 const nextArticle = related[0];
@@ -58,7 +64,6 @@ const updatedLabel =
 
 const description = article.data.seo.description ?? article.data.lead;
 const pageUrl = new URL(Astro.url.pathname, Astro.site).toString();
-const ogImageUrl = new URL(`/og/articles/${article.id}.png`, Astro.site).toString();
 
 const articleJsonLd = await buildArticleJsonLd(article, Astro.site!);
 const itemListJsonLd =
@@ -119,12 +124,12 @@ const jsonLd = itemListJsonLd ? [articleJsonLd, itemListJsonLd] : articleJsonLd;
     <Prose>
       <Content components={{ ProductEmbed, Callout, ComparisonTable, RankingItem, RankingList }} />
     </Prose>
-    <ShareRow url={pageUrl} title={article.data.title} imageUrl={ogImageUrl} />
+    <ShareRow url={pageUrl} title={article.data.title} />
   </article>
 
   {embeddedProducts.length > 0 && (
     <section class="container article-section">
-      <h2 class="article-section__heading">この記事に登場した商品</h2>
+      <h2 class="article-section__heading">{embeddedProductsHeading}</h2>
       <div class="article-section__scroll">
         {embeddedProducts.map((product) => (
           <div class="article-section__scroll-item">
