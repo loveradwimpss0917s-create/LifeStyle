@@ -44,6 +44,7 @@ const products = defineCollection({
             yahooTravel: z.object({ url: z.url(), checkedAt: z.coerce.date() }).optional(),
             amazon: z.object({ url: z.url(), checkedAt: z.coerce.date() }).optional(),
             rakuten: z.object({ url: z.url(), checkedAt: z.coerce.date() }).optional(),
+            ikyu: z.object({ url: z.url(), checkedAt: z.coerce.date() }).optional(),
           })
           .default({}),
         status: z.enum(['draft', 'review', 'published', 'archived']).default('draft'),

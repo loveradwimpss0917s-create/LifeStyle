@@ -4,19 +4,31 @@
  * 記事末尾のSNSシェア行。X/LINE/リンクをコピー。追跡パラメータは付けない。
  * モバイルでnavigator.shareが使える場合はネイティブ共有シートを優先する。
  * ブランド商標のロゴは描かず(15章方針踏襲)、テキストラベルのみで構成する。
- * Props: url(絶対URL), title
+ * Instagramストーリー共有(data-share-instagram)はiOS Safari限定。
+ * Instagram社が提供する公開Web APIが存在しないため、`instagram-stories://`
+ * URLスキーム+クリップボード経由の非公式手法を使う。Facebook App ID未登録の
+ * ため「サイトへのリンクバック」スタンプは付かない(画像貼り付けのみ)。
+ * Android/PC/Instagram未インストール環境ではJS側でボタン自体を表示しない。
+ * Props: url(絶対URL), title, imageUrl?(絶対URL。ストーリー背景に使う画像)
  */
 interface Props {
   url: string;
   title: string;
+  imageUrl?: string;
 }
 
-const { url, title } = Astro.props;
+const { url, title, imageUrl } = Astro.props;
 const xShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
 const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}`;
 ---
 
-<div class="share-row" data-share data-share-url={url} data-share-title={title}>
+<div
+  class="share-row"
+  data-share
+  data-share-url={url}
+  data-share-title={title}
+  data-share-image={imageUrl}
+>
   <span class="share-row__label">この記事をシェア</span>
   <div class="share-row__links" data-share-links>
     <a href={xShareUrl} target="_blank" rel="noopener noreferrer" class="share-row__btn">X</a>
@@ -24,6 +36,11 @@ const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeUR
     <button type="button" class="share-row__btn" data-share-copy>リンクをコピー</button>
   </div>
   <button type="button" class="share-row__btn share-row__native" data-share-native hidden>共有する</button>
+  {imageUrl && (
+    <button type="button" class="share-row__btn" data-share-instagram hidden>
+      Instagramストーリーでシェア
+    </button>
+  )}
 </div>
 
 <style>
@@ -64,7 +81,7 @@ const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeUR
     border-color: var(--color-ink-secondary);
   }
 
-  .share-row__native[hidden] {
+  .share-row__btn[hidden] {
     display: none;
   }
 </style>
@@ -108,6 +125,43 @@ const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeUR
             }, 2000);
           });
         });
+      }
+
+      // Instagramストーリー共有(iOS Safari限定・非公式)。Instagramに公開Web
+      // APIがないため、OGP画像をクリップボードへ書き込んでから
+      // instagram-stories:// URLスキームでアプリを起動する手法を使う
+      // (Facebook App ID未登録のためリンクバックスタンプは付かない)。
+      // Android/PCではボタン自体を表示しない(機能しても意味がないため)。
+      var igBtn = row.querySelector('[data-share-instagram]');
+      var imageUrl = row.dataset.shareImage;
+      if (igBtn && imageUrl && navigator.clipboard && window.ClipboardItem) {
+        // 実バグ修正: navigator.platformはブラウザ・実行環境によって実機OSを
+        // 正しく反映しない場合がある(iOSのUAを名乗っていてもplatformだけ
+        // ホストOSのまま、というケースを実測で確認)。userAgentの文字列判定を
+        // 主とし、iPadOS実機(デスクトップ表示モードだとUAにiPadと出ない)
+        // 向けのフォールバックとしてのみplatform+タッチ対応を併用する。
+        var isIOS =
+          /iP(hone|od|ad)/.test(navigator.userAgent) ||
+          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        if (isIOS) {
+          igBtn.hidden = false;
+          igBtn.addEventListener('click', function () {
+            fetch(imageUrl)
+              .then(function (res) {
+                return res.blob();
+              })
+              .then(function (blob) {
+                return navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+              })
+              .then(function () {
+                window.location.href = 'instagram-stories://share';
+              })
+              .catch(function () {
+                /* 画像取得・クリップボード書き込みに失敗した場合は何もしない
+                   (Instagram未インストール・権限拒否等) */
+              });
+          });
+        }
       }
     }
   })();

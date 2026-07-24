@@ -20,6 +20,7 @@ import ArticleCard from '@/components/content/ArticleCard.astro';
 import ProductCard from '@/components/content/ProductCard.astro';
 import StickyCta from '@/components/content/StickyCta.astro';
 import ComparisonAuto from '@/components/content/ComparisonAuto.astro';
+import ShareRow from '@/components/content/ShareRow.astro';
 import { formatPrice, formatUsagePeriod } from '@/lib/format';
 import { resolvePrimaryAffiliateLink } from '@/lib/affiliate';
 import { getRelatedProducts } from '@/lib/related';
@@ -54,6 +55,8 @@ const categoryTags = (
   await Promise.all(categoryTagIds.map((id) => getEntry('tags', id)))
 ).filter((t): t is NonNullable<typeof t> => t !== undefined);
 
+const pageUrl = new URL(Astro.url.pathname, Astro.site).toString();
+const ogImageUrl = new URL(`/og/products/${product.id}.png`, Astro.site).toString();
 const price = formatPrice(product.data.price);
 const usagePeriodLabel = formatUsagePeriod(product.data.usagePeriod);
 const primaryAffiliate = resolvePrimaryAffiliateLink(product);
@@ -113,6 +116,7 @@ const jsonLd = await buildProductJsonLd(product, brand, Astro.site!);
     <ReviewBlock product={product}>
       <Content />
     </ReviewBlock>
+    <ShareRow url={pageUrl} title={product.data.name} imageUrl={ogImageUrl} />
   </section>
 
   <section class="container product-section product-section--narrow">

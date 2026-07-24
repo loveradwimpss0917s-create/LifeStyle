@@ -12,16 +12,17 @@
  */
 import type { CollectionEntry } from 'astro:content';
 
-export type Mall = 'yahooShopping' | 'yahooTravel' | 'amazon' | 'rakuten';
+export type Mall = 'yahooShopping' | 'yahooTravel' | 'amazon' | 'rakuten' | 'ikyu';
 
 /** 主従関係の優先順(23章§2.3): Yahoo!系を常に主とする */
-const MALL_PRIORITY: Mall[] = ['yahooShopping', 'yahooTravel', 'amazon', 'rakuten'];
+const MALL_PRIORITY: Mall[] = ['yahooShopping', 'yahooTravel', 'ikyu', 'amazon', 'rakuten'];
 
 const MALL_LABEL: Record<Mall, string> = {
   yahooShopping: 'Yahoo!ショッピングで見る',
   yahooTravel: 'Yahoo!トラベルで見る',
   amazon: 'Amazonで見る',
   rakuten: '楽天市場で見る',
+  ikyu: '一休.comで見る',
 };
 
 export type ResolvedAffiliateLink = { url: string; label: string };

@@ -58,6 +58,7 @@ const updatedLabel =
 
 const description = article.data.seo.description ?? article.data.lead;
 const pageUrl = new URL(Astro.url.pathname, Astro.site).toString();
+const ogImageUrl = new URL(`/og/articles/${article.id}.png`, Astro.site).toString();
 
 const articleJsonLd = await buildArticleJsonLd(article, Astro.site!);
 const itemListJsonLd =
@@ -118,7 +119,7 @@ const jsonLd = itemListJsonLd ? [articleJsonLd, itemListJsonLd] : articleJsonLd;
     <Prose>
       <Content components={{ ProductEmbed, Callout, ComparisonTable, RankingItem, RankingList }} />
     </Prose>
-    <ShareRow url={pageUrl} title={article.data.title} />
+    <ShareRow url={pageUrl} title={article.data.title} imageUrl={ogImageUrl} />
   </article>
 
   {embeddedProducts.length > 0 && (
