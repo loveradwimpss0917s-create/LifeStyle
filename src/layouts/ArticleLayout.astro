@@ -82,6 +82,11 @@ const jsonLd = itemListJsonLd ? [articleJsonLd, itemListJsonLd] : articleJsonLd;
   ogImage={`/og/articles/${article.id}.png`}
   jsonLd={jsonLd}
   noindex={article.data.seo.noindex}
+  ogType="article"
+  articleMeta={{
+    publishedTime: article.data.publishedAt?.toISOString(),
+    modifiedTime: article.data.updatedAt?.toISOString(),
+  }}
 >
   <div
     class="container"
