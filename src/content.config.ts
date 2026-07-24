@@ -26,6 +26,10 @@ const products = defineCollection({
         summary: z.string().max(60),
         goodPoints: z.array(z.string().max(40)).min(1).max(5),
         concernPoints: z.array(z.string().max(40)).min(1).max(3),
+        faq: z
+          .array(z.object({ question: z.string().min(1).max(60), answer: z.string().min(1).max(200) }))
+          .max(5)
+          .default([]),
         scenes: z
           .array(
             z.object({

@@ -146,6 +146,21 @@ export async function buildArticleJsonLd(article: CollectionEntry<'articles'>, s
   };
 }
 
+export type FaqInput = { question: string; answer: string };
+
+/** FAQPage JSON-LD(検索結果のリッチリザルト対応)。商品ページのfaq欄が1件以上ある場合のみ呼び出す */
+export function buildFaqJsonLd(faq: FaqInput[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    })),
+  };
+}
+
 export type ItemListInput = { url: string; name?: string };
 
 export function buildItemListJsonLd(items: ItemListInput[], site: URL) {

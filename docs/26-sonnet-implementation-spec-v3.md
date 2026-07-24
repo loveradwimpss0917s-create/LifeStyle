@@ -251,5 +251,11 @@ c1〜c29はすべて実装・検証・pushが完了した(V1・V2に続きV3も�
 - 実装: 09章の設計どおり、このステージは提案(判断+理由)をPR本文に記載するところまでが責務であり、記事の生成そのものは行わない(承認された場合は人間が別PRで執筆する)。`roundup-append`判断時はAIが同カテゴリ・公開済みのroundup記事一覧(`listRoundupCandidates()`)から1件を選ぶ契約とし、候補に存在しないIDを返した場合はエラーにする(捏造・幻覚の防止)。独立したworkflowステップにはせず、Stage4(derive-sns)と同様にopen-pr.mjs内部から呼び出す構成にした(generate.ymlは単一ステップ構成のため)
 - 完了: モックしたClaude APIレスポンスで(1)存在しないroundupArticleIdを返した場合にエラーになること (2)standalone判断の正常系 (3)roundup-append判断の正常系(PR本文フォーマット含む)の3パターンを手動検証。`astro check`は既存0エラーを維持(pipeline/はAstroのビルド対象外)
 
+**c32. 商品FAQ+FAQPage構造化データ**
+- 目的: 外部監査で指摘された「検索結果でのリッチリザルト対応不足」の解消(FAQPageはGoogle検索でリッチリザルト対象)。商品ページに「よくある質問」枠を追加し、購入検討者の疑問(サイズ・お手入れ方法等)に答える
+- 変更: `content.config.ts`(products.faq: `{question, answer}[]`・max5・default空配列) `src/lib/seo.ts`(`buildFaqJsonLd()`) `src/components/content/FaqSection.astro`(新規・`<details>/<summary>`のネイティブアコーディオン、JS不要) `src/layouts/ProductLayout.astro`(SpecTable直後に条件付き表示、jsonLdをProduct+FAQPageの配列に)
+- 実装: faqが空配列(既定値)の商品では従来どおりProduct単体のJSON-LDのみを出力し、UIにもFAQセクションは出ない(既存5商品への影響ゼロ)。1件以上ある場合のみFAQPage JSON-LDを追加出力する
+- 完了: 一時的なテストデータ(コミットはしない)でFAQ表示・FAQPage JSON-LD出力・faq空商品でFAQPageが出力されないことの3点をビルド出力で確認。`astro check`/`build`/`check:content`/`check:images`すべて既存の状態を維持
+
 ---
 *Sonnet Implementation Specification V3 / 戦略: 21〜25章 / 30コミットは番号順に実装し、ブロック境界で戦略側(Fable)へ進捗報告すること。*

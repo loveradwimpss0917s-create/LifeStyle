@@ -1,0 +1,60 @@
+---
+/**
+ * FaqSection — 商品ページのFAQ表示。
+ * Props: faq({question, answer}[])。JSON-LD(FAQPage)は呼び出し側(ProductLayout)が
+ * lib/seo.tsのbuildFaqJsonLd()で別途生成し、BaseLayoutのjsonLd propに渡す
+ * (このコンポーネント自体はJSON-LDを出力しない。他のJSON-LD生成箇所と責務を揃えるため)。
+ * <details>/<summary>のネイティブアコーディオンでJS不要。
+ */
+interface Props {
+  faq: { question: string; answer: string }[];
+}
+
+const { faq } = Astro.props;
+---
+
+{faq.length > 0 && (
+  <div class="faq-section">
+    {faq.map((item) => (
+      <details class="faq-section__item">
+        <summary class="faq-section__question">{item.question}</summary>
+        <p class="faq-section__answer">{item.answer}</p>
+      </details>
+    ))}
+  </div>
+)}
+
+<style>
+  .faq-section {
+    max-width: var(--container-text);
+    border-top: var(--border-thin);
+  }
+
+  .faq-section__item {
+    border-bottom: var(--border-thin);
+  }
+
+  .faq-section__question {
+    padding-block: var(--space-4);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .faq-section__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-section__question::before {
+    content: 'Q. ';
+    color: var(--color-accent);
+  }
+
+  .faq-section__answer {
+    padding-bottom: var(--space-4);
+    color: var(--color-ink-secondary);
+    font-size: var(--text-sm);
+    line-height: var(--leading-body);
+  }
+</style>
