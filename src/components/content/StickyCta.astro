@@ -27,13 +27,19 @@ const goUrl = resolved ? buildGoUrl(product.id, mall, 'product_sticky') : null;
   <div class="sticky-cta" id="sticky-cta" role="complementary" aria-label="購入リンク" hidden>
     <div class="sticky-cta__inner">
       <p class="sticky-cta__name">{product.data.name}</p>
-      <div class="sticky-cta__action">
-        <Button href={goUrl} external rel="nofollow sponsored noopener" variant="primary" size="md" data-pos="product_sticky">
-          {resolved.label}
-        </Button>
-        <PrLabel />
-      </div>
+      <Button
+        href={goUrl}
+        external
+        rel="nofollow sponsored noopener"
+        variant="primary"
+        size="md"
+        data-pos="product_sticky"
+        class="sticky-cta__button"
+      >
+        {resolved.label}
+      </Button>
     </div>
+    <PrLabel />
   </div>
 )}
 
@@ -90,13 +96,12 @@ const goUrl = resolved ? buildGoUrl(product.id, mall, 'product_sticky') : null;
     white-space: nowrap;
   }
 
-  .sticky-cta__action {
+  .sticky-cta__button {
     flex-shrink: 0;
-    text-align: right;
   }
 
-  .sticky-cta__action :global(.pr-label) {
-    margin-top: 2px;
+  .sticky-cta :global(.pr-label) {
+    margin-top: var(--space-2);
     font-size: 10px;
   }
 </style>
