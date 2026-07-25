@@ -57,7 +57,7 @@ const categoryTags = (
 ).filter((t): t is NonNullable<typeof t> => t !== undefined);
 
 const pageUrl = new URL(Astro.url.pathname, Astro.site).toString();
-const shareImageUrl = new URL(`/og/products/${product.id}.png`, Astro.site).toString();
+const shareImageUrl = new URL(`/story/products/${product.id}.png`, Astro.site).toString();
 const price = formatPrice(product.data.price);
 const usagePeriodLabel = formatUsagePeriod(product.data.usagePeriod);
 const primaryAffiliate = resolvePrimaryAffiliateLink(product);

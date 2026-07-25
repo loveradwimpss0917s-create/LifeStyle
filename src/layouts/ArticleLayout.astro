@@ -64,7 +64,7 @@ const updatedLabel =
 
 const description = article.data.seo.description ?? article.data.lead;
 const pageUrl = new URL(Astro.url.pathname, Astro.site).toString();
-const shareImageUrl = new URL(`/og/articles/${article.id}.png`, Astro.site).toString();
+const shareImageUrl = new URL(`/story/articles/${article.id}.png`, Astro.site).toString();
 
 const articleJsonLd = await buildArticleJsonLd(article, Astro.site!);
 const itemListJsonLd =
