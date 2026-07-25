@@ -21,15 +21,16 @@
  * ユーザーがInstagram側でリンクスタンプをタップ→貼り付けするだけで
  * 済むようにする(手入力の手間を減らす現実的な妥協策)。
  *
- * Props: url(絶対URL), title, imageUrl?(絶対URL・OGP画像)
+ * Props: url(絶対URL), title, imageUrl?(絶対URL・OGP画像), label?(見出し文言。既定は「この記事をシェア」)
  */
 interface Props {
   url: string;
   title: string;
   imageUrl?: string;
+  label?: string;
 }
 
-const { url, title, imageUrl } = Astro.props;
+const { url, title, imageUrl, label = 'この記事をシェア' } = Astro.props;
 const xShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
 const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}`;
 ---
@@ -41,7 +42,7 @@ const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeUR
   data-share-title={title}
   data-share-image={imageUrl}
 >
-  <span class="share-row__label">この記事をシェア</span>
+  <span class="share-row__label">{label}</span>
   <div class="share-row__links" data-share-links>
     <a href={xShareUrl} target="_blank" rel="noopener noreferrer" class="share-row__btn">X</a>
     <a href={lineShareUrl} target="_blank" rel="noopener noreferrer" class="share-row__btn">LINE</a>

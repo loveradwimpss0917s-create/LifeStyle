@@ -68,6 +68,13 @@ export function resolveProductImagePath(productId: string): string {
   return path.resolve(path.dirname(contentPath), firstImage);
 }
 
+/** site.json のヒーロー画像の元ファイルへの絶対パスを取得する(JSONなのでYAML frontmatterではなく直接JSON.parseする) */
+export function resolveSiteHeroImagePath(): string {
+  const sitePath = path.join(CONTENT_DIR, 'site.json');
+  const data = JSON.parse(readFileSync(sitePath, 'utf-8'));
+  return path.resolve(path.dirname(sitePath), data.main.heroImage);
+}
+
 export interface StoryImageInput {
   title: string;
   categoryLabel?: string;

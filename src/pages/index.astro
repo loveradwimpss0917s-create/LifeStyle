@@ -21,6 +21,7 @@ import RankingList from '@/components/content/RankingList.astro';
 import AboutTeaser from '@/components/section/AboutTeaser.astro';
 import NewsletterCta from '@/components/section/NewsletterCta.astro';
 import FollowCta from '@/components/section/FollowCta.astro';
+import ShareRow from '@/components/content/ShareRow.astro';
 import { getPublished } from '@/lib/content';
 import { getOverallRanking } from '@/lib/ranking';
 import { buildSiteJsonLd } from '@/lib/seo';
@@ -64,6 +65,9 @@ const rankingItems = ranking.map((product, index) => ({
   productId: product.id,
   comment: product.data.summary,
 }));
+
+const siteUrl = new URL('/', Astro.site).toString();
+const siteShareImageUrl = new URL('/story/site.png', Astro.site).toString();
 ---
 
 <BaseLayout
@@ -137,6 +141,10 @@ const rankingItems = ranking.map((product, index) => ({
       />
     </div>
   )}
+
+  <div class="container home-section">
+    <ShareRow url={siteUrl} title="HIBISTACK" imageUrl={siteShareImageUrl} label="このサイトをシェア" />
+  </div>
 </BaseLayout>
 
 <style>
