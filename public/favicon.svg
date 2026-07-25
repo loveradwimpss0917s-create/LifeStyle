@@ -3,8 +3,10 @@
     g { stroke: #1A1A18; }
     @media (prefers-color-scheme: dark) { g { stroke: #F2F0EC; } }
   </style>
-  <g fill="none" stroke-width="5" stroke-linecap="round">
-    <rect x="16" y="8" width="32" height="48" rx="7"/>
-    <path d="M16 32h32"/>
+  <g fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 18v34h26v-34"/>
+    <path d="M16 34h26"/>
+    <path d="M42 28a7 7 0 0 1 0 14"/>
+    <circle cx="29" cy="9" r="5"/>
   </g>
 </svg>

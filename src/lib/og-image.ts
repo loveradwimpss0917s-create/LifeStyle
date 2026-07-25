@@ -81,32 +81,21 @@ export async function renderOgImage({ title, categoryLabel }: OgImageInput): Pro
               },
               children: [
                 {
-                  type: 'div',
+                  type: 'svg',
                   props: {
-                    style: {
-                      display: 'flex',
-                      position: 'relative',
-                      width: 24,
-                      height: 36,
-                      border: '4px solid #1A1A18',
-                      borderRadius: 6,
-                    },
+                    viewBox: '0 0 64 64',
+                    width: 32,
+                    height: 32,
+                    fill: 'none',
+                    stroke: '#1A1A18',
+                    'stroke-width': 5,
+                    'stroke-linecap': 'round',
+                    'stroke-linejoin': 'round',
                     children: [
-                      {
-                        type: 'div',
-                        props: {
-                          style: {
-                            display: 'flex',
-                            position: 'absolute',
-                            left: 0,
-                            right: 0,
-                            top: '50%',
-                            height: 4,
-                            marginTop: -2,
-                            background: '#1A1A18',
-                          },
-                        },
-                      },
+                      { type: 'path', props: { d: 'M16 18v34h26v-34' } },
+                      { type: 'path', props: { d: 'M16 34h26' } },
+                      { type: 'path', props: { d: 'M42 28a7 7 0 0 1 0 14' } },
+                      { type: 'circle', props: { cx: 29, cy: 9, r: 5 } },
                     ],
                   },
                 },

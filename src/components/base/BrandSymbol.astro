@@ -1,7 +1,8 @@
 ---
 /**
- * BrandSymbol — 14章§2
- * HIBISTACKのシンボルロゴ(漢字「日」の幾何学的抽象: 角丸矩形+中線)。
+ * BrandSymbol — 14章§2(V3改訂)
+ * HIBISTACKのシンボルロゴ(カップ+取っ手+太陽=「日」を象徴)。
+ * コーヒー・日々の暮らしというブランドコンセプトを1つの形に統合した意匠。
  * currentColor単色のインラインSVG。viewBox 0 0 64 64。
  * Props: size(px, 既定24)
  */
@@ -22,9 +23,12 @@ const { size = 24, class: className } = Astro.props;
   stroke="currentColor"
   stroke-width="5"
   stroke-linecap="round"
+  stroke-linejoin="round"
   aria-hidden="true"
   focusable="false"
 >
-  <rect x="16" y="8" width="32" height="48" rx="7" />
-  <path d="M16 32h32" />
+  <path d="M16 18v34h26v-34" />
+  <path d="M16 34h26" />
+  <path d="M42 28a7 7 0 0 1 0 14" />
+  <circle cx="29" cy="9" r="5" />
 </svg>
