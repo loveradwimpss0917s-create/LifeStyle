@@ -2,7 +2,7 @@
   "nameJa": "家電",
   "nameEn": "Appliances",
   "lead": "暮らしの時間を変えてくれた家電たち。",
-  "image": "../../assets/categories/ai-appliances.jpg",
-  "imageAlt": "家電のイメージ写真(AI生成)",
+  "image": "../../assets/categories/appliances.png",
+  "imageAlt": "家電カテゴリのアイコン(プラグのイラスト)",
   "order": 5
 }

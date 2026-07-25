@@ -2,7 +2,7 @@
   "nameJa": "コーヒー",
   "nameEn": "Coffee",
   "lead": "朝の一杯と、それを支える道具のこと。",
-  "image": "../../assets/categories/ai-coffee.jpg",
-  "imageAlt": "コーヒーのイメージ写真(AI生成)",
+  "image": "../../assets/categories/coffee.png",
+  "imageAlt": "コーヒーカテゴリのアイコン(カップと湯気のイラスト)",
   "order": 6
 }
