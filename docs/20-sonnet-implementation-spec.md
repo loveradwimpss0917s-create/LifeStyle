@@ -93,7 +93,7 @@
 ## 8. 画像・アイコン・ロゴ
 
 - ロゴ/アイコンはすべてSVG・currentColor(14/15章)。AI画像は19章の運用ルール(`ai-`プレフィックス+alt明記)
-- 実写真: 長辺1600px以下・元ファイルはjpg、最適化はAstroに委任。LCP画像のみ eager+fetchpriority=high
+- 実写真: 長辺2880px以下(Retina/2x表示対応)・元ファイルはjpg、最適化はAstroに委任。LCP画像のみ eager+fetchpriority=high
 - Instagramプレースホルダーは19章プロンプトで生成、正方形640×640
 
 ## 9. Cloudflare Pages対応

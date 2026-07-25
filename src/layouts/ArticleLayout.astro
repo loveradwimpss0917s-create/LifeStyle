@@ -121,7 +121,14 @@ const jsonLd = itemListJsonLd ? [articleJsonLd, itemListJsonLd] : articleJsonLd;
   </header>
 
   <div class="article-hero container-wide">
-    <Image src={article.data.heroImage} alt={article.data.heroAlt} width={1440} height={960} priority />
+    <Image
+      src={article.data.heroImage}
+      alt={article.data.heroAlt}
+      width={1440}
+      height={960}
+      densities={[1, 2]}
+      priority
+    />
   </div>
 
   <article class="article-body container-text">

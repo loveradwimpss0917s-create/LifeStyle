@@ -4,8 +4,9 @@
  *
  * src/assets配下のラスター画像(jpg/jpeg/png/webp)について3つを警告する
  * (check-content-integrity.mjsと同じく警告レベル・ビルドは失敗させない):
- *   1. 長辺1600px超(20章§10「実写真: 長辺1600px以下」)
- *   2. ファイルサイズ1MB超
+ *   1. 長辺2880px超(Retina/2x表示に必要な解像度を確保するための上限。
+ *      1440px幅のcontainer-wideを2倍密度で表示する場合の必要解像度)
+ *   2. ファイルサイズ2MB超
  *   3. `ai-`プレフィックス画像で、参照元コンテンツのalt文言に
  *      「イメージ写真」が含まれない(19章§3のAI生成画像運用ルール)
  *
@@ -13,6 +14,13 @@
  * 実写真より大きいターゲットサイズ(例: Hero 1920×1080)が個別に規定されて
  * おり、20章§10の「実写真」は撮影した実写真のみを指すため。
  * SVGはベクター(サイズ無制限で軽量)なのでチェック対象外。
+ *
+ * 実バグ修正(26章c31相当): 当初1600px上限だったが、GalleryとArticleLayoutの
+ * ヒーロー画像がdensities未指定でRetina(2x)版を生成しておらず、1600pxでは
+ * container-wide(1440px)の2倍密度に届かず画質が劣化して見える不具合があった。
+ * Astroのビルド時最適化は各コンポーネントが要求するサイズにのみリサイズする
+ * ため、ソース側の上限を上げてもランタイムの転送量は増えない(生成される
+ * 派生画像のサイズは変わらない)。
  *
  * astro:contentはVite経由の仮想モジュールのため素のNodeスクリプトからは
  * 読み込めない(scripts/check-content-integrity.mjsと同じ制約)。そのため
@@ -27,8 +35,8 @@ const ROOT = process.cwd();
 const ASSETS_DIR = path.join(ROOT, 'src/assets');
 const CONTENT_DIR = path.join(ROOT, 'src/content');
 
-const MAX_LONG_SIDE = 1600;
-const MAX_BYTES = 1024 * 1024;
+const MAX_LONG_SIDE = 2880;
+const MAX_BYTES = 2 * 1024 * 1024;
 const RASTER_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
 const REQUIRED_AI_ALT_SUBSTRING = 'イメージ写真';
 
