@@ -40,6 +40,7 @@ if (canMorph) locals.productTransitionIds.add(product.id);
       alt={product.data.images[0].alt}
       width={400}
       height={500}
+      densities={[1, 2]}
       class="product-card__image"
       transition:name={canMorph ? `product-image-${product.id}` : undefined}
     />

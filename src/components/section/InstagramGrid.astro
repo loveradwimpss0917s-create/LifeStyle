@@ -20,7 +20,7 @@ const { handle, images, url } = Astro.props;
   <div class="instagram-grid__photos">
     {images.map((img) => (
       <div class="instagram-grid__photo">
-        <Image src={img.src} alt={img.alt} width={480} height={480} />
+        <Image src={img.src} alt={img.alt} width={480} height={480} densities={[1, 2]} />
       </div>
     ))}
   </div>

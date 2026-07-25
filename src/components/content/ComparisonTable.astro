@@ -36,6 +36,7 @@ const products = await Promise.all(
                 alt={product.data.images[0].alt}
                 width={120}
                 height={150}
+                densities={[1, 2]}
               />
               <span>{product.data.name}</span>
             </a>

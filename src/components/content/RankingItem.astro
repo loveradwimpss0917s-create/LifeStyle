@@ -24,6 +24,7 @@ const { rank, product, comment, compact = false } = Astro.props;
     alt={product.data.images[0].alt}
     width={compact ? 80 : 160}
     height={compact ? 100 : 200}
+    densities={[1, 2]}
     class="ranking-item__image"
   />
   <div class="ranking-item__body">

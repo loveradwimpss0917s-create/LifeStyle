@@ -34,7 +34,7 @@ const { goodPoints, concernPoints, scenes } = product.data;
       <h3>使用シーン</h3>
       {scenes.map((scene) => (
         <figure class="review-block__scene">
-          <Image src={scene.image} alt={scene.alt} width={900} height={600} />
+          <Image src={scene.image} alt={scene.alt} width={900} height={600} densities={[1, 2]} />
           <figcaption>{scene.caption}</figcaption>
         </figure>
       ))}

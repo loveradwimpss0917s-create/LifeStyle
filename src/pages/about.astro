@@ -24,7 +24,7 @@ const jsonLd = site ? await buildPersonJsonLd(Astro.site!, site.data.author, sit
     <>
       <section class="about-hero container-wide">
         <div class="about-hero__media">
-          <Image src={site.data.heroImage} alt={site.data.heroAlt} width={1440} height={810} priority />
+          <Image src={site.data.heroImage} alt={site.data.heroAlt} width={1440} height={810} densities={[1, 2]} priority />
         </div>
         <p class="about-hero__tagline">{site.data.tagline}</p>
       </section>
@@ -36,6 +36,7 @@ const jsonLd = site ? await buildPersonJsonLd(Astro.site!, site.data.author, sit
             alt={site.data.author.imageAlt}
             width={200}
             height={200}
+            densities={[1, 2]}
           />
         </div>
         <div class="about-profile__body">
