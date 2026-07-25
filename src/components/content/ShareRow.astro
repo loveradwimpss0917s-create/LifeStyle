@@ -12,6 +12,15 @@
  * (最終的な表示可否はOS・Instagramアプリのバージョンに依存し、こちら側で
  * 保証はできない)。
  *
+ * なお、OSの共有シート経由でInstagramに渡せるのは画像ファイルのみで、
+ * ストーリーズ編集画面のリンクスタンプは自動では埋め込まれない
+ * (Instagram側の仕様で、共有シートのURLはリンクスタンプとして解釈されない)。
+ * 完全自動化にはiOS専用のinstagram-stories://ディープリンク+Meta for
+ * Developersアプリ登録が必要で、Androidには相当手段が無い。そのため
+ * ここでは「共有する」を押した時点でURLをクリップボードへ自動コピーし、
+ * ユーザーがInstagram側でリンクスタンプをタップ→貼り付けするだけで
+ * 済むようにする(手入力の手間を減らす現実的な妥協策)。
+ *
  * Props: url(絶対URL), title, imageUrl?(絶対URL・OGP画像)
  */
 interface Props {
@@ -39,6 +48,9 @@ const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeUR
     <button type="button" class="share-row__btn" data-share-copy>リンクをコピー</button>
   </div>
   <button type="button" class="share-row__btn share-row__native" data-share-native hidden>共有する(Instagram等)</button>
+  <p class="share-row__hint" data-share-hint hidden>
+    リンクは自動でコピーされます。ストーリーズ等ではリンクスタンプに貼り付けてください
+  </p>
 </div>
 
 <style>
@@ -82,6 +94,17 @@ const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeUR
   .share-row__native[hidden] {
     display: none;
   }
+
+  .share-row__hint {
+    width: 100%;
+    margin: 0;
+    font-size: var(--text-xs);
+    color: var(--color-ink-tertiary);
+  }
+
+  .share-row__hint[hidden] {
+    display: none;
+  }
 </style>
 
 <script is:inline data-astro-rerun>
@@ -101,12 +124,21 @@ const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeUR
       var imageUrl = row.dataset.shareImage;
       var links = row.querySelector('[data-share-links]');
       var nativeBtn = row.querySelector('[data-share-native]');
+      var hint = row.querySelector('[data-share-hint]');
       var copyBtn = row.querySelector('[data-share-copy]');
 
       if (navigator.share && links && nativeBtn) {
         links.hidden = true;
         nativeBtn.hidden = false;
+        if (hint) hint.hidden = false;
         nativeBtn.addEventListener('click', function () {
+          // Instagram等はOSの共有シート経由だと画像しか受け取れず、
+          // ストーリーズのリンクスタンプは自動では埋まらない。URLだけでも
+          // 先にクリップボードへコピーしておき、貼り付けで済むようにする
+          // (失敗しても共有自体は続行する・ベストエフォート)。
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).catch(function () {});
+          }
           // 画像をfileとして添付するとInstagram等の共有シートに
           // 「ストーリーズに追加」が現れやすくなるため、対応環境では
           // 画像付きで共有する。navigator.shareは1クリックにつき1回だけ
