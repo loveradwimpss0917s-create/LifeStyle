@@ -18,10 +18,10 @@
       "instagramHome": "https://www.instagram.com/kinoko_sekisui/",
       "youtube": "https://www.youtube.com/",
       "tiktok": "https://www.tiktok.com/",
-      "threads": "https://www.threads.net/"
+      "threads": "https://www.threads.com/@kinoko_sekisui"
     },
     "instagram": {
-      "handle": "@_115057",
+      "handle": "@kinoko_sekisui",
       "images": [
         { "src": "../assets/site/instagram/1.svg", "alt": "Instagram投稿の写真(placeholder)" },
         { "src": "../assets/site/instagram/2.svg", "alt": "Instagram投稿の写真(placeholder)" },
