@@ -57,6 +57,7 @@ const categoryTags = (
 ).filter((t): t is NonNullable<typeof t> => t !== undefined);
 
 const pageUrl = new URL(Astro.url.pathname, Astro.site).toString();
+const shareImageUrl = new URL(`/og/products/${product.id}.png`, Astro.site).toString();
 const price = formatPrice(product.data.price);
 const usagePeriodLabel = formatUsagePeriod(product.data.usagePeriod);
 const primaryAffiliate = resolvePrimaryAffiliateLink(product);
@@ -118,7 +119,7 @@ const jsonLd = faqJsonLd ? [productJsonLd, faqJsonLd] : productJsonLd;
     <ReviewBlock product={product}>
       <Content />
     </ReviewBlock>
-    <ShareRow url={pageUrl} title={product.data.name} />
+    <ShareRow url={pageUrl} title={product.data.name} imageUrl={shareImageUrl} />
   </section>
 
   <section class="container product-section product-section--narrow">

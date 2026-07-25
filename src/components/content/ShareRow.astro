@@ -4,26 +4,41 @@
  * 記事末尾のSNSシェア行。X/LINE/リンクをコピー。追跡パラメータは付けない。
  * モバイルでnavigator.shareが使える場合はネイティブ共有シートを優先する。
  * ブランド商標のロゴは描かず(15章方針踏襲)、テキストラベルのみで構成する。
- * Props: url(絶対URL), title
+ *
+ * Instagramには他社サイトから直接投稿できるWeb版シェアURLが存在しないため、
+ * 個別の「Instagram」ボタンは設置できない。代わりにOSのネイティブ共有シートへ
+ * OGP画像をfileとして添付する(navigator.share Level 2)。画像添付があると
+ * Instagramアプリの共有シート上に「ストーリーズに追加」が現れやすくなる
+ * (最終的な表示可否はOS・Instagramアプリのバージョンに依存し、こちら側で
+ * 保証はできない)。
+ *
+ * Props: url(絶対URL), title, imageUrl?(絶対URL・OGP画像)
  */
 interface Props {
   url: string;
   title: string;
+  imageUrl?: string;
 }
 
-const { url, title } = Astro.props;
+const { url, title, imageUrl } = Astro.props;
 const xShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
 const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}`;
 ---
 
-<div class="share-row" data-share data-share-url={url} data-share-title={title}>
+<div
+  class="share-row"
+  data-share
+  data-share-url={url}
+  data-share-title={title}
+  data-share-image={imageUrl}
+>
   <span class="share-row__label">この記事をシェア</span>
   <div class="share-row__links" data-share-links>
     <a href={xShareUrl} target="_blank" rel="noopener noreferrer" class="share-row__btn">X</a>
     <a href={lineShareUrl} target="_blank" rel="noopener noreferrer" class="share-row__btn">LINE</a>
     <button type="button" class="share-row__btn" data-share-copy>リンクをコピー</button>
   </div>
-  <button type="button" class="share-row__btn share-row__native" data-share-native hidden>共有する</button>
+  <button type="button" class="share-row__btn share-row__native" data-share-native hidden>共有する(Instagram等)</button>
 </div>
 
 <style>
@@ -83,6 +98,7 @@ const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeUR
 
       var url = row.dataset.shareUrl;
       var title = row.dataset.shareTitle;
+      var imageUrl = row.dataset.shareImage;
       var links = row.querySelector('[data-share-links]');
       var nativeBtn = row.querySelector('[data-share-native]');
       var copyBtn = row.querySelector('[data-share-copy]');
@@ -91,6 +107,25 @@ const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeUR
         links.hidden = true;
         nativeBtn.hidden = false;
         nativeBtn.addEventListener('click', function () {
+          // 画像をfileとして添付するとInstagram等の共有シートに
+          // 「ストーリーズに追加」が現れやすくなるため、対応環境では
+          // 画像付きで共有する。navigator.shareは1クリックにつき1回だけ
+          // 呼ぶ(ユーザーがシートをキャンセルした場合に、URLのみの共有を
+          // 再度呼び直すとダイアログが二重に出てしまうため)。
+          if (imageUrl && navigator.canShare) {
+            fetch(imageUrl)
+              .then(function (res) { return res.blob(); })
+              .then(function (blob) {
+                var file = new File([blob], 'share.png', { type: blob.type || 'image/png' });
+                var withFile = { files: [file], url: url, title: title };
+                var shareData = navigator.canShare(withFile) ? withFile : { url: url, title: title };
+                return navigator.share(shareData);
+              })
+              .catch(function () {
+                /* 画像取得失敗・ユーザーキャンセル等。いずれも何もしない */
+              });
+            return;
+          }
           navigator.share({ url: url, title: title }).catch(function () {
             /* ユーザーがキャンセルした場合等は何もしない */
           });
