@@ -60,6 +60,18 @@ if (canMorph) locals.productTransitionIds.add(product.id);
 <style>
   .product-card {
     position: relative;
+    transition: transform 100ms var(--ease-out);
+  }
+
+  /* 18章§2.5のタップ手応えをカード全体にも適用(stretched-linkのため:has()で判定) */
+  .product-card:has(.stretched-link:active) {
+    transform: scale(0.98);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .product-card:has(.stretched-link:active) {
+      transform: none;
+    }
   }
 
   .product-card__media {

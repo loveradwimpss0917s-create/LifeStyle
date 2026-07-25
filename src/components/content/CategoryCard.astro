@@ -32,6 +32,18 @@ const { category } = Astro.props;
 <style>
   .category-card {
     display: block;
+    transition: transform 100ms var(--ease-out);
+  }
+
+  /* 18章§2.5のタップ手応え */
+  .category-card:active {
+    transform: scale(0.98);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .category-card:active {
+      transform: none;
+    }
   }
 
   .category-card__media {

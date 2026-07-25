@@ -41,6 +41,18 @@ const dateLabel = article.data.publishedAt ? formatDate(article.data.publishedAt
 <style>
   .article-card {
     position: relative;
+    transition: transform 100ms var(--ease-out);
+  }
+
+  /* 18章§2.5のタップ手応えをカード全体にも適用(stretched-linkのため:has()で判定) */
+  .article-card:has(.stretched-link:active) {
+    transform: scale(0.98);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .article-card:has(.stretched-link:active) {
+      transform: none;
+    }
   }
 
   .article-card--large {
