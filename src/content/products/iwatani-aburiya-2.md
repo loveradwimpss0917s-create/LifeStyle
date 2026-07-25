@@ -1,6 +1,6 @@
 ---
 name: "イワタニ 炙りや2(ポータブルガス炉端焼き器)"
-category: daily-goods
+category: living
 brand: iwatani
 purchasedAt: 2026-05-27
 usagePeriod: 1-3m
