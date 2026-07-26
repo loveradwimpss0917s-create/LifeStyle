@@ -3,7 +3,7 @@
  * CategoryCard — 06章§6.3
  * Props: category。写真+英字名(Cormorant)+和名。hover: scale。
  */
-import FramedImage from '@/components/base/FramedImage.astro';
+import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -15,10 +15,11 @@ const { category } = Astro.props;
 
 <a href={`/categories/${category.id}/`} class="category-card">
   <div class="category-card__media">
-    <FramedImage
+    <Image
       src={category.data.image}
       alt={category.data.imageAlt}
       width={480}
+      densities={[1, 2]}
       class="category-card__image"
     />
   </div>
@@ -46,16 +47,17 @@ const { category } = Astro.props;
   }
 
   .category-card__media {
-    aspect-ratio: 4 / 3;
     overflow: hidden;
-    background: var(--color-bg-secondary);
   }
 
-  .category-card__image :global(.framed-image__fg) {
+  .category-card__image {
+    display: block;
+    width: 100%;
+    height: auto;
     transition: transform var(--duration-base) var(--ease-out);
   }
 
-  .category-card:hover .category-card__image :global(.framed-image__fg) {
+  .category-card:hover .category-card__image {
     transform: scale(1.02);
   }
 

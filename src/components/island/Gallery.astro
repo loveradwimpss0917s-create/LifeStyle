@@ -14,24 +14,19 @@ interface Props {
 
 const { product } = Astro.props;
 const images = product.data.images;
+const initialAspectRatio = `${images[0].src.width} / ${images[0].src.height}`;
 ---
 
 <div class="gallery" data-gallery>
-  <div class="gallery__main">
+  <div class="gallery__main" data-gallery-box style={`--initial-aspect-ratio: ${initialAspectRatio}`}>
     {images.map((img, index) => (
       <div
         class:list={['gallery__main-item', { 'is-active': index === 0 }]}
         data-gallery-main
         data-index={index}
+        data-width={img.src.width}
+        data-height={img.src.height}
       >
-        <Image
-          src={img.src}
-          alt=""
-          aria-hidden="true"
-          width={60}
-          class="gallery__main-bg"
-          loading={index === 0 ? 'eager' : 'lazy'}
-        />
         <Image
           src={img.src}
           alt={img.alt}
@@ -65,32 +60,25 @@ const images = product.data.images;
 
 <style>
   /*
-   * 実バグ修正: 商品画像は撮影写真ごとに縦横比がまちまち(実測で0.65〜1.2程度)
-   * なため、サムネ切替時に.gallery__mainの高さがそのつど画像の縦横比に
-   * 合わせて変わり、ページ全体がガタつく(表示が上下する)不具合があった。
-   * enhanced状態ではコンテナ側にaspect-ratioを固定し、どの画像に切り替えても
-   * ボックスサイズが変わらないようにした。object-fitはcover(トリミング)では
-   * なくcontain(画像全体を余白付きで収める)にしている。coverだと提供写真の
-   * 構図が切れてしまうという指摘があったため、画像そのものはノートリミングで
-   * 全体を表示している。
-   * (aspect-ratio自体はProductCard等と同じ4/5に揃えている)
-   *
-   * containの余白を単色(--color-bg-secondary)で埋めていたところ「見栄えが
-   * 良くない」という指摘があったため、同じ写真を大きくぼかして敷いた
-   * 背景(gallery__main-bg)に差し替えた。余白部分にも写真の色味がにじむため、
-   * 単色の帯より馴染む。ぼかし画像はwidth=60の極小版で十分(見た目には
-   * ぼけて分からないため、転送量はほぼ増えない)。
+   * 実バグ修正: 商品画像は撮影写真ごとに縦横比がまちまちなため、サムネ切替時に
+   * .gallery__mainの高さがそのつど画像の縦横比に合わせて変わり、ページ全体が
+   * ガタつく(表示が上下する)不具合があった。写真はトリミングも背景ぼかしも
+   * 入れず自然な縦横比のまま表示する方針のため、固定aspect-ratioや余白埋めの
+   * 背景では対応できない。代わりに、コンテナの初期aspect-ratioを最初の画像の
+   * 実寸(--initial-aspect-ratio、サーバー側で既知)に合わせて初回表示時のCLSを
+   * 防ぎつつ、サムネ切替時はJS(下部script)でコンテナの高さを現在値→次の画像の
+   * 実寸比に基づく高さへアニメーションさせ、ページ全体が瞬時にガタつかない
+   * ようにしている(アニメーション完了後にaspect-ratioへ戻し、リサイズにも
+   * 追従できるようにする)。
    */
   .gallery--enhanced .gallery__main {
     position: relative;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: var(--initial-aspect-ratio, auto);
     overflow: hidden;
-    background: var(--color-bg-secondary);
   }
 
   .gallery__main-item {
     width: 100%;
-    height: auto;
     margin-bottom: var(--space-3);
   }
 
@@ -108,31 +96,21 @@ const images = product.data.images;
     opacity: 1;
   }
 
-  .gallery__main-bg {
-    display: none;
-  }
-
-  .gallery--enhanced .gallery__main-bg {
-    display: block;
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: blur(28px) brightness(0.92);
-    transform: scale(1.15);
-  }
-
   .gallery__main-image {
+    display: block;
     width: 100%;
     height: auto;
   }
 
   .gallery--enhanced .gallery__main-image {
-    position: relative;
-    z-index: 1;
     width: 100%;
     height: 100%;
+    /*
+     * コンテナは常にアクティブな画像の実寸比に揃っているため、静止状態では
+     * object-fitの指定は結果に影響しない(トリミングは発生しない)。
+     * 高さアニメーション中の一時的な不一致でのみ、画像全体を欠けさせずに
+     * 収めるために効く。
+     */
     object-fit: contain;
   }
 
@@ -172,8 +150,10 @@ const images = product.data.images;
   // const/letはグローバルスコープで再宣言エラーになるため関数スコープに閉じ込める。
   (function () {
     const galleries = document.querySelectorAll('[data-gallery]');
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     for (const gallery of galleries) {
+      const box = gallery.querySelector('[data-gallery-box]');
       const mains = gallery.querySelectorAll('[data-gallery-main]');
       const thumbs = gallery.querySelectorAll('[data-gallery-thumb]');
       if (mains.length <= 1) continue;
@@ -191,6 +171,42 @@ const images = product.data.images;
       for (const thumb of thumbs) {
         thumb.addEventListener('click', () => {
           const index = thumb.dataset.index;
+          const targetItem = gallery.querySelector('[data-gallery-main][data-index="' + index + '"]');
+
+          if (box && targetItem) {
+            const targetW = Number(targetItem.dataset.width);
+            const targetH = Number(targetItem.dataset.height);
+
+            if (targetW && targetH) {
+              if (prefersReducedMotion) {
+                box.style.aspectRatio = targetW + ' / ' + targetH;
+              } else {
+                const startHeight = box.getBoundingClientRect().height;
+                box.style.transition = '';
+                box.style.aspectRatio = 'auto';
+                box.style.height = startHeight + 'px';
+                // 強制リフローで上記の高さを確定させてからtransitionを効かせる
+                void box.offsetHeight;
+
+                const targetHeight = box.clientWidth * (targetH / targetW);
+                box.style.transition = 'height 260ms var(--ease-out, ease-out)';
+                box.style.height = targetHeight + 'px';
+
+                box.addEventListener(
+                  'transitionend',
+                  function onEnd(event) {
+                    if (event.propertyName !== 'height') return;
+                    box.removeEventListener('transitionend', onEnd);
+                    box.style.transition = '';
+                    box.style.height = '';
+                    box.style.aspectRatio = targetW + ' / ' + targetH;
+                  },
+                  { once: true }
+                );
+              }
+            }
+          }
+
           for (const main of mains) {
             main.classList.toggle('is-active', main.dataset.index === index);
           }

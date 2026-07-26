@@ -6,7 +6,7 @@
  * 構造化データ(評価/使用期間/参考価格/購入日)から行を自動生成する。
  * Props: product(現在の商品), related(同カテゴリの関連商品。新着順)
  */
-import FramedImage from '@/components/base/FramedImage.astro';
+import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import { formatPrice, formatPurchasePeriod, formatUsagePeriod } from '@/lib/format';
 
@@ -48,7 +48,7 @@ const rows = [
           <th scope="col">
             <a href={`/products/${p.id}/`} class="comparison-auto__product">
               <span class="comparison-auto__thumb">
-                <FramedImage src={p.data.images[0].src} alt={p.data.images[0].alt} width={100} />
+                <Image src={p.data.images[0].src} alt={p.data.images[0].alt} width={100} densities={[1, 2]} />
               </span>
               <span>{p.data.name}</span>
             </a>
@@ -100,7 +100,12 @@ const rows = [
   .comparison-auto__thumb {
     display: block;
     width: 72px;
-    height: 90px;
+  }
+
+  .comparison-auto__thumb img {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
   .comparison-auto tbody th {

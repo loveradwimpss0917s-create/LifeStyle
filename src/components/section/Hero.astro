@@ -22,7 +22,6 @@ const { image, alt, labelEn, tagline } = Astro.props;
 <section class="hero">
   <div class="container-wide">
     <div class="hero__media">
-      <Image src={image} alt="" aria-hidden="true" width={60} class="hero__bg" />
       <Image
         src={image}
         alt={alt}
@@ -47,32 +46,13 @@ const { image, alt, labelEn, tagline } = Astro.props;
   }
 
   .hero__media {
-    position: relative;
-    aspect-ratio: 16 / 9;
     overflow: hidden;
   }
 
-  /*
-   * 実写真は全体表示(トリミング無し)にする方針のため、object-fitはcoverでは
-   * なくcontainにしている。containで生じる余白は同じ写真を大きくぼかして
-   * 敷いた背景(hero__bg)で埋める(単色の余白は見栄えが良くないため)。
-   */
-  .hero__bg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: blur(28px) brightness(0.92);
-    transform: scale(1.15);
-  }
-
   .hero__image {
-    position: relative;
-    z-index: 1;
+    display: block;
     width: 100%;
-    height: 100%;
-    object-fit: contain;
+    height: auto;
   }
 
   .hero__text {

@@ -4,7 +4,7 @@
  * Props: ids(productId 2〜3), rows({label, values[]}[])
  */
 import { getEntry } from 'astro:content';
-import FramedImage from '@/components/base/FramedImage.astro';
+import { Image } from 'astro:assets';
 
 interface Props {
   ids: string[];
@@ -32,7 +32,7 @@ const products = await Promise.all(
           <th scope="col">
             <a href={`/products/${product.id}/`} class="comparison-table__product">
               <span class="comparison-table__thumb">
-                <FramedImage src={product.data.images[0].src} alt={product.data.images[0].alt} width={120} />
+                <Image src={product.data.images[0].src} alt={product.data.images[0].alt} width={120} densities={[1, 2]} />
               </span>
               <span>{product.data.name}</span>
             </a>
@@ -85,7 +85,12 @@ const products = await Promise.all(
   .comparison-table__thumb {
     display: block;
     width: 80px;
-    height: 100px;
+  }
+
+  .comparison-table__thumb img {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
   .comparison-table tbody th {

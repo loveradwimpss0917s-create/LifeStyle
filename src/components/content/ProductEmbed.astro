@@ -5,7 +5,7 @@
  * 存在しない商品IDはビルドエラーにする(リンク切れ防止)。
  */
 import { getEntry } from 'astro:content';
-import FramedImage from '@/components/base/FramedImage.astro';
+import { Image } from 'astro:assets';
 import RatingStars from '@/components/base/RatingStars.astro';
 import AffiliateButton from '@/components/content/AffiliateButton.astro';
 import { resolvePrimaryAffiliateLink } from '@/lib/affiliate';
@@ -27,7 +27,7 @@ const primaryAffiliate = resolvePrimaryAffiliateLink(product);
 
 <div class="product-embed">
   <span class="product-embed__image">
-    <FramedImage src={product.data.images[0].src} alt={product.data.images[0].alt} width={160} />
+    <Image src={product.data.images[0].src} alt={product.data.images[0].alt} width={160} densities={[1, 2]} />
   </span>
   <div class="product-embed__body">
     <p class="product-embed__name">
@@ -59,7 +59,12 @@ const primaryAffiliate = resolvePrimaryAffiliateLink(product);
     display: block;
     flex-shrink: 0;
     width: 96px;
-    height: 120px;
+  }
+
+  .product-embed__image img {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
   .product-embed__name a {

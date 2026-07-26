@@ -4,7 +4,7 @@
  * Props: article, variant: 'default' | 'large' | 'compact'
  */
 import { getEntry, type CollectionEntry } from 'astro:content';
-import FramedImage from '@/components/base/FramedImage.astro';
+import { Image } from 'astro:assets';
 import { formatDate } from '@/lib/format';
 
 interface Props {
@@ -20,10 +20,11 @@ const dateLabel = article.data.publishedAt ? formatDate(article.data.publishedAt
 <article class:list={['article-card', `article-card--${variant}`]} data-category={category.id}>
   {variant !== 'compact' && (
     <div class="article-card__media">
-      <FramedImage
+      <Image
         src={article.data.heroImage}
         alt={article.data.heroAlt}
         width={variant === 'large' ? 800 : 480}
+        densities={[1, 2]}
         class="article-card__image"
       />
     </div>
@@ -67,16 +68,17 @@ const dateLabel = article.data.publishedAt ? formatDate(article.data.publishedAt
   }
 
   .article-card__media {
-    aspect-ratio: 3 / 2;
     overflow: hidden;
-    background: var(--color-bg-secondary);
   }
 
-  .article-card__image :global(.framed-image__fg) {
+  .article-card__image {
+    display: block;
+    width: 100%;
+    height: auto;
     transition: transform var(--duration-base) var(--ease-out);
   }
 
-  .article-card:hover .article-card__image :global(.framed-image__fg) {
+  .article-card:hover .article-card__image {
     transform: scale(1.02);
   }
 

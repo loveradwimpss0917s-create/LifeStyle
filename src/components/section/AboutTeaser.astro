@@ -4,7 +4,7 @@
  * トップ⑧。site.jsonから紹介文・写真を取得。
  */
 import { getEntry } from 'astro:content';
-import FramedImage from '@/components/base/FramedImage.astro';
+import { Image } from 'astro:assets';
 
 const site = await getEntry('site', 'main');
 ---
@@ -12,7 +12,7 @@ const site = await getEntry('site', 'main');
 {site && (
   <section class="about-teaser container">
     <div class="about-teaser__media">
-      <FramedImage src={site.data.author.image} alt={site.data.author.imageAlt} width={480} />
+      <Image src={site.data.author.image} alt={site.data.author.imageAlt} width={480} densities={[1, 2]} />
     </div>
     <div class="about-teaser__body">
       <p class="about-teaser__label">About</p>
@@ -36,9 +36,13 @@ const site = await getEntry('site', 'main');
   }
 
   .about-teaser__media {
-    aspect-ratio: 1;
-    overflow: hidden;
     max-width: 160px;
+  }
+
+  .about-teaser__media img {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
 

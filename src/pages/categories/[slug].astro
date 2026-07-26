@@ -3,7 +3,7 @@
  * カテゴリページ — 04章§4.2
  */
 import { getCollection, getEntry } from 'astro:content';
-import FramedImage from '@/components/base/FramedImage.astro';
+import { Image } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Breadcrumb from '@/components/base/Breadcrumb.astro';
 import TagChip from '@/components/base/TagChip.astro';
@@ -56,7 +56,7 @@ const relatedTags = relatedTagIds.size
 
   <header class="category-header container">
     <div class="category-header__media">
-      <FramedImage src={category.data.image} alt={category.data.imageAlt} width={1440} priority />
+      <Image src={category.data.image} alt={category.data.imageAlt} width={1440} priority />
     </div>
     <p class="category-header__en">{category.data.nameEn}</p>
     <h1 class="category-header__ja">{category.data.nameJa}</h1>
@@ -98,9 +98,10 @@ const relatedTags = relatedTagIds.size
     margin-top: var(--space-6);
   }
 
-  .category-header__media {
-    aspect-ratio: 3 / 1;
-    overflow: hidden;
+  .category-header__media img {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
   .category-header__en {

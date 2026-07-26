@@ -5,7 +5,7 @@
  * リンク: カード全体 → /products/{slug}/(stretched-link)。hover: 画像 scale(1.02)
  */
 import { getEntry, type CollectionEntry } from 'astro:content';
-import FramedImage from '@/components/base/FramedImage.astro';
+import { Image } from 'astro:assets';
 import RatingStars from '@/components/base/RatingStars.astro';
 import FavoriteButton from '@/components/island/FavoriteButton.astro';
 import { formatPrice } from '@/lib/format';
@@ -35,12 +35,13 @@ if (canMorph) locals.productTransitionIds.add(product.id);
 
 <article class="product-card" data-category={product.data.category.id}>
   <div class="product-card__media">
-    <FramedImage
+    <Image
       src={product.data.images[0].src}
       alt={product.data.images[0].alt}
       width={400}
+      densities={[1, 2]}
       class="product-card__image"
-      transitionName={canMorph ? `product-image-${product.id}` : undefined}
+      transition:name={canMorph ? `product-image-${product.id}` : undefined}
     />
     <div class="product-card__favorite">
       <FavoriteButton product={product} size="sm" />
@@ -75,9 +76,7 @@ if (canMorph) locals.productTransitionIds.add(product.id);
 
   .product-card__media {
     position: relative;
-    aspect-ratio: 4 / 5;
     overflow: hidden;
-    background: var(--color-bg-secondary);
   }
 
   .product-card__favorite {
@@ -87,11 +86,14 @@ if (canMorph) locals.productTransitionIds.add(product.id);
     z-index: 2;
   }
 
-  .product-card__image :global(.framed-image__fg) {
+  .product-card__image {
+    display: block;
+    width: 100%;
+    height: auto;
     transition: transform var(--duration-base) var(--ease-out);
   }
 
-  .product-card:hover .product-card__image :global(.framed-image__fg) {
+  .product-card:hover .product-card__image {
     transform: scale(1.02);
   }
 
