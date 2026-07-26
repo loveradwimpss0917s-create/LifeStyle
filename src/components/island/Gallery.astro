@@ -19,18 +19,30 @@ const images = product.data.images;
 <div class="gallery" data-gallery>
   <div class="gallery__main">
     {images.map((img, index) => (
-      <Image
-        src={img.src}
-        alt={img.alt}
-        width={800}
-        densities={[1, 2]}
-        class:list={['gallery__main-image', { 'is-active': index === 0 }]}
+      <div
+        class:list={['gallery__main-item', { 'is-active': index === 0 }]}
         data-gallery-main
         data-index={index}
-        loading={index === 0 ? 'eager' : 'lazy'}
-        priority={index === 0}
-        transition:name={index === 0 ? `product-image-${product.id}` : undefined}
-      />
+      >
+        <Image
+          src={img.src}
+          alt=""
+          aria-hidden="true"
+          width={60}
+          class="gallery__main-bg"
+          loading={index === 0 ? 'eager' : 'lazy'}
+        />
+        <Image
+          src={img.src}
+          alt={img.alt}
+          width={800}
+          densities={[1, 2]}
+          class="gallery__main-image"
+          loading={index === 0 ? 'eager' : 'lazy'}
+          priority={index === 0}
+          transition:name={index === 0 ? `product-image-${product.id}` : undefined}
+        />
+      </div>
     ))}
   </div>
   {images.length > 1 && (
@@ -52,12 +64,6 @@ const images = product.data.images;
 </div>
 
 <style>
-  .gallery__main-image {
-    width: 100%;
-    height: auto;
-    margin-bottom: var(--space-3);
-  }
-
   /*
    * 実バグ修正: 商品画像は撮影写真ごとに縦横比がまちまち(実測で0.65〜1.2程度)
    * なため、サムネ切替時に.gallery__mainの高さがそのつど画像の縦横比に
@@ -66,8 +72,14 @@ const images = product.data.images;
    * ボックスサイズが変わらないようにした。object-fitはcover(トリミング)では
    * なくcontain(画像全体を余白付きで収める)にしている。coverだと提供写真の
    * 構図が切れてしまうという指摘があったため、画像そのものはノートリミングで
-   * 全体を表示し、余白は背景色で埋める。
+   * 全体を表示している。
    * (aspect-ratio自体はProductCard等と同じ4/5に揃えている)
+   *
+   * containの余白を単色(--color-bg-secondary)で埋めていたところ「見栄えが
+   * 良くない」という指摘があったため、同じ写真を大きくぼかして敷いた
+   * 背景(gallery__main-bg)に差し替えた。余白部分にも写真の色味がにじむため、
+   * 単色の帯より馴染む。ぼかし画像はwidth=60の極小版で十分(見た目には
+   * ぼけて分からないため、転送量はほぼ増えない)。
    */
   .gallery--enhanced .gallery__main {
     position: relative;
@@ -76,21 +88,52 @@ const images = product.data.images;
     background: var(--color-bg-secondary);
   }
 
-  .gallery--enhanced .gallery__main-image {
+  .gallery__main-item {
+    width: 100%;
+    height: auto;
+    margin-bottom: var(--space-3);
+  }
+
+  .gallery--enhanced .gallery__main-item {
     display: none;
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
     margin-bottom: 0;
     opacity: 0;
     transition: opacity var(--duration-fast) var(--ease-out);
   }
 
-  .gallery--enhanced .gallery__main-image.is-active {
+  .gallery--enhanced .gallery__main-item.is-active {
     display: block;
     opacity: 1;
+  }
+
+  .gallery__main-bg {
+    display: none;
+  }
+
+  .gallery--enhanced .gallery__main-bg {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(28px) brightness(0.92);
+    transform: scale(1.15);
+  }
+
+  .gallery__main-image {
+    width: 100%;
+    height: auto;
+  }
+
+  .gallery--enhanced .gallery__main-image {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 
   .gallery__thumbs {
