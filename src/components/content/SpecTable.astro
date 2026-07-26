@@ -4,7 +4,7 @@
  * Props: product。ブランド/カテゴリ/参考価格/購入日/使用期間の定義リスト(dl)。
  */
 import { getEntry, type CollectionEntry } from 'astro:content';
-import { formatPrice, formatDate, formatUsagePeriod } from '@/lib/format';
+import { formatPrice, formatPurchasePeriod, formatUsagePeriod } from '@/lib/format';
 
 interface Props {
   product: CollectionEntry<'products'>;
@@ -24,7 +24,7 @@ const rows = [
   ...(brand ? [{ label: 'ブランド', value: brand.data.name }] : []),
   { label: 'カテゴリ', value: category.data.nameJa },
   ...(price ? [{ label: '参考価格', value: price }] : []),
-  { label: isTravel ? '宿泊日' : '購入日', value: formatDate(product.data.purchasedAt) },
+  { label: isTravel ? '宿泊日' : '購入日', value: formatPurchasePeriod(product.data.purchasedAt) },
   ...(isTravel ? [] : [{ label: '使用期間', value: formatUsagePeriod(product.data.usagePeriod) }]),
 ];
 ---

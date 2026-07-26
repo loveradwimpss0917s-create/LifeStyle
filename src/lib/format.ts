@@ -38,3 +38,10 @@ export function formatYearMonth(date: Date): string {
     month: 'long',
   }).format(date);
 }
+
+/** 購入時期は正確な日付ではなく「上旬・中旬・下旬」表記にする(20章方針)。 */
+export function formatPurchasePeriod(date: Date): string {
+  const day = date.getDate();
+  const part = day <= 10 ? '上旬' : day <= 20 ? '中旬' : '下旬';
+  return `${formatYearMonth(date)}${part}`;
+}

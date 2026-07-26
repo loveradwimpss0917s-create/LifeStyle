@@ -8,7 +8,7 @@
  */
 import FramedImage from '@/components/base/FramedImage.astro';
 import type { CollectionEntry } from 'astro:content';
-import { formatPrice, formatDate, formatUsagePeriod } from '@/lib/format';
+import { formatPrice, formatPurchasePeriod, formatUsagePeriod } from '@/lib/format';
 
 interface Props {
   product: CollectionEntry<'products'>;
@@ -34,7 +34,7 @@ const rows = [
   },
   {
     label: '購入日',
-    values: products.map((p) => formatDate(p.data.purchasedAt)),
+    values: products.map((p) => formatPurchasePeriod(p.data.purchasedAt)),
   },
 ];
 ---
