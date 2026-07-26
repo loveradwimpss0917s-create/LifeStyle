@@ -17,6 +17,12 @@ concernPoints:
 images:
   - src: "../../assets/products/nordic-paper-cord-dining-chair/01-table-edge-hook.jpg"
     alt: "天板の縁に椅子をひっかけ、下をお掃除ロボットが通っている実際の使用写真"
+  - src: "../../assets/products/nordic-paper-cord-dining-chair/03-window-light.jpg"
+    alt: "窓際に置かれたペーパーコードダイニングチェアの実際の写真(庭の緑が映り込んでいる)"
+  - src: "../../assets/products/nordic-paper-cord-dining-chair/04-window-curtain.jpg"
+    alt: "窓際に置かれたペーパーコードダイニングチェアの実際の写真(カーテン越しの光の中)"
+  - src: "../../assets/products/nordic-paper-cord-dining-chair/05-weave-top.jpg"
+    alt: "ペーパーコード座面を真上から見た実際の写真(編み目の質感)"
   - src: "../../assets/products/nordic-paper-cord-dining-chair/02-dimensions.jpg"
     alt: "ダイニングチェアのサイズ図(全体寸法・座面高)とキズ防止フェルト・クッションの位置"
 tags:
