@@ -5,7 +5,7 @@
  * 記事側(ArticleLayout.astro)のauthorはここで定義する@idを参照する。
  */
 import { getEntry } from 'astro:content';
-import { Image } from 'astro:assets';
+import FramedImage from '@/components/base/FramedImage.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Breadcrumb from '@/components/base/Breadcrumb.astro';
 import SocialLinks from '@/components/content/SocialLinks.astro';
@@ -24,20 +24,14 @@ const jsonLd = site ? await buildPersonJsonLd(Astro.site!, site.data.author, sit
     <>
       <section class="about-hero container-wide">
         <div class="about-hero__media">
-          <Image src={site.data.heroImage} alt={site.data.heroAlt} width={1440} height={810} densities={[1, 2]} priority />
+          <FramedImage src={site.data.heroImage} alt={site.data.heroAlt} width={1440} priority />
         </div>
         <p class="about-hero__tagline">{site.data.tagline}</p>
       </section>
 
       <section class="about-section container-text about-profile">
         <div class="about-profile__media">
-          <Image
-            src={site.data.author.image}
-            alt={site.data.author.imageAlt}
-            width={200}
-            height={200}
-            densities={[1, 2]}
-          />
+          <FramedImage src={site.data.author.image} alt={site.data.author.imageAlt} width={200} />
         </div>
         <div class="about-profile__body">
           <h2>わたしについて</h2>
@@ -81,11 +75,6 @@ const jsonLd = site ? await buildPersonJsonLd(Astro.site!, site.data.author, sit
     overflow: hidden;
   }
 
-  .about-hero__media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
 
   .about-hero__tagline {
     margin-top: var(--space-4);
@@ -148,11 +137,6 @@ const jsonLd = site ? await buildPersonJsonLd(Astro.site!, site.data.author, sit
     }
   }
 
-  .about-profile__media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
 
   .about-promises {
     margin-top: var(--space-4);

@@ -98,7 +98,8 @@ import Button from '@/components/base/Button.astro';
               return (
                 '<article class="favorites-card">' +
                 '<a href="/products/' + p.id + '/" class="favorites-card__media">' +
-                '<img src="' + p.image + '" alt="' + escapeHtml(p.alt) + '" loading="lazy" width="400" height="500" />' +
+                '<img src="' + p.bgImage + '" alt="" aria-hidden="true" class="favorites-card__bg" />' +
+                '<img src="' + p.image + '" alt="' + escapeHtml(p.alt) + '" loading="lazy" class="favorites-card__fg" />' +
                 '</a>' +
                 '<div class="favorites-card__body">' +
                 '<p class="favorites-card__category">' + escapeHtml(p.category) + '</p>' +
@@ -189,17 +190,36 @@ import Button from '@/components/base/Button.astro';
     flex-direction: column;
   }
 
+  /*
+   * 実写真は全体表示(トリミング無し)にする方針のため、object-fitはcoverでは
+   * なくcontainにしている。containで生じる余白は同じ写真を大きくぼかして
+   * 敷いた背景(__bg)で埋める(FramedImage.astroと同じパターン。この
+   * カードはクライアントJSで組み立てるため、ここでは素のimgで再現している)。
+   */
   .favorites-list :global(.favorites-card__media) {
+    position: relative;
     display: block;
     aspect-ratio: 4 / 5;
     overflow: hidden;
     background: var(--color-bg-secondary);
   }
 
-  .favorites-list :global(.favorites-card__media img) {
+  .favorites-list :global(.favorites-card__bg) {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    filter: blur(24px) brightness(0.92);
+    transform: scale(1.15);
+  }
+
+  .favorites-list :global(.favorites-card__fg) {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 
   .favorites-list :global(.favorites-card__body) {

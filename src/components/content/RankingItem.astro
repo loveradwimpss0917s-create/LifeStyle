@@ -3,7 +3,7 @@
  * RankingItem — 06章§6.3
  * Props: rank, product(解決済みエントリ), comment?
  */
-import { Image } from 'astro:assets';
+import FramedImage from '@/components/base/FramedImage.astro';
 import type { CollectionEntry } from 'astro:content';
 import RatingStars from '@/components/base/RatingStars.astro';
 
@@ -19,14 +19,13 @@ const { rank, product, comment, compact = false } = Astro.props;
 
 <div class:list={['ranking-item', { 'ranking-item--compact': compact }]} id={`rank-${rank}`}>
   <span class="ranking-item__rank">{rank}</span>
-  <Image
-    src={product.data.images[0].src}
-    alt={product.data.images[0].alt}
-    width={compact ? 80 : 160}
-    height={compact ? 100 : 200}
-    densities={[1, 2]}
-    class="ranking-item__image"
-  />
+  <span class="ranking-item__image">
+    <FramedImage
+      src={product.data.images[0].src}
+      alt={product.data.images[0].alt}
+      width={compact ? 80 : 160}
+    />
+  </span>
   <div class="ranking-item__body">
     <p class="ranking-item__name">
       <a href={`/products/${product.id}/`}>{product.data.name}</a>
@@ -59,10 +58,10 @@ const { rank, product, comment, compact = false } = Astro.props;
   }
 
   .ranking-item__image {
+    display: block;
     flex-shrink: 0;
     width: 80px;
     height: 100px;
-    object-fit: cover;
   }
 
   .ranking-item--compact .ranking-item__image {

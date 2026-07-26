@@ -1,6 +1,8 @@
 /**
  * 静的商品インデックスAPI — 26章c7
- * published商品の{id,name,image,alt,rating,category}をビルド時にJSON出力する。
+ * published商品の{id,name,image,bgImage,alt,rating,category}をビルド時にJSON出力する。
+ * bgImageは実写真をトリミング無しで表示するためのぼかし背景用極小画像
+ * (/favorites/ のカードでFramedImage.astroと同じパターンを再現するため)。
  * /favorites/ ページがクライアント側でこれをfetchし、localStorageのIDと突き合わせる。
  */
 import type { APIRoute } from 'astro';
@@ -15,10 +17,12 @@ export const GET: APIRoute = async () => {
     products.map(async (product) => {
       const category = await getEntry(product.data.category);
       const optimized = await getImage({ src: product.data.images[0].src, width: 400 });
+      const blurred = await getImage({ src: product.data.images[0].src, width: 40 });
       return {
         id: product.id,
         name: product.data.name,
         image: optimized.src,
+        bgImage: blurred.src,
         alt: product.data.images[0].alt,
         rating: product.data.rating,
         category: category?.data.nameJa ?? '',
