@@ -62,9 +62,12 @@ const images = product.data.images;
    * 実バグ修正: 商品画像は撮影写真ごとに縦横比がまちまち(実測で0.65〜1.2程度)
    * なため、サムネ切替時に.gallery__mainの高さがそのつど画像の縦横比に
    * 合わせて変わり、ページ全体がガタつく(表示が上下する)不具合があった。
-   * enhanced状態ではコンテナ側にaspect-ratioを固定し、画像はobject-fit:coverで
-   * 敷き詰めることで、どの画像に切り替えてもボックスサイズが変わらないようにした。
-   * (ProductCard等、他の商品画像コンポーネントと同じaspect-ratio 4/5に揃えている)
+   * enhanced状態ではコンテナ側にaspect-ratioを固定し、どの画像に切り替えても
+   * ボックスサイズが変わらないようにした。object-fitはcover(トリミング)では
+   * なくcontain(画像全体を余白付きで収める)にしている。coverだと提供写真の
+   * 構図が切れてしまうという指摘があったため、画像そのものはノートリミングで
+   * 全体を表示し、余白は背景色で埋める。
+   * (aspect-ratio自体はProductCard等と同じ4/5に揃えている)
    */
   .gallery--enhanced .gallery__main {
     position: relative;
@@ -79,7 +82,7 @@ const images = product.data.images;
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     margin-bottom: 0;
     opacity: 0;
     transition: opacity var(--duration-fast) var(--ease-out);
