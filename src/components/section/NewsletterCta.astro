@@ -132,12 +132,17 @@
       if (form && result !== 'error') {
         form.hidden = true;
       }
+
+      // 実バグ修正: リダイレクト先URLの#newsletterアンカーによるブラウザ標準の
+      // 自動スクロールは、Astroのページ遷移機構(ClientRouter)に横取りされて
+      // 効かないことがあったため、JSで明示的にこの位置までスクロールさせる。
+      section.scrollIntoView({ behavior: 'instant', block: 'start' });
     }
 
-    // 同じ結果がリロード・共有のたびに再表示されないようURLからクエリを除去する
+    // 同じ結果がリロード・共有のたびに再表示されないようURLからクエリとアンカーを除去する
     params.delete('newsletter');
     const newSearch = params.toString();
-    const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+    const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '');
     window.history.replaceState(null, '', newUrl);
   })();
 </script>
