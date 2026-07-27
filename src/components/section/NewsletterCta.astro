@@ -1,43 +1,35 @@
 ---
 /**
  * NewsletterCta — 26章c24(00章P-12・12章§6からV3で繰り延べ実装)
- * Buttondownの静的フォーム埋め込み。外部JSは一切読み込まず、素のHTML
- * <form method="post"> のみで完結させる(CSP的に外部スクリプトゼロを維持)。
- * target="_blank" で送信後の確認画面を別タブに開くのみで、インラインJS
- * (onsubmit等)も使わない。
  *
- * 実バグ修正: 一時、非表示iframeへ送信してその場に日本語の完了メッセージを
- * 表示する方式を試したが、実際の送信が完了したかどうかに関わらずJS側で
- * 楽観的に「成功」表示をしてしまい、実際にはButtondown側に登録されていない
- * (確認メールが届かない・購読者一覧にも載らない)事例が発生した。フォーム送信
- * 自体の成否を確実に検証する手段がない以上、この方式は購読者を静かに
- * 取りこぼす危険があるため撤回し、実際に届くことが確認済みのtarget="_blank"
- * 方式に戻した。英語画面が急に開いて驚かれる点は、送信前にリード文で
- * 「次に開く確認画面は英語表示です」と一言添えることで対応する(送信経路
- * 自体には手を加えない)。
+ * 実バグ修正の経緯: ①最初はButtondownの埋め込みフォームAPIへ直接POSTし、
+ * target="_blank"で確認画面を別タブに開いていたが、英語表記で訪問者の
+ * 不安を煽る・タブを閉じる手間が増えるとの指摘があった。②非表示iframeへ
+ * 送信してその場に日本語メッセージを出す方式を試したが、実際の送信結果を
+ * 確認する手段がなく、未登録なのに画面上は成功したように見える不具合に
+ * なった。③最終的に、フォームは同一オリジンの/newsletter/subscribe(Pages
+ * Function)へPOSTし、そこでButtondown公式APIへサーバー側から登録・
+ * 成否確認したうえでトップページへ結果(?newsletter=success|already|error)
+ * 付きでリダイレクトする方式にした。新しいタブは開かず、英語画面も
+ * 一切表示されず、かつ実際の成否に基づいた日本語メッセージを表示できる。
  *
- * newsletterUrl(site.jsonのButtondown埋め込みaction URL)が未設定の場合は
- * 何も描画しない(Astro側でセクションごと出し分ける)。
- * Props: actionUrl(例: https://buttondown.email/api/emails/embed-subscribe/{username})
+ * 表示するsite.jsonのnewsletterUrlは、この機能を使うかどうかのフラグとして
+ * のみ使う(未設定の場合はAstro側でセクションごと出し分ける)。実際の登録
+ * 処理はBUTTONDOWN_API_KEY(Cloudflare Pagesの環境変数)を使って
+ * functions/newsletter/subscribe.tsが行う。
  */
-interface Props {
-  actionUrl: string;
-}
-
-const { actionUrl } = Astro.props;
 ---
 
-<section class="newsletter-cta">
+<section class="newsletter-cta" data-newsletter>
   <div class="container-text newsletter-cta__inner">
     <p class="newsletter-cta__heading">メールでも、少しだけ。</p>
     <p class="newsletter-cta__lead">新しい記事やおすすめ商品を、月に数回ほどメールでお届けします。</p>
-    <form action={actionUrl} method="post" target="_blank" class="newsletter-cta__form">
+    <form action="/newsletter/subscribe" method="post" class="newsletter-cta__form" data-newsletter-form>
       <label for="newsletter-email" class="visually-hidden">メールアドレス</label>
       <input type="email" name="email" id="newsletter-email" placeholder="メールアドレス" required class="newsletter-cta__input" />
-      <input type="hidden" value="1" name="embed" />
       <button type="submit" class="newsletter-cta__submit">登録する</button>
     </form>
-    <p class="newsletter-cta__note">登録すると確認画面が別タブで開きます(表示は英語ですが、内容の確認は不要です)。</p>
+    <p class="newsletter-cta__message" data-newsletter-message hidden aria-live="polite"></p>
   </div>
 </section>
 
@@ -78,6 +70,10 @@ const { actionUrl } = Astro.props;
     gap: var(--space-3);
   }
 
+  .newsletter-cta__form[hidden] {
+    display: none;
+  }
+
   .newsletter-cta__input {
     flex: 1 1 240px;
     max-width: 320px;
@@ -101,9 +97,47 @@ const { actionUrl } = Astro.props;
     opacity: 0.92;
   }
 
-  .newsletter-cta__note {
-    margin-top: var(--space-3);
-    font-size: var(--text-xs);
-    color: var(--color-ink-tertiary);
+  .newsletter-cta__message {
+    margin-top: var(--space-5);
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
   }
 </style>
+
+<script is:inline data-astro-rerun>
+  // data-astro-rerun: View Transitions遷移後も結果表示ロジックを再実行するために必須
+  (function () {
+    const sections = document.querySelectorAll('[data-newsletter]');
+    if (sections.length === 0) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const result = params.get('newsletter');
+    if (!result) return;
+
+    const MESSAGES = {
+      success: '登録ありがとうございます。確認のメールが届きますので、ご確認ください。',
+      already: 'このメールアドレスは既に登録済みです。',
+      error: '登録に失敗しました。お手数ですが、時間をおいて再度お試しください。',
+    };
+    const text = MESSAGES[result];
+    if (!text) return;
+
+    for (const section of sections) {
+      const form = section.querySelector('[data-newsletter-form]');
+      const message = section.querySelector('[data-newsletter-message]');
+      if (!message) continue;
+
+      message.textContent = text;
+      message.hidden = false;
+      if (form && result !== 'error') {
+        form.hidden = true;
+      }
+    }
+
+    // 同じ結果がリロード・共有のたびに再表示されないようURLからクエリを除去する
+    params.delete('newsletter');
+    const newSearch = params.toString();
+    const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+    window.history.replaceState(null, '', newUrl);
+  })();
+</script>

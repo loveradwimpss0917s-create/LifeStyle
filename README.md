@@ -181,7 +181,12 @@ V1・V2(ブランド刷新・ダークモード等)ともに実装は完了し�
    3. **自動注入が入らない場合のみ**(Pagesの既知の不安定挙動): Web Analytics > 対象サイト > **Manage site** のスニペットからトークンを取得し、Pagesの環境変数 `PUBLIC_CF_BEACON_TOKEN` に設定 → 再デプロイ(こちらの手動ビーコンは実装済み・`.env.example`参照)
    4. 注意: 自動注入と環境変数の**両方を有効にしない**(二重計測になる)。ソースにビーコンが2つ出ていたら環境変数側を削除
 9. **クリック計測用Analytics Engineバインディング(任意)** — `/go/` リダイレクト(26章c11)は未設定でも動作しますが、クリック単位の記録を残したい場合は上記「クリック計測用 Pages Functions」の手順で `CLICKS` バインディングを追加してください
-10. **Newsletter(Buttondown)の設定(任意)** — トップページのメール登録フォーム(26章c24)は `site.json` の `newsletterUrl` が未設定の間は非表示です。有効化する場合: [Buttondown](https://buttondown.email/)でアカウントを作成し、埋め込みフォームのaction URL(`https://buttondown.email/api/emails/embed-subscribe/{username}` の形式)を `newsletterUrl` に設定してください。外部JSは一切読み込まない素のHTMLフォームのため、CSPやパフォーマンスへの影響はありません
+10. **Newsletter(Buttondown)の設定(任意)** — トップページのメール登録フォーム(26章c24)は `site.json` の `newsletterUrl` が未設定の間は非表示です(このURLの値自体は現在フラグとしてのみ使われます)。フォームは同一オリジンの `/newsletter/subscribe`(`functions/newsletter/subscribe.ts`)へ送信し、そこでButtondown公式API経由でサーバー側から登録・成否確認したうえで日本語の結果メッセージを表示します(外部タブや英語画面は表示されません)。有効化する場合:
+    1. [Buttondown](https://buttondown.email/)でアカウントを作成
+    2. `site.json` の `newsletterUrl` に何らかの値(例: `https://buttondown.email/api/emails/embed-subscribe/{username}`)を設定してフォーム自体を表示させる
+    3. Buttondown管理画面 → **Settings > API** でAPIキーを発行
+    4. Cloudflare Pages → 対象プロジェクト → **Settings > Variables and secrets** で `BUTTONDOWN_API_KEY` という名前のSecretとして追加(このキーは公開してはいけないため、`site.json`ではなく必ずCloudflare側のSecretに設定する)
+    5. `BUTTONDOWN_API_KEY` が未設定の間は登録フォームは表示されるが、送信すると「登録に失敗しました」という日本語エラーになる(0章§0前提: 環境変数未設定でも壊れない)
 11. **AIパイプラインの有効化(任意・26章ブロックD)** — Issueにコメントを送ると商品レビューの下書きPRが自動生成される仕組み(`pipeline/`)は未設定の間は動作しません。有効化する場合: (1) `ANTHROPIC_API_KEY` をGitHub Secretsに設定 (2) `intake` ラベルをリポジトリに作成 (3) 09章§3の形式(メモ+撮影日+画像)でIssueを作成し `intake` ラベルを付ける、と `.github/workflows/generate.yml` が自動でPRを作成します。生成物は必ず人間がレビュー・チェックリスト確認のうえマージしてください(全自動公開は行いません)
 12. **リライト候補の週次自動起票(26章c25)** — `.github/workflows/rewrite-suggest.yml` が毎週月曜09:00 JSTに実行され、公開から90日以上更新のない記事・商品を`rewrite-suggest`ラベル付きのIssueとして起票します(ラベルは存在しなければGitHubが自動作成)。追加のSecrets設定は不要(`GITHUB_TOKEN`はActions実行時に自動付与)。手動実行はActionsタブから `workflow_dispatch` で可能
 13. **週次分析レポートの有効化(任意・26章c26)** — `.github/workflows/weekly-report.yml` は毎週月曜10:00 JSTにWeb Analyticsのページビュー・`/go/`クリック数を集計し `weekly-report`ラベル付きのIssueへ投稿します。有効化する場合、以下3つをGitHub Secretsに設定してください:

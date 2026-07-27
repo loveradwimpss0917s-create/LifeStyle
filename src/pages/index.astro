@@ -129,7 +129,7 @@ const siteShareImageUrl = new URL('/story/site.png', Astro.site).toString();
 
   {site?.data.newsletterUrl && (
     <div class="home-section">
-      <NewsletterCta actionUrl={site.data.newsletterUrl} />
+      <NewsletterCta />
     </div>
   )}
 
