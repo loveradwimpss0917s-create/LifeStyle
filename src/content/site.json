@@ -30,6 +30,7 @@
       ]
     },
     "contactEmail": "sucreet.web@gmail.com",
+    "newsletterUrl": "https://buttondown.email/api/emails/embed-subscribe/hibistack",
     "editorsPicks": ["nordic-paper-cord-dining-chair"],
     "pinned": {}
   }
