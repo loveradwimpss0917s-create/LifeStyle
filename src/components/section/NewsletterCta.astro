@@ -122,12 +122,15 @@
     const text = MESSAGES[result];
     if (!text) return;
 
+    // 調査用の一時的な診断情報表示(原因特定後に削除する)。
+    const debugInfo = params.get('newsletter_debug');
+
     for (const section of sections) {
       const form = section.querySelector('[data-newsletter-form]');
       const message = section.querySelector('[data-newsletter-message]');
       if (!message) continue;
 
-      message.textContent = text;
+      message.textContent = text + (debugInfo ? ' [debug: ' + debugInfo + ']' : '');
       message.hidden = false;
       if (form && result !== 'error') {
         form.hidden = true;
@@ -136,6 +139,7 @@
 
     // 同じ結果がリロード・共有のたびに再表示されないようURLからクエリを除去する
     params.delete('newsletter');
+    params.delete('newsletter_debug');
     const newSearch = params.toString();
     const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
     window.history.replaceState(null, '', newUrl);

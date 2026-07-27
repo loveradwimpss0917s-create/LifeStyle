@@ -60,9 +60,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       const bodyText = await res.text().catch(() => '');
       const alreadySubscribed = /already|duplicate|exists/i.test(bodyText);
       redirectTo.searchParams.set('newsletter', alreadySubscribed ? 'already' : 'error');
+      // 調査用の一時的な診断情報(APIキーそのものは含まない)。原因特定後に削除する。
+      redirectTo.searchParams.set('newsletter_debug', `${res.status}:${bodyText.slice(0, 200)}`);
     }
-  } catch {
+  } catch (err) {
     redirectTo.searchParams.set('newsletter', 'error');
+    redirectTo.searchParams.set('newsletter_debug', `throw:${err instanceof Error ? err.message : String(err)}`);
   }
 
   return Response.redirect(redirectTo.toString(), 303);
