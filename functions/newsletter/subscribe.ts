@@ -36,11 +36,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   if (!email) {
     redirectTo.searchParams.set('newsletter', 'error');
+    redirectTo.searchParams.set('newsletter_debug', 'no-email');
     return Response.redirect(redirectTo.toString(), 303);
   }
 
   if (!env.BUTTONDOWN_API_KEY) {
     redirectTo.searchParams.set('newsletter', 'error');
+    redirectTo.searchParams.set('newsletter_debug', 'no-api-key-binding');
     return Response.redirect(redirectTo.toString(), 303);
   }
 
