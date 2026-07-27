@@ -31,6 +31,10 @@ interface Env {
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
   const redirectTo = new URL('/', request.url);
+  // 送信後にページ最上部へ戻ってしまい結果メッセージが見えなくなるのを防ぐため、
+  // Newsletterセクションのid(#newsletter)へブラウザ標準のアンカー機能で
+  // 自動スクロールさせる。
+  redirectTo.hash = 'newsletter';
 
   let email: string | null = null;
   try {
