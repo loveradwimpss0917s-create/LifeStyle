@@ -1,10 +1,12 @@
 ---
 /**
  * NewsletterCta — 26章c24(00章P-12・12章§6からV3で繰り延べ実装)
- * Buttondownの静的フォーム埋め込み。外部JSは一切読み込まず、素のHTML
- * <form method="post"> のみで完結させる(CSP的に外部スクリプトゼロを維持)。
- * target="_blank" で送信後の確認画面を別タブに開くのみで、インラインJS
- * (onsubmit等)も使わない。
+ * Buttondownの静的フォーム埋め込み。外部JSは一切読み込まない(CSP的に外部
+ * スクリプトゼロを維持)。送信先はButtondownの英語UIの確認画面だが、それを
+ * そのまま訪問者に見せる(target="_blank"で別タブに開く)と、サイトが日本語
+ * なのに突然英語の画面に切り替わって驚かれるため、非表示のiframeへ送信し、
+ * 実際のページ遷移をさせずにフォームを日本語の完了メッセージへ置き換える
+ * (第一者インラインスクリプトのみで完結・外部ライブラリ不使用)。
  * newsletterUrl(site.jsonのButtondown埋め込みaction URL)が未設定の場合は
  * 何も描画しない(Astro側でセクションごと出し分ける)。
  * Props: actionUrl(例: https://buttondown.email/api/emails/embed-subscribe/{username})
@@ -16,16 +18,20 @@ interface Props {
 const { actionUrl } = Astro.props;
 ---
 
-<section class="newsletter-cta">
+<section class="newsletter-cta" data-newsletter>
   <div class="container-text newsletter-cta__inner">
     <p class="newsletter-cta__heading">メールでも、少しだけ。</p>
     <p class="newsletter-cta__lead">新しい記事やおすすめ商品を、月に数回ほどメールでお届けします。</p>
-    <form action={actionUrl} method="post" target="_blank" class="newsletter-cta__form">
+    <form action={actionUrl} method="post" target="newsletter-cta-frame" class="newsletter-cta__form" data-newsletter-form>
       <label for="newsletter-email" class="visually-hidden">メールアドレス</label>
       <input type="email" name="email" id="newsletter-email" placeholder="メールアドレス" required class="newsletter-cta__input" />
       <input type="hidden" value="1" name="embed" />
       <button type="submit" class="newsletter-cta__submit">登録する</button>
     </form>
+    <p class="newsletter-cta__success" data-newsletter-success hidden aria-live="polite">
+      登録ありがとうございます。確認のメールが届きますので、ご確認ください。
+    </p>
+    <iframe name="newsletter-cta-frame" class="visually-hidden" title="ニュースレター登録処理用(非表示)" tabindex="-1"></iframe>
   </div>
 </section>
 
@@ -66,6 +72,10 @@ const { actionUrl } = Astro.props;
     gap: var(--space-3);
   }
 
+  .newsletter-cta__form[hidden] {
+    display: none;
+  }
+
   .newsletter-cta__input {
     flex: 1 1 240px;
     max-width: 320px;
@@ -88,4 +98,31 @@ const { actionUrl } = Astro.props;
   .newsletter-cta__submit:hover {
     opacity: 0.92;
   }
+
+  .newsletter-cta__success {
+    margin-top: var(--space-5);
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+  }
 </style>
+
+<script is:inline data-astro-rerun>
+  // data-astro-rerun: View Transitions遷移後もフォームへ再アタッチするために必須
+  (function () {
+    const sections = document.querySelectorAll('[data-newsletter]');
+
+    for (const section of sections) {
+      const form = section.querySelector('[data-newsletter-form]');
+      const success = section.querySelector('[data-newsletter-success]');
+      if (!form || !success) continue;
+
+      form.addEventListener('submit', () => {
+        // 実際の送信は非表示iframeへのフォームPOSTに任せる(このイベント自体は
+        // 標準のHTML5バリデーション通過後にのみ発火するため、ここに到達した
+        // 時点でメールアドレスの形式は妥当と判断してよい)。
+        form.hidden = true;
+        success.hidden = false;
+      });
+    }
+  })();
+</script>
