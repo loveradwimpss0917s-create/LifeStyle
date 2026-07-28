@@ -81,6 +81,28 @@ const { rank, product, comment, compact = false } = Astro.props;
     overflow-wrap: anywhere;
   }
 
+  @media (max-width: 767px) {
+    .ranking-item {
+      gap: var(--space-3);
+    }
+
+    .ranking-item__rank {
+      width: 1.6em;
+      font-size: var(--text-xl);
+    }
+
+    .ranking-item__image {
+      width: 64px;
+    }
+
+    /* 狭い幅ではkeep-allだと先頭の単語だけが1行を占有し行数が増えるため、
+       通常の折り返しに切り替えて行を均等に詰める */
+    .ranking-item__name a {
+      word-break: normal;
+      overflow-wrap: anywhere;
+    }
+  }
+
   .ranking-item__comment {
     margin-top: var(--space-2);
     font-size: var(--text-sm);

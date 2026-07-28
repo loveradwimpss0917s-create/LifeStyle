@@ -15,7 +15,11 @@ const site = await getEntry('site', 'main');
 const jsonLd = site ? await buildPersonJsonLd(Astro.site!, site.data.author, site.data.sns) : undefined;
 ---
 
-<BaseLayout title="About" description={site?.data.description ?? 'HIBISTACKについて'} jsonLd={jsonLd}>
+<BaseLayout
+  title="HIBISTACKについて"
+  description="HIBISTACKを運営しているきのこのプロフィールと、実際に買って使ったものだけを正直に書くというレビューポリシーについてまとめています。"
+  jsonLd={jsonLd}
+>
   <div class="container">
     <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
   </div>
@@ -26,6 +30,7 @@ const jsonLd = site ? await buildPersonJsonLd(Astro.site!, site.data.author, sit
         <div class="about-hero__media">
           <Image src={site.data.heroImage} alt={site.data.heroAlt} width={1440} priority />
         </div>
+        <h1 class="about-hero__heading">HIBISTACKについて</h1>
         <p class="about-hero__tagline">{site.data.tagline}</p>
       </section>
 
@@ -76,6 +81,13 @@ const jsonLd = site ? await buildPersonJsonLd(Astro.site!, site.data.author, sit
     height: auto;
   }
 
+
+  .about-hero__heading {
+    margin-top: var(--space-5);
+    font-size: var(--text-2xl);
+    color: var(--color-ink);
+    text-align: center;
+  }
 
   .about-hero__tagline {
     margin-top: var(--space-4);

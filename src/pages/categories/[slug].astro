@@ -49,7 +49,11 @@ const relatedTags = relatedTagIds.size
   : [];
 ---
 
-<BaseLayout title={category.data.nameJa} description={category.data.lead}>
+<BaseLayout
+  title={category.data.nameJa}
+  description={category.data.lead}
+  noindex={categoryArticles.length === 0 && categoryProducts.length === 0}
+>
   <div class="container">
     <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: category.data.nameJa }]} />
   </div>
@@ -89,6 +93,18 @@ const relatedTags = relatedTagIds.size
       <div class="category-tags">
         {relatedTags.map((tag) => <TagChip tag={tag} />)}
       </div>
+    </section>
+  )}
+
+  {categoryArticles.length === 0 && categoryProducts.length === 0 && (
+    <section class="container category-section category-empty">
+      <p class="category-empty__text">
+        このカテゴリの記事は、いま準備しています。公開までもう少しお待ちください。
+      </p>
+      <p class="category-empty__links">
+        <a href="/articles/">記事一覧を見る</a>
+        <a href="/ranking/">実際に使って良かったものランキング</a>
+      </p>
     </section>
   )}
 </BaseLayout>
@@ -137,5 +153,17 @@ const relatedTags = relatedTagIds.size
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
+  }
+
+  .category-empty__text {
+    font-size: var(--text-base);
+    color: var(--color-ink-secondary);
+  }
+
+  .category-empty__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-top: var(--space-5);
   }
 </style>

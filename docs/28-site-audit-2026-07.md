@@ -931,16 +931,27 @@ Playwrightでトップページを390px幅で走査したところ、`--sm` が�
 
 ### すぐ着手(工数小・効果大)— オーナー確認不要、上から順に実施可
 
-- [ ] **課題1**: `src/lib/nav.ts` — 記事/商品0件のカテゴリをヘッダーナビから除外
-- [ ] **課題2**: `src/pages/categories/[slug].astro` — 空カテゴリの代替導線 + `noindex`
-- [ ] **課題5**: `src/pages/about.astro` — `<h1>HIBISTACKについて</h1>` を追加
-- [ ] **課題7**: `src/pages/about.astro` — About固有のmeta descriptionに変更(課題5と同時実施)
-- [ ] **課題6**: `src/pages/index.astro` + `src/layouts/BaseLayout.astro` — トップのtitle/descriptionを検索語入りに
-- [ ] **課題4**: 記事4本のfrontmatterに `seo.description` を追加
-- [ ] **課題10**: `RankingItem.astro` — モバイル767px以下の幅配分を調整
+- [x] **課題1**: `src/lib/nav.ts` — 記事/商品0件のカテゴリをヘッダーナビから除外(実装・実測確認済み)
+- [x] **課題2**: `src/pages/categories/[slug].astro` — 空カテゴリの代替導線 + `noindex`(実装・実測確認済み)
+- [x] **課題5**: `src/pages/about.astro` — `<h1>HIBISTACKについて</h1>` を追加(実装・実測確認済み)
+- [x] **課題7**: `src/pages/about.astro` — About固有のmeta descriptionに変更(課題5と同時実施・実測確認済み)
+- [x] **課題6**: `src/pages/index.astro` + `src/layouts/BaseLayout.astro` — トップのtitle/descriptionを検索語入りに(実装・実測確認済み)
+- [x] **課題4**: 記事4本のfrontmatterに `seo.description` を追加(実装・実測確認済み)
+- [x] **課題10**: `RankingItem.astro` — モバイル767px以下の幅配分を調整(実装・実測確認済み)
 
 上記7件はいずれも既存の事実の範囲で完結し、新規の一次情報を必要としない。
 `npm run build` と `npx astro check` を通し、モバイル390pxで横スクロールが出ないことを確認してからcommitする。
+
+**実装時の追加修正(設計時未検出)**:
+- 課題5と課題6を両方実装すると、`BaseLayout.astro` の `title.startsWith(siteName)` 判定により
+  Aboutの `<title>` が `HIBISTACKについて`(末尾の `| HIBISTACK` が欠落)になる不具合が発生した。
+  判定を `title === siteName || title.startsWith(\`${siteName} |\`)` に修正して解消。
+- 課題10は幅配分の調整だけでは解消せず、`.ranking-item__name a` の `word-break: keep-all` が
+  実際の原因だった(先頭の「イワタニ」が空白の直前で強制改行され3行になっていた)。
+  767px以下でのみ `word-break: normal` に切り替えて2行に短縮。
+  合わせて、CSS内でメディアクエリのブロックを基本ルールより前に置いていたため
+  同じ詳細度で後勝ちのルールに上書きされていた点も修正(基本ルールを先に、
+  メディアクエリを後に配置する構成に変更)。
 
 ### 次のスプリント — オーナーへの確認・ヒアリングを伴う
 
