@@ -123,6 +123,12 @@ const siteShareImageUrl = new URL('/story/site.png', Astro.site).toString();
     </section>
   )}
 
+  <section class="container home-section reveal home-quiz">
+    <p class="home-quiz__heading">どれが合うか迷ったら</p>
+    <p class="home-quiz__lead">4つの質問に答えると、暮らしに合いそうなものをご紹介します。</p>
+    <a class="home-quiz__link" href="/quiz/">おすすめ診断をはじめる</a>
+  </section>
+
   <div class="home-section reveal">
     <AboutTeaser />
   </div>
@@ -166,5 +172,29 @@ const siteShareImageUrl = new URL('/story/site.png', Astro.site).toString();
     .home-categories {
       grid-template-columns: repeat(3, 1fr);
     }
+  }
+
+  .home-quiz {
+    text-align: center;
+  }
+
+  .home-quiz__heading {
+    font-size: var(--text-lg);
+    color: var(--color-ink);
+  }
+
+  .home-quiz__lead {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+  }
+
+  .home-quiz__link {
+    display: inline-block;
+    margin-top: var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--color-ink);
+    border-bottom: var(--border-thin);
+    padding-bottom: var(--space-1);
   }
 </style>

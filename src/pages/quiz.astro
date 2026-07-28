@@ -13,6 +13,7 @@ import { getImage } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Breadcrumb from '@/components/base/Breadcrumb.astro';
 import { getPublished } from '@/lib/content';
+import { getArticlesForProduct } from '@/lib/product-index';
 
 const quiz = await getEntry('quiz', 'main');
 const questions = quiz?.data.questions ?? [];
@@ -21,6 +22,7 @@ const products = await getPublished('products');
 const productData = await Promise.all(
   products.map(async (product) => {
     const optimized = await getImage({ src: product.data.images[0].src, width: 400 });
+    const articles = await getArticlesForProduct(product.id);
     return {
       id: product.id,
       name: product.data.name,
@@ -30,6 +32,7 @@ const productData = await Promise.all(
       summary: product.data.summary,
       categoryId: product.data.category.id,
       tagIds: product.data.tags.map((t) => t.id),
+      articleUrl: articles.length > 0 ? `/articles/${articles[0].id}/` : null,
     };
   })
 );
@@ -157,6 +160,9 @@ const quizDataJson = JSON.stringify({ questions, products: productData }).replac
         resultListEl.innerHTML = scored
           .map(function (entry) {
             var p = entry.product;
+            var articleLink = p.articleUrl
+              ? '<a class="quiz-result-card__article-link" href="' + p.articleUrl + '">使ってみた感想を読む</a>'
+              : '';
             return (
               '<article class="quiz-result-card">' +
               '<a href="/products/' + p.id + '/" class="quiz-result-card__media">' +
@@ -166,6 +172,7 @@ const quizDataJson = JSON.stringify({ questions, products: productData }).replac
               '<h3 class="quiz-result-card__name"><a href="/products/' + p.id + '/">' + escapeHtml(p.name) + '</a></h3>' +
               '<p class="quiz-result-card__summary">' + escapeHtml(p.summary) + '</p>' +
               '<p class="quiz-result-card__rating">評価 ' + p.rating + ' / 5</p>' +
+              articleLink +
               '</div>' +
               '</article>'
             );
@@ -353,6 +360,14 @@ const quizDataJson = JSON.stringify({ questions, products: productData }).replac
     font-size: var(--text-xs);
     color: var(--color-ink-tertiary);
     font-feature-settings: 'tnum';
+  }
+
+  .quiz-result-list :global(.quiz-result-card__article-link) {
+    display: inline-block;
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+    border-bottom: var(--border-thin);
   }
 
   .quiz-result__note {
