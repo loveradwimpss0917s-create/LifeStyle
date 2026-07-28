@@ -52,6 +52,23 @@ const jsonLd = site ? await buildPersonJsonLd(Astro.site!, site.data.author, sit
           <li>良かった点だけでなく、気になった点も正直に書きます。</li>
           <li>広告・アフィリエイトの表記は、常に分かりやすく明示します。</li>
         </ul>
+        <p class="about-policy-note">
+          掲載している商品は、原則としてすべて自分で購入したものです。
+          メーカーから提供を受けた場合は、その旨を記事内に明記します。
+        </p>
+        <p class="about-policy-note">
+          レビューは、実際に使った期間を記事ごとに記載しています。
+          使い始めたばかりのものは「使い始めて1週間」のように期間を明示します。
+          その時点で分かっていないことは、分かっていないとそのまま書きます。
+        </p>
+        <p class="about-policy-note">
+          使い続けるうちに新しく気づいたことがあれば、公開後の記事にも追記しています。
+          良かった点が変わることもあれば、逆に気になる点が増えることもあります。
+          そのときどきの正直な実感を、そのまま残すようにしています。
+        </p>
+        <p class="about-policy-note">
+          広告表記の詳しい方針は<a href="/disclosure/">アフィリエイト・PR表記について</a>にまとめています。
+        </p>
       </section>
 
       <section class="about-section container-text">
@@ -170,6 +187,12 @@ const jsonLd = site ? await buildPersonJsonLd(Astro.site!, site.data.author, sit
   .about-promises li::before {
     content: '— ';
     color: var(--color-accent);
+  }
+
+  .about-policy-note {
+    margin-top: var(--space-4);
+    font-size: var(--text-base);
+    color: var(--color-ink-secondary);
   }
 
   .about-section :global(.social-links) {
