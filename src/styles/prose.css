@@ -96,6 +96,18 @@
   text-align: center;
 }
 
+/* 縦長のスマホ写真をそのまま等幅表示すると縦にとても長くなるため、
+   高さを上限で抑えて幅は縦横比から自動計算する(横幅は中央寄せ)。 */
+.prose figure.figure--portrait {
+  text-align: center;
+}
+
+.prose figure.figure--portrait img {
+  width: auto;
+  max-height: 420px;
+  margin-inline: auto;
+}
+
 /* 17章§5: 和文はイタリックにしない(欧文のように斜体で強調する慣習がないため)。 */
 .prose blockquote {
   padding-left: var(--space-4);
