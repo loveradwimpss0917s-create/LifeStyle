@@ -157,6 +157,7 @@ const allCategoryNav = await getAllCategoryNav();
 
   if (toggle && dialog && closeBtn) {
     let lastFocused = null;
+    let lockedScrollY = 0;
 
     const getFocusable = () =>
       Array.from(
@@ -169,7 +170,15 @@ const allCategoryNav = await getAllCategoryNav();
       lastFocused = document.activeElement;
       dialog.hidden = false;
       toggle.setAttribute('aria-expanded', 'true');
-      document.body.style.overflow = 'hidden';
+      // iOS Safariではbody { overflow: hidden } だけではスクロールを確実に
+      // ロックできず、スクロール中(ツールバーの開閉アニメーション中)に
+      // ダイアログを開くとposition: fixedの描画がずれ、中身が正しく
+      // 表示されないことがある。bodyをposition: fixedで固定し、閉じるときに
+      // 元のスクロール位置へ戻す方式のほうが確実。
+      lockedScrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${lockedScrollY}px`;
+      document.body.style.width = '100%';
       closeBtn.focus();
       document.addEventListener('keydown', onKeydown);
     };
@@ -177,7 +186,10 @@ const allCategoryNav = await getAllCategoryNav();
     const close = () => {
       dialog.hidden = true;
       toggle.setAttribute('aria-expanded', 'false');
-      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      window.scrollTo(0, lockedScrollY);
       document.removeEventListener('keydown', onKeydown);
       (lastFocused ?? toggle).focus();
     };
