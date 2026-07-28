@@ -1,5 +1,5 @@
 ---
-name: "コンビ THE S ISOFIX ZC-690(新生児対応 回転式チャイルドシート)"
+name: "コンビ THE S ISOFIX ZC-690(新生児対応 回転式チャイルドシート)"
 category: parenting
 brand: combi
 price: 53975
@@ -16,7 +16,7 @@ concernPoints:
   - "車への取り付けは、公式YouTubeを見ながら練習が必要だった"
 images:
   - src: "../../assets/products/combi-the-s-isofix/01-product.jpg"
-    alt: "コンビ THE S ISOFIX ZC-690(回転式チャイルドシート)の商品写真(メーカー提供画像・実写に差し替え予定)"
+    alt: "コンビ THE S ISOFIX ZC-690(回転式チャイルドシート)の商品写真(メーカー提供画像・実写に差し替え予定)"
   - src: "../../assets/products/combi-the-s-isofix/02-separate.jpg"
     alt: "ベースとシートを分離できるセパレート構造を説明したメーカー画像(実写に差し替え予定)"
   - src: "../../assets/products/combi-the-s-isofix/03-egg-shock.jpg"
