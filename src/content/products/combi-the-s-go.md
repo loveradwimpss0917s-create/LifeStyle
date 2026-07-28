@@ -16,6 +16,8 @@ concernPoints:
 images:
   - src: "../../assets/products/combi-the-s-go/01-product.jpg"
     alt: "コンビ THE S Go(A型両対面ベビーカー・カシューベージュ)の商品写真(メーカー提供画像・実写に差し替え予定)"
+  - src: "../../assets/products/combi-the-s-go/02-supermarket.jpg"
+    alt: "スーパーでの買い物中に実際に使っている様子(子どもの顔はスタンプで加工)"
 tags:
   - kattekyokatta
   - shussan-junbi

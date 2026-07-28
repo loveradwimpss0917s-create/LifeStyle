@@ -21,6 +21,8 @@ images:
     alt: "ベースとシートを分離できるセパレート構造を説明したメーカー画像(実写に差し替え予定)"
   - src: "../../assets/products/combi-the-s-isofix/03-egg-shock.jpg"
     alt: "頭部両側面のエッグショック・クッション構造を説明したメーカー画像(実写に差し替え予定)"
+  - src: "../../assets/products/combi-the-s-isofix/04-entryway.jpg"
+    alt: "すやすや眠る子をシートに乗せたまま玄関まで連れて入れた実際の様子(顔はスタンプで加工)"
 tags:
   - kattekyokatta
   - shussan-junbi
