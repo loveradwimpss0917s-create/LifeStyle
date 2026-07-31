@@ -34,7 +34,8 @@ const containerAspectRatio = Math.min(...images.map((img) => img.src.width / img
           src={img.src}
           alt={img.alt}
           width={800}
-          densities={[1, 2]}
+          widths={[480, 640, 960, 1280]}
+          sizes="(min-width: 768px) 640px, calc(100vw - 40px)"
           class="gallery__main-image"
           loading={index === 0 ? 'eager' : 'lazy'}
           priority={index === 0}

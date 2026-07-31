@@ -39,7 +39,8 @@ if (canMorph) locals.productTransitionIds.add(product.id);
       src={product.data.images[0].src}
       alt={product.data.images[0].alt}
       width={400}
-      densities={[1, 2]}
+      widths={[240, 320, 480, 640]}
+      sizes="(min-width: 768px) 280px, 45vw"
       class="product-card__image"
       transition:name={canMorph ? `product-image-${product.id}` : undefined}
     />

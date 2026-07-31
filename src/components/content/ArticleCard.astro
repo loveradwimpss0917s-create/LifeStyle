@@ -24,7 +24,12 @@ const dateLabel = article.data.publishedAt ? formatDate(article.data.publishedAt
         src={article.data.heroImage}
         alt={article.data.heroAlt}
         width={variant === 'large' ? 800 : 480}
-        densities={[1, 2]}
+        widths={variant === 'large' ? [480, 640, 960, 1280] : [320, 480, 640, 960]}
+        sizes={
+          variant === 'large'
+            ? '(min-width: 768px) 55vw, 100vw'
+            : '(min-width: 1200px) 370px, (min-width: 768px) 31vw, calc(100vw - 40px)'
+        }
         class="article-card__image"
       />
     </div>
