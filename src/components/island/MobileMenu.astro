@@ -51,6 +51,7 @@ const allCategoryNav = await getAllCategoryNav();
           <a href={item.href}>{item.labelJa}</a>
         </li>
       ))}
+      <li><a href="/categories/" class="mobile-menu__all-categories">すべてのカテゴリを見る</a></li>
       <li><a href="/ranking/">Ranking</a></li>
       <li><a href="/quiz/">おすすめ診断</a></li>
       <li><a href="/favorites/">お気に入り</a></li>
@@ -125,6 +126,14 @@ const allCategoryNav = await getAllCategoryNav();
     gap: var(--space-4);
     font-size: var(--text-xl);
     font-family: var(--font-en);
+  }
+
+  .mobile-menu__all-categories {
+    font-size: var(--text-sm);
+    font-family: var(--font-ja);
+    color: var(--color-ink-secondary);
+    border-bottom: var(--border-thin);
+    padding-bottom: 2px;
   }
 
   .mobile-menu__theme {
