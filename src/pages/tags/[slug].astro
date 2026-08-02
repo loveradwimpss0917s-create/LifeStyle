@@ -40,7 +40,7 @@ const editorsPicks = site
   : [];
 ---
 
-<BaseLayout title={`#${tag.data.name}`} description={`「${tag.data.name}」に関する記事・商品一覧`}>
+<BaseLayout title={`#${tag.data.name}`} description={`「${tag.data.name}」に関する記事・商品一覧`} noindex={isEmpty}>
   <div class="container">
     <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: `#${tag.data.name}` }]} />
     <h1 class="page-heading">#{tag.data.name}</h1>

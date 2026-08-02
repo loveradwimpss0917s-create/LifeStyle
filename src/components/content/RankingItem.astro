@@ -6,6 +6,7 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import RatingStars from '@/components/base/RatingStars.astro';
+import { getArticlesForProduct } from '@/lib/product-index';
 
 interface Props {
   rank: number;
@@ -15,6 +16,8 @@ interface Props {
 }
 
 const { rank, product, comment, compact = false } = Astro.props;
+const articles = await getArticlesForProduct(product.id);
+const articleHref = articles.length > 0 ? `/articles/${articles[0].id}/` : null;
 ---
 
 <div class:list={['ranking-item', { 'ranking-item--compact': compact }]} id={`rank-${rank}`}>
@@ -33,6 +36,9 @@ const { rank, product, comment, compact = false } = Astro.props;
     </p>
     <RatingStars rating={product.data.rating} />
     {comment && <p class="ranking-item__comment">{comment}</p>}
+    {articleHref && (
+      <a class="ranking-item__article-link" href={articleHref}>使ってみた感想を読む</a>
+    )}
   </div>
 </div>
 
@@ -107,5 +113,13 @@ const { rank, product, comment, compact = false } = Astro.props;
     margin-top: var(--space-2);
     font-size: var(--text-sm);
     color: var(--color-ink-secondary);
+  }
+
+  .ranking-item__article-link {
+    display: inline-block;
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+    border-bottom: var(--border-thin);
   }
 </style>
