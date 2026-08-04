@@ -213,6 +213,11 @@ Core Web Vitalsの評価もモバイル基準。つまり **CIが緑でも、Goo
 **H-1. CIの性能ゲートがdesktop限定 — モバイル劣化を永久に検知できない**
 - 事実: `lighthouserc.json` の `preset: "desktop"`。モバイル計測はCIに存在しない。
 - 影響: 本番モバイル59点でCIは緑。今後の劣化も検知されない。
+- **✅ 対応済み(2026-08-04)**: `lighthouserc.mobile.json`(既定のmobileプリセット)を新設し、
+  `ci.yml` に2本目のLHCI autorunステップとして追加。C-2のフォント最適化後の実測値
+  (6URL, LHCI実行, Performance 0.85〜0.99)を踏まえ、閾値はPerformance 0.75/
+  A11y・BP 0.95/SEO 0.95(/favorites/のみ0.9)から開始し、今後の改善に合わせて
+  引き上げる。
 
 **H-2. 商品ページ本文が224〜747字 — 最も購買意欲の高いページが最も薄い**
 - 事実: 記事平均2,600字に対し商品ページ平均386字。
