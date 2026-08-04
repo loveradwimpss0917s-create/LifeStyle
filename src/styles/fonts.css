@@ -14,6 +14,16 @@
  * @font-face 1本に置き換えた(4.5MB→1.1MB)。ルール数1個への削減により
  * スタイル再計算コストが解消され、Performanceが再び100前後まで回復することを
  * 確認している。
+ *
+ * 追記(2026年8月監査 C-2): 上記の1.1MB版はデスクトップのスタイル再計算コスト
+ * は解消したが、モバイル実測(4x CPU throttle)ではファイル転送そのものが
+ * FCP/LCPの支配的要因になっていた(docs/32-full-audit-2026-08.md参照、
+ * 本番PageSpeed InsightsでFCP 6.6秒/LCP 8.3秒)。サイトの実コンテンツで
+ * 使われている文字は数百字程度のため、pyftsubsetで実使用文字+ひらがな/
+ * カタカナ/半角記号/全角記号のバッファのみへ再サブセットし1.1MB→約131KB
+ * (-89%)に削減した(再生成手順はsrc/assets/fonts/README.md参照)。
+ * フォールバックがsystem-ui, sans-serifのため、サブセット外の文字は
+ * tofu化せずグレースフルにフォールバックする。
  */
 @import '@fontsource-variable/cormorant-garamond';
 

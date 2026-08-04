@@ -202,6 +202,11 @@ Core Web Vitalsの評価もモバイル基準。つまり **CIが緑でも、Goo
 - 事実: 単一WOFF2 1,119KB が VeryHigh 優先度で取得。本番モバイル FCP 6.6秒 / LCP 8.3秒。
 - 影響: モバイルユーザーは6秒以上白画面を見る。Core Web Vitals の LCP は「不良」判定域(4秒超)。
   インデックスされた後のランキングに直接効く。
+- **✅ 対応済み(2026-08-04)**: `pyftsubset` でビルド済みdistの実使用文字+ひらがな/カタカナ/
+  半角記号/全角記号のバッファのみへ再サブセット。1,119KB→131.6KB(-89%)。
+  ローカルLighthouse(mobile preset, ホームページ)実測で Performance 0.57→0.87、
+  FCP 6秒台→2.1秒、LCP 8秒台→3.8秒に改善(desktop presetのCIゲートは影響なく1.0を維持)。
+  再生成手順は `src/assets/fonts/README.md` 参照。
 
 ### 🟠 High
 
