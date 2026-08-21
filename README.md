@@ -195,6 +195,12 @@ V1・V2(ブランド刷新・ダークモード等)ともに実装は完了し�
     - `CF_WEB_ANALYTICS_SITE_TAG` — Web AnalyticsのSite Tag(ダッシュボードのWeb Analytics > 対象サイト > Manage siteで確認。上記8のビーコントークンとは別の値)
 
     クリック数の集計にはさらに `CLICKS` Analytics Engineバインディング(上記9)が必要です。未設定の項目は該当セクションが「未設定」と明記されるだけで、レポートIssue自体は必ず生成されます
+14. **管理画面 `/admin/`(任意)** — `/go/` クリック数を商品別・日別に確認できるページです。`functions/admin/_middleware.ts` によるBasic Auth(簡易パスワード)で保護されています。有効化する場合、Cloudflare Pages → 対象プロジェクト → **Settings > Variables and secrets** で以下をSecretとして追加してください:
+    - `ADMIN_PASSWORD` — `/admin/` への入室パスワード(任意の文字列。ユーザー名は問わない)
+    - `CF_API_TOKEN` — Account Analytics:Read権限を持つCloudflareのAPIトークン(上記13でGitHub Secretsに設定済みのものと同じ値を使い回せます。書き込み用の`CLICKS`バインディング(上記9)とは別物です)
+    - `CF_ACCOUNT_ID` — CloudflareアカウントID(同じく上記13と同じ値でよい)
+
+    いずれか未設定の間は該当箇所が503エラーになるだけで、他の機能には影響しません(0章§0前提)。
 
 ## 設計書の読み方
 

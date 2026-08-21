@@ -1,0 +1,212 @@
+---
+/**
+ * /admin/ — アフィリエイトクリック集計ダッシュボード。
+ * アクセス自体は functions/admin/_middleware.ts のBasic Auth(簡易パスワード)で
+ * 保護される。ページ本体は静的HTMLで、中身は /admin/api/clicks を
+ * クライアント側でfetchして描画する(favorites.astroと同じ静的シェル+
+ * クライアントfetchのパターン)。
+ *
+ * ページ閲覧数(アクセス数)はここでは扱わない。Cloudflare Web Analyticsが
+ * 既に無料でその役割を担うため、重複実装を避けダッシュボードへの導線のみ置く
+ * (docs/32 H-3: 本番稼働は要確認)。
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/base/Breadcrumb.astro';
+---
+
+<BaseLayout title="管理画面" description="アフィリエイトクリック数の集計を確認できます。" noindex>
+  {/* data-pagefind-ignore: BaseLayoutのmainに付与されるdata-pagefind-bodyから
+      このページだけを除外する(サイト内検索/search/に管理画面を出さないため)。 */}
+  <div class="container" data-pagefind-ignore>
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: '管理画面' }]} />
+    <h1 class="page-heading">管理画面</h1>
+    <p class="admin-note">
+      ページ閲覧数は
+      <a href="https://dash.cloudflare.com/" target="_blank" rel="noopener noreferrer">Cloudflareダッシュボード</a>
+      の Web Analytics で確認してください。ここではアフィリエイトリンク(/go/)のクリック数のみを扱います。
+    </p>
+
+    <div id="admin-loading" class="admin-status">読み込み中…</div>
+    <div id="admin-error" class="admin-status admin-status--error" hidden></div>
+
+    <section id="admin-totals-section" class="admin-section" hidden>
+      <h2 class="admin-section__heading">商品別クリック数(累計)</h2>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>商品ID</th>
+              <th>モール</th>
+              <th>クリック数</th>
+            </tr>
+          </thead>
+          <tbody id="admin-totals-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="admin-byday-section" class="admin-section" hidden>
+      <h2 class="admin-section__heading">日別クリック数(直近30日)</h2>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>日付</th>
+              <th>クリック数</th>
+            </tr>
+          </thead>
+          <tbody id="admin-byday-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script is:inline data-astro-rerun>
+  (function () {
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function formatDay(value) {
+      // Analytics Engine SQL APIはtoStartOfDay()をRFC3339文字列(例: 2026-08-01T00:00:00Z)で返す。
+      var m = String(value).match(/^(\d{4}-\d{2}-\d{2})/);
+      return m ? m[1] : String(value);
+    }
+
+    function run() {
+      var loadingEl = document.getElementById('admin-loading');
+      var errorEl = document.getElementById('admin-error');
+      var totalsSection = document.getElementById('admin-totals-section');
+      var totalsBody = document.getElementById('admin-totals-body');
+      var byDaySection = document.getElementById('admin-byday-section');
+      var byDayBody = document.getElementById('admin-byday-body');
+      if (!loadingEl || !errorEl || !totalsSection || !totalsBody || !byDaySection || !byDayBody) return;
+
+      fetch('/admin/api/clicks')
+        .then(function (res) {
+          return res.json().then(function (body) {
+            if (!res.ok) throw new Error(body.error || ('HTTP ' + res.status));
+            return body;
+          });
+        })
+        .then(function (body) {
+          loadingEl.hidden = true;
+
+          var messages = [];
+          if (body.totalsError) messages.push('商品別集計の取得に失敗しました: ' + body.totalsError);
+          if (body.byDayError) messages.push('日別集計の取得に失敗しました: ' + body.byDayError);
+          if (messages.length > 0) {
+            errorEl.hidden = false;
+            errorEl.textContent = messages.join(' / ');
+          }
+
+          var totals = Array.isArray(body.totals) ? body.totals : [];
+          if (totals.length > 0) {
+            totalsBody.innerHTML = totals
+              .map(function (row) {
+                return (
+                  '<tr><td>' + escapeHtml(row.product_id) + '</td>' +
+                  '<td>' + escapeHtml(row.mall) + '</td>' +
+                  '<td>' + escapeHtml(row.clicks) + '</td></tr>'
+                );
+              })
+              .join('');
+            totalsSection.hidden = false;
+          }
+
+          var byDay = Array.isArray(body.byDay) ? body.byDay : [];
+          if (byDay.length > 0) {
+            byDayBody.innerHTML = byDay
+              .map(function (row) {
+                return (
+                  '<tr><td>' + escapeHtml(formatDay(row.day)) + '</td>' +
+                  '<td>' + escapeHtml(row.clicks) + '</td></tr>'
+                );
+              })
+              .join('');
+            byDaySection.hidden = false;
+          }
+
+          if (totals.length === 0 && byDay.length === 0 && messages.length === 0) {
+            errorEl.hidden = false;
+            errorEl.textContent = 'まだクリックデータがありません。';
+          }
+        })
+        .catch(function (err) {
+          loadingEl.hidden = true;
+          errorEl.hidden = false;
+          errorEl.textContent = '集計の取得に失敗しました: ' + err.message;
+        });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run);
+    } else {
+      run();
+    }
+  })();
+</script>
+
+<style>
+  .page-heading {
+    margin-top: var(--space-4);
+    font-size: var(--text-3xl-mobile);
+  }
+
+  @media (min-width: 768px) {
+    .page-heading {
+      font-size: var(--text-3xl);
+    }
+  }
+
+  .admin-note {
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-ink-secondary);
+  }
+
+  .admin-status {
+    margin-top: var(--space-6);
+    color: var(--color-ink-tertiary);
+  }
+
+  .admin-status--error {
+    color: var(--color-accent);
+  }
+
+  .admin-section {
+    margin-top: var(--space-7);
+  }
+
+  .admin-section__heading {
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+
+  .admin-table-wrap {
+    margin-top: var(--space-3);
+    overflow-x: auto;
+  }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: var(--space-2) var(--space-3);
+    text-align: left;
+    border-bottom: var(--border-thin);
+    white-space: nowrap;
+  }
+
+  .admin-table th {
+    color: var(--color-ink-tertiary);
+    font-weight: 500;
+  }
+</style>
