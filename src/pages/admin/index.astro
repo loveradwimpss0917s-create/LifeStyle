@@ -14,7 +14,12 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Breadcrumb from '@/components/base/Breadcrumb.astro';
 ---
 
-<BaseLayout title="管理画面" description="アフィリエイトクリック数の集計を確認できます。" noindex>
+<BaseLayout
+  title="管理画面"
+  description="アフィリエイトクリック数の集計を確認できます。"
+  noindex
+  manifestHref="/admin-manifest.webmanifest"
+>
   {/* data-pagefind-ignore: BaseLayoutのmainに付与されるdata-pagefind-bodyから
       このページだけを除外する(サイト内検索/search/に管理画面を出さないため)。 */}
   <div class="container" data-pagefind-ignore>
