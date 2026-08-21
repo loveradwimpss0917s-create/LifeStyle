@@ -5,11 +5,14 @@
  * ビルド時生成)を同一オリジンからfetchして実URLを解決し、302リダイレクトする。
  * Analytics Engineバインディング(CLICKS)が設定されていれば1クリック1レコードを
  * 書き込むが、未設定でもリダイレクト自体は問題なく動作する(0章§0前提: 環境変数/
- * バインディング未設定でも壊れない)。
+ * バインディング未設定でも壊れない)。運営者識別Cookie(functions/_lib/
+ * internal-visitor.ts、/admin/ログイン時に付与)を持つリクエストは記録しない
+ * (自分の動作確認クリックで集計が汚れるのを防ぐ)。
  *
  * 未知のproductId・mall・URL未設定の組み合わせは、実際に存在しないリンクとして
  * クローラにも404として伝えつつ、人間には/products/への導線を残す(02章§6)。
  */
+import { hasInternalVisitorCookie } from '../_lib/internal-visitor';
 
 interface Env {
   CLICKS?: AnalyticsEngineDataset;
@@ -62,7 +65,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
   const position = new URL(request.url).searchParams.get('pos') ?? '';
 
-  if (env.CLICKS) {
+  if (env.CLICKS && !hasInternalVisitorCookie(request)) {
     try {
       env.CLICKS.writeDataPoint({
         blobs: [productId, mall, position],

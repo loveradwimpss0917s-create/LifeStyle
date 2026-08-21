@@ -9,7 +9,11 @@
  * 対策の定数時間比較までは導入していない(0章§0の過剰実装回避方針)。
  *
  * ADMIN_PASSWORD未設定時はフェイルクローズ(アクセス拒否)する。
+ *
+ * 認証成功時は運営者識別Cookie(functions/_lib/internal-visitor.ts)を付与し、
+ * このブラウザからの/go/クリックが集計に混ざらないようにする。
  */
+import { buildInternalVisitorCookieHeader } from '../_lib/internal-visitor';
 
 interface Env {
   ADMIN_PASSWORD?: string;
@@ -48,5 +52,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     });
   }
 
-  return context.next();
+  const response = await context.next();
+  const responseWithCookie = new Response(response.body, response);
+  responseWithCookie.headers.append('Set-Cookie', buildInternalVisitorCookieHeader());
+  return responseWithCookie;
 };
