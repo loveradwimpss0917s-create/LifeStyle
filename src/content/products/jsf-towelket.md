@@ -17,7 +17,7 @@ images:
   - src: "../../assets/products/jsf-towelket/01-sofa-real.jpg"
     alt: "自宅のソファに広げたJSF TOWELKETの実際の写真(ブルー・ダークパープル・オレンジ・ベージュ・ボルドーの配色)"
   - src: "../../assets/products/jsf-towelket/02-brand-official.jpg"
-    alt: "journal standard Furniture公式のJSF TOWELKET使用イメージ(屋外、メーカー提供画像)"
+    alt: "journal standard Furniture公式サイトのJSF TOWELKET使用イメージ(屋外)"
 tags:
   - kattekyokatta
 affiliate:
