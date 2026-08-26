@@ -24,7 +24,7 @@ import ShareRow from '@/components/content/ShareRow.astro';
 import FaqSection from '@/components/content/FaqSection.astro';
 import { formatPrice, formatUsagePeriod } from '@/lib/format';
 import { resolvePrimaryAffiliateLink } from '@/lib/affiliate';
-import { getRelatedProducts } from '@/lib/related';
+import { getRelatedProducts, getComparableProducts } from '@/lib/related';
 import { getArticlesForProduct } from '@/lib/product-index';
 import { buildProductJsonLd, buildFaqJsonLd } from '@/lib/seo';
 
@@ -43,6 +43,7 @@ const tags = product.data.tags.length
 
 const relatedArticles = await getArticlesForProduct(product.id);
 const relatedProducts = await getRelatedProducts(product);
+const comparableProducts = getComparableProducts(product, relatedProducts);
 
 // 26章c10: 「このカテゴリのタグ」チップ行(商品↔タグの相互導線強化)。
 // 同カテゴリの全published商品が持つタグを重複なく集約する。
@@ -133,10 +134,10 @@ const jsonLd = faqJsonLd ? [productJsonLd, faqJsonLd] : productJsonLd;
     </section>
   )}
 
-  {relatedProducts.length > 0 && (
+  {comparableProducts.length > 0 && (
     <section class="container product-section product-section--narrow">
       <h2 class="product-section__heading">同じカテゴリで比較</h2>
-      <ComparisonAuto product={product} related={relatedProducts} />
+      <ComparisonAuto product={product} related={comparableProducts} />
     </section>
   )}
 

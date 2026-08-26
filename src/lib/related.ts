@@ -25,6 +25,33 @@ export async function getRelatedProducts(
 }
 
 /**
+ * 「買ってよかった」のようにほぼ全published商品に付く汎用タグ。
+ * これだけを根拠に比較対象と判定すると、用途が全く異なる商品同士
+ * (例: タオルケットとカセットコンロ)が比較表に並んでしまう(docs/33 §4-4)。
+ */
+const GENERIC_TAG_IDS = new Set(['kattekyokatta']);
+
+/**
+ * 商品の比較対象(ComparisonAuto用)。「同じカテゴリの商品」(getRelatedProducts)
+ * は単純にカテゴリブラウジングの導線なのでそのまま使うが、比較表は
+ * 「同カテゴリ」だけでなく「用途が近いと推測できるタグを共有しているか」も
+ * 満たす商品に絞る。汎用タグを除いたタグが1つも一致しなければ比較対象としない。
+ */
+export function getComparableProducts(
+  current: CollectionEntry<'products'>,
+  related: CollectionEntry<'products'>[]
+): CollectionEntry<'products'>[] {
+  const currentSpecificTagIds = new Set(
+    current.data.tags.map((t) => t.id).filter((id) => !GENERIC_TAG_IDS.has(id))
+  );
+  if (currentSpecificTagIds.size === 0) return [];
+
+  return related.filter((p) =>
+    p.data.tags.some((t) => !GENERIC_TAG_IDS.has(t.id) && currentSpecificTagIds.has(t.id))
+  );
+}
+
+/**
  * 関連記事スコアリング(26章c8): タグ一致数×3 + カテゴリ一致×2 + 公開90日以内ボーナス1。
  * 同点は新着順。手動related指定なしで残り枠を埋める際、タグ/カテゴリが1つも
  * 一致しない記事でも新着ボーナスにより最下位で候補に残るため、「全く関連しない
