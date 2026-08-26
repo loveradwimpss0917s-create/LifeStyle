@@ -116,10 +116,24 @@ const articleHref = articles.length > 0 ? `/articles/${articles[0].id}/` : null;
   }
 
   .ranking-item__article-link {
+    position: relative;
     display: inline-block;
     margin-top: var(--space-2);
     font-size: var(--text-sm);
     color: var(--color-ink-secondary);
     border-bottom: var(--border-thin);
+  }
+
+  /* 見た目は変えず、タップ領域だけを高さ44px相当に拡張する
+     (実測で高さ28pxしかなくモバイルの推奨タップサイズを下回っていた・docs/33 §4-6)。
+     FavoriteButton--sm と同じ手法。 */
+  .ranking-item__article-link::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 44px;
+    transform: translateY(-50%);
   }
 </style>

@@ -34,7 +34,11 @@ const articles = (await getPublished('articles')).sort(
   (a, b) => (b.data.publishedAt?.getTime() ?? 0) - (a.data.publishedAt?.getTime() ?? 0)
 );
 const latestArticles = articles.slice(0, 3);
-const featured = articles[0];
+// Editor's Picksの大きな記事カードには、Journalに出ていない次の1本を出す。
+// 以前は articles[0] を使っていたが、これは latestArticles[0] と常に同一のため
+// 最新記事が必ずトップページに2回描画されていた(docs/33 §4-2)。
+// latestArticles.length を起点にすることで、Journalの表示件数を変えても重複しない。
+const featured = articles[latestArticles.length];
 
 const editorsPicks = site
   ? (await Promise.all(site.data.editorsPicks.map((ref) => getEntry(ref)))).filter(
@@ -81,6 +85,7 @@ const siteShareImageUrl = new URL('/story/site.png', Astro.site).toString();
       alt={site.data.heroAlt}
       labelEn="HIBISTACK — Life & Living"
       tagline={site.data.tagline}
+      lead="実際に購入して使ったものだけを、良かった点も気になった点も正直に書いています。"
     />
   )}
 
@@ -99,7 +104,15 @@ const siteShareImageUrl = new URL('/story/site.png', Astro.site).toString();
           <FeaturedArticle article={featured} />
         </div>
       )}
-      {editorsPicks.length > 0 && <ProductGrid items={editorsPicks} columns={4} />}
+      {/* 件数が4未満のときに4カラムを指定すると、右側に空カラムが残って
+          レイアウトが崩れて見える(docs/33 §4-3で実測: 1件のとき838pxの空白)。
+          件数に合わせてカラム数を絞る。 */}
+      {editorsPicks.length > 0 && (
+        <ProductGrid
+          items={editorsPicks}
+          columns={Math.min(Math.max(editorsPicks.length, 2), 4) as 2 | 3 | 4}
+        />
+      )}
     </section>
   )}
 

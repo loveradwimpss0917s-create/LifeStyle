@@ -56,6 +56,9 @@ const related = await getRelatedArticles(article, 4);
 const nextArticle = related[0];
 const sameCategoryArticles = related.slice(1, 4);
 
+const site = await getEntry('site', 'main');
+const author = site?.data.author;
+
 const dateLabel = article.data.publishedAt ? formatDate(article.data.publishedAt) : undefined;
 const updatedLabel =
   article.data.updatedAt && article.data.updatedAt.getTime() !== article.data.publishedAt?.getTime()
@@ -109,6 +112,21 @@ const jsonLd = itemListJsonLd ? [articleJsonLd, itemListJsonLd] : articleJsonLd;
     <p class="article-header__category">{category.data.nameEn}</p>
     <h1 class="article-header__title">{article.data.title}</h1>
     <p class="article-header__lead">{article.data.lead}</p>
+    {author && (
+      <a class="article-byline" href="/about/">
+        <Image
+          src={author.image}
+          alt=""
+          width={72}
+          height={72}
+          class="article-byline__avatar"
+        />
+        <span class="article-byline__text">
+          <span class="article-byline__name">{author.name}</span>
+          <span class="article-byline__role">実際に買って使った人</span>
+        </span>
+      </a>
+    )}
     <div class="article-header__meta">
       {dateLabel && <span>{dateLabel} 公開</span>}
       {updatedLabel && <span>{updatedLabel} 更新</span>}
@@ -207,6 +225,46 @@ const jsonLd = itemListJsonLd ? [articleJsonLd, itemListJsonLd] : articleJsonLd;
     margin-top: var(--space-4);
     font-size: var(--text-lg);
     color: var(--color-ink-secondary);
+  }
+
+  /* 著者バイライン(docs/33 §4-5)。記事に書き手が一切表示されておらず、
+     JSON-LDのPersonと視覚表現が乖離していたため追加した。 */
+  .article-byline {
+    margin-top: var(--space-4);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 44px;
+    color: var(--color-ink-secondary);
+  }
+
+  .article-byline__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .article-byline__text {
+    display: flex;
+    flex-direction: column;
+    line-height: var(--leading-tight);
+  }
+
+  .article-byline__name {
+    font-size: var(--text-sm);
+    color: var(--color-ink);
+  }
+
+  .article-byline:hover .article-byline__name {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .article-byline__role {
+    font-size: var(--text-xs);
+    color: var(--color-ink-tertiary);
   }
 
   .article-header__meta {

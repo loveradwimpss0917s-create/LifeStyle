@@ -14,9 +14,15 @@ interface Props {
   alt: string;
   labelEn: string;
   tagline: string;
+  /**
+   * タグラインの下に置く1行の説明(任意)。
+   * タグラインはブランドの世界観を伝える一方で「何のサイトか」までは伝わらないため、
+   * ファーストビューで実態(実際に買って使ったレビュー)を補う(docs/33 §4-1)。
+   */
+  lead?: string;
 }
 
-const { image, alt, labelEn, tagline } = Astro.props;
+const { image, alt, labelEn, tagline, lead } = Astro.props;
 ---
 
 <section class="hero">
@@ -36,6 +42,7 @@ const { image, alt, labelEn, tagline } = Astro.props;
     <div class="hero__text">
       <h1 class="hero__label">{labelEn}</h1>
       <p class="hero__tagline">{tagline}</p>
+      {lead && <p class="hero__lead">{lead}</p>}
     </div>
   </div>
 </section>
@@ -70,6 +77,19 @@ const { image, alt, labelEn, tagline } = Astro.props;
     margin-top: var(--space-2);
     font-size: var(--text-lg);
     color: var(--color-ink-secondary);
+    /* 「少しだけ豊かにす / る。」のように語尾だけが次行に落ちるのを防ぐ。
+       max-width+text-wrap:balanceも試したが「日々の暮らしを、少 / しだけ」と
+       語の途中で切れて逆に悪化したため、句読点でのみ改行させる方式にした
+       (global.cssの見出し・prose pと同じ指定) */
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  .hero__lead {
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-ink-tertiary);
+    max-width: 34em;
   }
 
   /*
@@ -83,7 +103,8 @@ const { image, alt, labelEn, tagline } = Astro.props;
   }
 
   .hero__label,
-  .hero__tagline {
+  .hero__tagline,
+  .hero__lead {
     opacity: 0;
     transform: translateY(var(--motion-distance, 16px));
   }
@@ -112,10 +133,19 @@ const { image, alt, labelEn, tagline } = Astro.props;
       transform var(--duration-base) var(--ease-out) 180ms;
   }
 
+  .hero.is-entered .hero__lead {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity var(--duration-base) var(--ease-out) 260ms,
+      transform var(--duration-base) var(--ease-out) 260ms;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .hero__image,
     .hero__label,
-    .hero__tagline {
+    .hero__tagline,
+    .hero__lead {
       opacity: 1;
       transform: none;
     }
