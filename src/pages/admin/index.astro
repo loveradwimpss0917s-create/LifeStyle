@@ -51,15 +51,14 @@ import Breadcrumb from '@/components/base/Breadcrumb.astro';
     </section>
 
     <section id="admin-byday-section" class="admin-section" hidden>
-      <h2 class="admin-section__heading">日別クリック数(直近30日)</h2>
+      <h2 class="admin-section__heading">日別クリック数(直近30日・モール別)</h2>
+      <p class="admin-note">
+        Amazon Associates・Yahoo!ショッピング・一休などの公式レポート画面と突き合わせる場合は、
+        モールの列を間違えないように注意してください。
+      </p>
       <div class="admin-table-wrap">
         <table class="admin-table">
-          <thead>
-            <tr>
-              <th>日付</th>
-              <th>クリック数</th>
-            </tr>
-          </thead>
+          <thead id="admin-byday-head"></thead>
           <tbody id="admin-byday-body"></tbody>
         </table>
       </div>
@@ -81,14 +80,63 @@ import Breadcrumb from '@/components/base/Breadcrumb.astro';
       return m ? m[1] : String(value);
     }
 
+    // affiliate.ts のMall型・表示名と対応(functions側はTSモジュールを共有できないためここに複製)
+    var MALL_LABELS = {
+      amazon: 'Amazon',
+      yahooShopping: 'Yahoo!ショッピング',
+      yahooTravel: 'Yahoo!トラベル',
+      rakuten: '楽天市場',
+      ikyu: '一休.com',
+    };
+
+    function renderByDayMallTable(rows, headEl, bodyEl) {
+      var days = [];
+      var mallSet = {};
+      rows.forEach(function (row) {
+        var day = formatDay(row.day);
+        if (days.indexOf(day) === -1) days.push(day);
+        mallSet[row.mall] = true;
+      });
+      days.sort();
+      var malls = Object.keys(mallSet).sort();
+
+      var byDayMall = {};
+      rows.forEach(function (row) {
+        var day = formatDay(row.day);
+        byDayMall[day] = byDayMall[day] || {};
+        byDayMall[day][row.mall] = Number(row.clicks) || 0;
+      });
+
+      var headHtml = '<tr><th>日付</th>' +
+        malls.map(function (m) { return '<th>' + escapeHtml(MALL_LABELS[m] || m) + '</th>'; }).join('') +
+        '<th>合計</th></tr>';
+      headEl.innerHTML = headHtml;
+
+      bodyEl.innerHTML = days
+        .map(function (day) {
+          var perMall = byDayMall[day] || {};
+          var total = 0;
+          var cells = malls.map(function (m) {
+            var v = perMall[m] || 0;
+            total += v;
+            return '<td>' + v + '</td>';
+          });
+          return '<tr><td>' + escapeHtml(day) + '</td>' + cells.join('') + '<td>' + total + '</td></tr>';
+        })
+        .join('');
+
+      return days.length > 0;
+    }
+
     function run() {
       var loadingEl = document.getElementById('admin-loading');
       var errorEl = document.getElementById('admin-error');
       var totalsSection = document.getElementById('admin-totals-section');
       var totalsBody = document.getElementById('admin-totals-body');
       var byDaySection = document.getElementById('admin-byday-section');
+      var byDayHead = document.getElementById('admin-byday-head');
       var byDayBody = document.getElementById('admin-byday-body');
-      if (!loadingEl || !errorEl || !totalsSection || !totalsBody || !byDaySection || !byDayBody) return;
+      if (!loadingEl || !errorEl || !totalsSection || !totalsBody || !byDaySection || !byDayHead || !byDayBody) return;
 
       fetch('/admin/api/clicks')
         .then(function (res) {
@@ -102,7 +150,7 @@ import Breadcrumb from '@/components/base/Breadcrumb.astro';
 
           var messages = [];
           if (body.totalsError) messages.push('商品別集計の取得に失敗しました: ' + body.totalsError);
-          if (body.byDayError) messages.push('日別集計の取得に失敗しました: ' + body.byDayError);
+          if (body.byDayMallError) messages.push('日別集計の取得に失敗しました: ' + body.byDayMallError);
           if (messages.length > 0) {
             errorEl.hidden = false;
             errorEl.textContent = messages.join(' / ');
@@ -122,20 +170,14 @@ import Breadcrumb from '@/components/base/Breadcrumb.astro';
             totalsSection.hidden = false;
           }
 
-          var byDay = Array.isArray(body.byDay) ? body.byDay : [];
-          if (byDay.length > 0) {
-            byDayBody.innerHTML = byDay
-              .map(function (row) {
-                return (
-                  '<tr><td>' + escapeHtml(formatDay(row.day)) + '</td>' +
-                  '<td>' + escapeHtml(row.clicks) + '</td></tr>'
-                );
-              })
-              .join('');
-            byDaySection.hidden = false;
+          var byDayMall = Array.isArray(body.byDayMall) ? body.byDayMall : [];
+          var hasByDayMall = false;
+          if (byDayMall.length > 0) {
+            hasByDayMall = renderByDayMallTable(byDayMall, byDayHead, byDayBody);
+            byDaySection.hidden = !hasByDayMall;
           }
 
-          if (totals.length === 0 && byDay.length === 0 && messages.length === 0) {
+          if (totals.length === 0 && !hasByDayMall && messages.length === 0) {
             errorEl.hidden = false;
             errorEl.textContent = 'まだクリックデータがありません。';
           }

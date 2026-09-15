@@ -72,23 +72,28 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     LIMIT 200
   `;
 
-  const byDaySql = `
-    SELECT toStartOfDay(timestamp) AS day, count() AS clicks
+  // モール別に分けて日次集計する。Amazon/Yahoo!ショッピング/一休はそれぞれ自社の
+  // 公式レポート画面でクリック数を確認できるため、モールを分けずに合計だけを
+  // 出すと「どのモールの数字と突き合わせているのか」を毎回取り違えるリスクが
+  // あった(実際に運営者が2つの公式レポートを取り違えて誤読した経緯がある)。
+  // モール別に分けることで公式レポートと直接突き合わせられるようにする。
+  const byDayMallSql = `
+    SELECT toStartOfDay(timestamp) AS day, blob2 AS mall, count() AS clicks
     FROM hibistack_clicks
     WHERE timestamp > NOW() - INTERVAL '30' DAY
-    GROUP BY day
+    GROUP BY day, mall
     ORDER BY day ASC
   `;
 
-  const [totals, byDay] = await Promise.all([
+  const [totals, byDayMall] = await Promise.all([
     runQuery(env.CF_ACCOUNT_ID, env.CF_API_TOKEN, totalsSql),
-    runQuery(env.CF_ACCOUNT_ID, env.CF_API_TOKEN, byDaySql),
+    runQuery(env.CF_ACCOUNT_ID, env.CF_API_TOKEN, byDayMallSql),
   ]);
 
   return Response.json({
     totals: 'rows' in totals ? totals.rows : [],
     totalsError: 'error' in totals ? totals.error : null,
-    byDay: 'rows' in byDay ? byDay.rows : [],
-    byDayError: 'error' in byDay ? byDay.error : null,
+    byDayMall: 'rows' in byDayMall ? byDayMall.rows : [],
+    byDayMallError: 'error' in byDayMall ? byDayMall.error : null,
   });
 };
