@@ -7,12 +7,16 @@
  * 書き込むが、未設定でもリダイレクト自体は問題なく動作する(0章§0前提: 環境変数/
  * バインディング未設定でも壊れない)。運営者識別Cookie(functions/_lib/
  * internal-visitor.ts、/admin/ログイン時に付与)を持つリクエストは記録しない
- * (自分の動作確認クリックで集計が汚れるのを防ぐ)。
+ * (自分の動作確認クリックで集計が汚れるのを防ぐ)。User-Agentベースのボット判定
+ * (functions/_lib/bot-detect.ts)に一致するリクエストも記録しない(docs/33の
+ * 流入分析で、Yahoo!ショッピング公式のクリック数実測値との乖離から発覚)。
+ * いずれもリダイレクト自体はスキップせず常に行う。
  *
  * 未知のproductId・mall・URL未設定の組み合わせは、実際に存在しないリンクとして
  * クローラにも404として伝えつつ、人間には/products/への導線を残す(02章§6)。
  */
 import { hasInternalVisitorCookie } from '../_lib/internal-visitor';
+import { isLikelyBot } from '../_lib/bot-detect';
 
 interface Env {
   CLICKS?: AnalyticsEngineDataset;
@@ -65,7 +69,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
   const position = new URL(request.url).searchParams.get('pos') ?? '';
 
-  if (env.CLICKS && !hasInternalVisitorCookie(request)) {
+  if (env.CLICKS && !hasInternalVisitorCookie(request) && !isLikelyBot(request)) {
     try {
       env.CLICKS.writeDataPoint({
         blobs: [productId, mall, position],
